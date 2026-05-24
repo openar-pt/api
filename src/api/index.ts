@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
+import { secureHeaders } from "hono/secure-headers";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -13,11 +14,21 @@ import meta from "./routes/meta.js";
 import fotos from "./routes/fotos.js";
 import atividade from "./routes/atividade.js";
 import peticoes from "./routes/peticoes.js";
+import { rateLimiter, validateInput } from "./middleware/security.js";
 
 export const app = new Hono();
 
-app.use("*", cors());
+app.use("*", secureHeaders());
+app.use("*", cors({
+  origin: "*",
+  allowMethods: ["GET", "HEAD", "OPTIONS"],
+  allowHeaders: ["Content-Type"],
+  exposeHeaders: ["X-RateLimit-Limit", "X-RateLimit-Remaining"],
+  maxAge: 86400,
+}));
 app.use("*", logger());
+app.use("*", rateLimiter());
+app.use("*", validateInput());
 
 // ── Docs ──────────────────────────────────────────────────────────────────────
 
