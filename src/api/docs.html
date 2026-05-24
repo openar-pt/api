@@ -1,0 +1,815 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>openAR API</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='14' cy='50' r='9' fill='%230F3D2A'/><circle cx='32' cy='32' r='9' fill='%230F3D2A'/><circle cx='50' cy='50' r='9' fill='%230F3D2A'/><circle cx='68' cy='68' r='9' fill='%230F3D2A'/><circle cx='86' cy='50' r='9' fill='%230F3D2A'/></svg>"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --atlantico:   #0F3D2A;
+      --atlantico-d: #062014;
+      --musgo:       #7FB69A;
+      --cal:         #F4F1EA;
+      --cal-d:       #E8E3D6;
+      --basalto:     #1A1A1A;
+      --basalto-soft:#2A2723;
+      --bandeira:    #C8102E;
+      --line:        #DDD6C6;
+      --line-d:      #C8C0AE;
+      --muted:       #7A746A;
+      --sans:        'DM Sans', system-ui, sans-serif;
+      --mono:        'IBM Plex Mono', ui-monospace, monospace;
+      --nav-h:       64px;
+      --sidebar-w:   220px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--sans);
+      background: #fff;
+      color: var(--basalto);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* ── Nav ── */
+
+    .nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: var(--nav-h);
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 200;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--atlantico);
+    }
+
+    .nav-wordmark {
+      font-weight: 700;
+      font-size: 18px;
+      letter-spacing: -0.04em;
+      color: var(--atlantico);
+    }
+
+    .nav-sep { color: var(--line-d); font-family: var(--mono); font-size: 16px; }
+
+    .nav-api {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .nav-link {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      transition: color 0.15s;
+    }
+
+    .nav-link:hover { color: var(--atlantico); }
+
+    /* ── Page layout: nav | sidebar | content+code ── */
+
+    .layout {
+      display: flex;
+      padding-top: var(--nav-h);
+      min-height: 100vh;
+    }
+
+    /* ── Left nav sidebar ── */
+
+    .sidebar {
+      width: var(--sidebar-w);
+      flex-shrink: 0;
+      position: sticky;
+      top: var(--nav-h);
+      height: calc(100vh - var(--nav-h));
+      overflow-y: auto;
+      border-right: 1px solid var(--line);
+      padding: 32px 0 40px;
+    }
+
+    .sidebar-intro {
+      padding: 0 20px 20px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 20px;
+    }
+
+    .sidebar-version {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .sidebar-server {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--atlantico);
+    }
+
+    .server-dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--musgo);
+      flex-shrink: 0;
+    }
+
+    .sidebar-tag-label {
+      padding: 4px 20px;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    .sidebar-ep {
+      display: block;
+      padding: 4px 20px 4px 28px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: color 0.1s, background 0.1s;
+      border-left: 2px solid transparent;
+      margin-left: -2px;
+    }
+
+    .sidebar-ep:hover { color: var(--atlantico); }
+    .sidebar-ep.active {
+      color: var(--atlantico);
+      border-left-color: var(--atlantico);
+      background: var(--cal);
+    }
+
+    /* ── Main area ── */
+
+    .main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .intro {
+      padding: 56px 48px 48px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .intro-eyebrow {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--musgo);
+      margin-bottom: 16px;
+    }
+
+    .intro-title {
+      font-size: clamp(36px, 4vw, 52px);
+      font-weight: 700;
+      letter-spacing: -0.045em;
+      line-height: 0.95;
+      color: var(--atlantico);
+      margin-bottom: 20px;
+    }
+
+    .intro-desc {
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--muted);
+      max-width: 480px;
+    }
+
+    .chapter-header {
+      padding: 56px 48px 0;
+    }
+
+    .chapter-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .ep-left {
+      padding: 40px 48px 40px;
+      border-bottom: 1px solid var(--line);
+      max-width: 720px;
+    }
+
+    /* ── Sliding code panel ── */
+
+    .code-panel {
+      position: fixed;
+      top: var(--nav-h);
+      right: 0;
+      width: 440px;
+      height: calc(100vh - var(--nav-h));
+      background: var(--basalto);
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.22s ease;
+      z-index: 100;
+      box-shadow: -4px 0 24px rgba(0,0,0,0.18);
+    }
+
+    .code-panel.open { transform: translateX(0); }
+
+    .code-panel-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      flex-shrink: 0;
+    }
+
+    .code-panel-title {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+    }
+
+    .code-panel-close {
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.35);
+      cursor: pointer;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 2px;
+      transition: color 0.15s;
+    }
+
+    .code-panel-close:hover { color: rgba(255,255,255,0.7); }
+
+    .code-panel-body {
+      flex: 1;
+      overflow: auto;
+      padding: 24px 20px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.08) transparent;
+    }
+
+    /* ── Endpoint text ── */
+
+    .ep-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .ep-method {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--atlantico);
+      background: var(--cal);
+      border: 1px solid var(--line);
+      padding: 3px 8px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    .ep-path {
+      font-family: var(--mono);
+      font-size: clamp(15px, 2vw, 20px);
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      color: var(--basalto);
+    }
+
+    .ep-path .param { color: var(--musgo); }
+
+    .ep-summary {
+      font-size: 14px;
+      line-height: 1.65;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+
+    /* ── Params ── */
+
+    .section { margin-bottom: 24px; }
+
+    .section-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .params { border-top: 1px solid var(--line); }
+
+    .param-row {
+      display: grid;
+      grid-template-columns: 160px 1fr 80px;
+      gap: 0 16px;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--line);
+      align-items: start;
+    }
+
+    .p-name {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--basalto);
+      padding-top: 1px;
+    }
+
+    .p-req { color: var(--bandeira); margin-left: 1px; }
+
+    .p-desc {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .p-enums {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3px;
+      margin-top: 5px;
+    }
+
+    .p-enum {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+      background: var(--cal-d);
+      padding: 1px 6px;
+      border-radius: 2px;
+    }
+
+    .p-type {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      text-align: right;
+      padding-top: 1px;
+      opacity: 0.65;
+    }
+
+    .p-default {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+      text-align: right;
+      opacity: 0.45;
+      margin-top: 2px;
+    }
+
+    /* ── Response fields ── */
+
+    .resp-fields { border-top: 1px solid var(--line); }
+
+    .resp-row {
+      display: grid;
+      grid-template-columns: 140px 1fr 80px;
+      gap: 0 16px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--line);
+      align-items: start;
+    }
+
+    /* ── Try button ── */
+
+    .try-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--cal);
+      background: var(--atlantico);
+      border: none;
+      padding: 10px 20px;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: background 0.15s;
+      margin-top: 4px;
+    }
+
+    .try-btn:hover { background: var(--atlantico-d); }
+    .try-btn:disabled { opacity: 0.45; cursor: default; }
+
+    /* ── Errors ── */
+
+    .error-row {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      padding: 7px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .error-row:first-child { border-top: 1px solid var(--line); }
+
+    .err-status {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--bandeira);
+      flex-shrink: 0;
+      width: 36px;
+    }
+
+    .err-desc { font-size: 13px; color: var(--muted); }
+
+    /* ── Code block ── */
+
+    .code-block pre {
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.9;
+      white-space: pre;
+    }
+
+    .jk { color: #7FB69A; }
+    .js { color: #C4A97D; }
+    .ji { color: #C8A46E; }
+    .jn { color: #546360; }
+    .jb { color: #C8A46E; }
+    .jp { color: rgba(244,241,234,0.2); }
+
+    /* ── Loading ── */
+
+    .loader {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 60vh;
+      gap: 8px;
+    }
+
+    .loader-dot {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--musgo);
+      animation: pulse 1.2s ease-in-out infinite;
+    }
+
+    .loader-dot:nth-child(2) { animation-delay: 0.2s; }
+    .loader-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.2; transform: scale(0.8); }
+      50% { opacity: 1; transform: scale(1); }
+    }
+
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .code-panel { width: 100vw; }
+      .intro, .chapter-header { padding-left: 24px; padding-right: 24px; }
+      .ep-left { padding-left: 24px; padding-right: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-left" href="https://openar.pt">
+    <svg width="22" height="22" viewBox="0 0 100 100" aria-hidden="true">
+      <circle cx="14" cy="50" r="9" fill="currentColor"/>
+      <circle cx="32" cy="32" r="9" fill="currentColor"/>
+      <circle cx="50" cy="50" r="9" fill="currentColor"/>
+      <circle cx="68" cy="68" r="9" fill="currentColor"/>
+      <circle cx="86" cy="50" r="9" fill="currentColor"/>
+    </svg>
+    <span class="nav-wordmark">openAR</span>
+    <span class="nav-sep">/</span>
+    <span class="nav-api">API</span>
+  </a>
+  <a class="nav-link" href="https://openar.pt">openar.pt →</a>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div style="display:flex;align-items:center;justify-content:center;height:100%;gap:6px">
+      <span class="loader-dot"></span><span class="loader-dot"></span><span class="loader-dot"></span>
+    </div>
+  </aside>
+  <div class="main" id="main">
+    <div class="loader">
+      <span class="loader-dot"></span>
+      <span class="loader-dot"></span>
+      <span class="loader-dot"></span>
+    </div>
+  </div>
+</div>
+
+<div class="code-panel" id="code-panel" aria-hidden="true">
+  <div class="code-panel-bar">
+    <span class="code-panel-title" id="code-panel-title">Resposta</span>
+    <button class="code-panel-close" onclick="closePanel()" aria-label="Fechar">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+  <div class="code-panel-body" id="code-panel-body"></div>
+</div>
+
+<script>
+function esc(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function resolveRef(ref, spec) {
+  if (!ref) return null;
+  return ref.replace(/^#\//, '').split('/').reduce((o, k) => o?.[k], spec) ?? null;
+}
+
+function res(schema, spec) {
+  if (!schema) return null;
+  let s = schema.$ref ? resolveRef(schema.$ref, spec) : schema;
+  if (s?.allOf) {
+    s = s.allOf.reduce((acc, p) => {
+      const r = p.$ref ? resolveRef(p.$ref, spec) : p;
+      return { ...acc, ...r, properties: { ...acc.properties, ...r?.properties }, required: [...(acc.required||[]), ...(r?.required||[])] };
+    }, { properties:{}, required:[] });
+  }
+  return s;
+}
+
+function typeStr(schema, spec) {
+  const s = res(schema, spec);
+  if (!s) return 'any';
+  const types = [s.type].flat().filter(Boolean);
+  const nullable = types.includes('null');
+  const main = types.find(t => t !== 'null');
+  if (main === 'array' || s.items) {
+    const n = s.items?.$ref ? s.items.$ref.split('/').pop() : (s.items?.type || 'object');
+    return n + '[]' + (nullable ? ' | null' : '');
+  }
+  return (main||'any') + (nullable ? ' | null' : '');
+}
+
+function flatProps(schema, spec) {
+  const s = res(schema, spec);
+  if (!s?.properties) return [];
+  const req = new Set(s.required||[]);
+  return Object.entries(s.properties).map(([name, val]) => {
+    const r = res(val, spec) ?? val;
+    return { name, type: typeStr(val,spec), required: req.has(name), desc: r?.description||'', default: r?.default, enum: r?.enum };
+  });
+}
+
+function hj(v, n = 0) {
+  const p = '  '.repeat(n), q = '  '.repeat(n+1);
+  if (v === null)  return `<span class="jn">null</span>`;
+  if (v === true)  return `<span class="jb">true</span>`;
+  if (v === false) return `<span class="jb">false</span>`;
+  if (typeof v === 'number') return `<span class="ji">${v}</span>`;
+  if (typeof v === 'string') return `<span class="js">"${esc(v)}"</span>`;
+  if (Array.isArray(v)) {
+    if (!v.length) return `<span class="jp">[]</span>`;
+    return `<span class="jp">[</span>\n${v.map(x=>`${q}${hj(x,n+1)}`).join(`<span class="jp">,</span>\n`)}\n${p}<span class="jp">]</span>`;
+  }
+  if (typeof v === 'object') {
+    const rows = Object.entries(v).map(([k,x])=>`${q}<span class="jk">"${esc(k)}"</span><span class="jp">: </span>${hj(x,n+1)}`).join(`<span class="jp">,</span>\n`);
+    return `<span class="jp">{</span>\n${rows}\n${p}<span class="jp">}</span>`;
+  }
+  return esc(String(v));
+}
+
+function renderParamRows(fields) {
+  return fields.map(f => `
+    <div class="param-row">
+      <div><span class="p-name">${esc(f.name)}${f.required ? '<span class="p-req">*</span>' : ''}</span></div>
+      <div>
+        <div class="p-desc">${esc(f.desc)}</div>
+        ${f.enum ? `<div class="p-enums">${f.enum.map(v=>`<span class="p-enum">${esc(v)}</span>`).join('')}</div>` : ''}
+      </div>
+      <div>
+        <div class="p-type">${esc(f.type)}</div>
+        ${f.default !== undefined ? `<div class="p-default">def: ${esc(f.default)}</div>` : ''}
+      </div>
+    </div>`).join('');
+}
+
+function renderRespRows(schema, spec) {
+  const s = res(schema, spec);
+  if (!s) return '';
+
+  function rows(props) {
+    return props.map(f => `
+      <div class="resp-row">
+        <span class="p-name">${esc(f.name)}</span>
+        <span class="p-desc">${esc(f.desc)}</span>
+        <span class="p-type">${esc(f.type)}</span>
+      </div>`).join('');
+  }
+
+  if ([s.type].flat().includes('array') || s.items) {
+    const props = flatProps(s.items, spec);
+    return props.length ? `<div class="resp-fields">${rows(props)}</div>` : '';
+  }
+  if (s.properties?.data && s.properties?.total) {
+    const inner = res(s.properties.data, spec);
+    const itemProps = flatProps(inner?.items, spec);
+    const wrap = [
+      {name:'data', type:'array', desc:'Lista de resultados'},
+      {name:'total', type:'integer', desc:'Total de resultados'},
+      {name:'page', type:'integer', desc:'Página actual'},
+      {name:'limit', type:'integer', desc:'Resultados por página'},
+    ];
+    return `<div class="resp-fields">${rows(wrap)}</div>`
+      + (itemProps.length ? `<div class="section-label" style="margin-top:20px">Campos de cada item em data[]</div><div class="resp-fields">${rows(itemProps)}</div>` : '');
+  }
+  return `<div class="resp-fields">${rows(flatProps(s, spec))}</div>`;
+}
+
+function renderEndpoint(path, method, op, spec) {
+  const id = op.operationId;
+  const params = (op.parameters||[]).map(p=>p.$ref?resolveRef(p.$ref,spec):p).filter(Boolean);
+  const fields = params.map(p=>({name:p.name,type:typeStr(p.schema,spec),required:!!p.required,desc:p.description||'',default:p.schema?.default,enum:p.schema?.enum}));
+  const resps = Object.entries(op.responses||{});
+  const ok = resps.find(([s])=>s.startsWith('2'));
+  const errs = resps.filter(([s])=>!s.startsWith('2'));
+  const okSchema = ok?.[1]?.content?.['application/json']?.schema;
+  const url = 'https://api.openar.pt' + path;
+  const pathHtml = esc(path).replace(/(\{[^}]+\})/g,'<span class="param">$1</span>');
+  const label = esc(method.toUpperCase() + ' ' + path);
+
+  return `
+  <div class="ep-left" id="${id}">
+    <div class="ep-header">
+      <span class="ep-method">${method.toUpperCase()}</span>
+      <span class="ep-path">${pathHtml}</span>
+    </div>
+    <div class="ep-summary">${esc(op.summary||'')}${op.description ? ' — ' + esc(op.description) : ''}</div>
+
+    ${fields.length ? `<div class="section">
+      <div class="section-label">Parâmetros</div>
+      <div class="params">${renderParamRows(fields)}</div>
+    </div>` : ''}
+
+    ${ok ? `<div class="section">
+      <div class="section-label">Resposta ${esc(ok[0])}</div>
+      ${renderRespRows(okSchema, spec)}
+    </div>` : ''}
+
+    ${errs.length ? `<div class="section">
+      <div class="section-label">Erros</div>
+      <div>${errs.map(([status,r]) => `
+        <div class="error-row">
+          <span class="err-status">${esc(status)}</span>
+          <span class="err-desc">${esc(r.description||'')}</span>
+        </div>`).join('')}
+      </div>
+    </div>` : ''}
+
+    <button class="try-btn" onclick="tryRun('${esc(url)}','${label}',this)">
+      Experimentar
+      <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+        <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>`;
+}
+
+function closePanel() {
+  const panel = document.getElementById('code-panel');
+  panel.classList.remove('open');
+  panel.setAttribute('aria-hidden', 'true');
+}
+
+async function tryRun(url, label, btn) {
+  const panel = document.getElementById('code-panel');
+  const title = document.getElementById('code-panel-title');
+  const body = document.getElementById('code-panel-body');
+  const origHtml = btn.innerHTML;
+
+  btn.disabled = true;
+  btn.innerHTML = `<span class="loader-dot" style="background:var(--cal)"></span><span class="loader-dot" style="background:var(--cal);animation-delay:0.2s"></span><span class="loader-dot" style="background:var(--cal);animation-delay:0.4s"></span>`;
+
+  title.textContent = label;
+  body.innerHTML = `<div style="display:flex;gap:6px;padding:8px 0"><span class="loader-dot"></span><span class="loader-dot"></span><span class="loader-dot"></span></div>`;
+  panel.classList.add('open');
+  panel.setAttribute('aria-hidden', 'false');
+
+  try {
+    const data = await (await fetch(url)).json();
+    body.innerHTML = `<pre style="font-family:var(--mono);font-size:12px;line-height:1.9;white-space:pre">${hj(data)}</pre>`;
+  } catch(e) {
+    body.innerHTML = `<pre style="font-family:var(--mono);font-size:12px;line-height:1.9;color:var(--bandeira)">${esc(e.message)}</pre>`;
+  }
+
+  btn.innerHTML = origHtml;
+  btn.disabled = false;
+}
+
+async function boot() {
+  const spec = await fetch('/openapi.json')
+    .catch(() => fetch('https://api.openar.pt/openapi.json'))
+    .then(r => r.json());
+
+  const byTag = {};
+  for (const [path, methods] of Object.entries(spec.paths||{}))
+    for (const [method, op] of Object.entries(methods))
+      (byTag[op.tags?.[0]||'Outros'] ??= []).push({path, method, op});
+
+  const serverUrl = spec.servers?.[0]?.url || 'https://api.openar.pt';
+
+  // Sidebar
+  document.getElementById('sidebar').innerHTML = `
+    <div class="sidebar-intro">
+      <div class="sidebar-version">v${esc(spec.info.version)}</div>
+      <div class="sidebar-server">
+        <span class="server-dot"></span>${esc(serverUrl.replace('https://',''))}
+      </div>
+    </div>
+    ${Object.entries(byTag).map(([tag, eps]) => `
+      <div>
+        <div class="sidebar-tag-label">${esc(tag)}</div>
+        ${eps.map(({op}) => `
+          <a class="sidebar-ep" href="#${esc(op.operationId)}" id="nav-${esc(op.operationId)}">
+            ${esc(op.operationId)}
+          </a>`).join('')}
+      </div>`).join('')}
+  `;
+
+  // Main
+  const allIds = [];
+  document.getElementById('main').innerHTML = `
+    <div class="intro">
+      <div class="intro-eyebrow">Referência da API · REST · OpenAPI 3.1</div>
+      <div class="intro-title">${esc(spec.info.title)}</div>
+      <div class="intro-desc">${esc(spec.info.description||'')}</div>
+    </div>
+    ${Object.entries(byTag).map(([tag, eps]) => {
+      eps.forEach(({op}) => allIds.push(op.operationId));
+      return `
+      <div class="chapter-header" id="tag-${esc(tag)}">
+        <div class="chapter-label">${esc(tag)}</div>
+      </div>
+      ${eps.map(({path,method,op}) => renderEndpoint(path,method,op,spec)).join('')}`;
+    }).join('')}
+  `;
+
+  // Scroll spy
+  const obs = new IntersectionObserver(entries => {
+    for (const e of entries) if (e.isIntersecting) {
+      allIds.forEach(id => {
+        const el = document.getElementById('nav-'+id);
+        if (el) el.classList.toggle('active', id === e.target.id);
+      });
+    }
+  }, { rootMargin: '-15% 0px -75% 0px' });
+
+  allIds.forEach(id => { const el = document.getElementById(id); if (el) obs.observe(el); });
+}
+
+boot().catch(err => {
+  document.getElementById('main').innerHTML = `<div class="loader"><span>${esc(err.message)}</span></div>`;
+  document.getElementById('sidebar').innerHTML = '';
+});
+</script>
+</body>
+</html>

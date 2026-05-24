@@ -1,0 +1,6356 @@
+{
+  "id": "6f7ce1ef-f5db-41f3-9d1e-1d510873b84b",
+  "prevId": "d771f6e6-bf3d-4e77-b0e4-e6193205aa24",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.anexos": {
+      "name": "anexos",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "iniciativa_id": {
+          "name": "iniciativa_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "evento_id": {
+          "name": "evento_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "nome": {
+          "name": "nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "url": {
+          "name": "url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_anexos_iniciativa": {
+          "name": "idx_anexos_iniciativa",
+          "columns": [
+            {
+              "expression": "iniciativa_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "idx_anexos_evento": {
+          "name": "idx_anexos_evento",
+          "columns": [
+            {
+              "expression": "evento_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "anexos_iniciativa_id_iniciativas_id_fk": {
+          "name": "anexos_iniciativa_id_iniciativas_id_fk",
+          "tableFrom": "anexos",
+          "columnsFrom": [
+            "iniciativa_id"
+          ],
+          "tableTo": "iniciativas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "anexos_evento_id_eventos_id_fk": {
+          "name": "anexos_evento_id_eventos_id_fk",
+          "tableFrom": "anexos",
+          "columnsFrom": [
+            "evento_id"
+          ],
+          "tableTo": "eventos",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ativ_actp": {
+      "name": "ativ_actp",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "deputado_id": {
+          "name": "deputado_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "legislatura_id": {
+          "name": "legislatura_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "act_id": {
+          "name": "act_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "act_nr": {
+          "name": "act_nr",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "act_tp": {
+          "name": "act_tp",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "act_tpdesc": {
+          "name": "act_tpdesc",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "act_sel_lg": {
+          "name": "act_sel_lg",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "act_sel_nr": {
+          "name": "act_sel_nr",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "act_dtent": {
+          "name": "act_dtent",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "act_dtdeb": {
+          "name": "act_dtdeb",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "act_as": {
+          "name": "act_as",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_ativ_actp_dep": {
+          "name": "idx_ativ_actp_dep",
+          "columns": [
+            {
+              "expression": "deputado_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "ativ_actp_deputado_id_deputados_id_fk": {
+          "name": "ativ_actp_deputado_id_deputados_id_fk",
+          "tableFrom": "ativ_actp",
+          "columnsFrom": [
+            "deputado_id"
+          ],
+          "tableTo": "deputados",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "ativ_actp_legislatura_id_legislaturas_id_fk": {
+          "name": "ativ_actp_legislatura_id_legislaturas_id_fk",
+          "tableFrom": "ativ_actp",
+          "columnsFrom": [
+            "legislatura_id"
+          ],
+          "tableTo": "legislaturas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ativ_atividades_comissao": {
+      "name": "ativ_atividades_comissao",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "deputado_id": {
+          "name": "deputado_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "legislatura_id": {
+          "name": "legislatura_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "fonte": {
+          "name": "fonte",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "act_id": {
+          "name": "act_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "act_as": {
+          "name": "act_as",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "act_dtdes1": {
+          "name": "act_dtdes1",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "act_dtdes2": {
+          "name": "act_dtdes2",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "act_dtent": {
+          "name": "act_dtent",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "act_loc": {
+          "name": "act_loc",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "acc_dtaud": {
+          "name": "acc_dtaud",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "act_tp": {
+          "name": "act_tp",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "nome_entidade_externa": {
+          "name": "nome_entidade_externa",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "act_tp_desc": {
+          "name": "act_tp_desc",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "act_nr": {
+          "name": "act_nr",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "act_lg": {
+          "name": "act_lg",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cms_no": {
+          "name": "cms_no",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cms_ab": {
+          "name": "cms_ab",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tev_tp": {
+          "name": "tev_tp",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "act_sl": {
+          "name": "act_sl",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_ativ_ac_dep": {
+          "name": "idx_ativ_ac_dep",
+          "columns": [
+            {
+              "expression": "deputado_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "idx_ativ_ac_fonte": {
+          "name": "idx_ativ_ac_fonte",
+          "columns": [
+            {
+              "expression": "fonte",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "ativ_atividades_comissao_deputado_id_deputados_id_fk": {
+          "name": "ativ_atividades_comissao_deputado_id_deputados_id_fk",
+          "tableFrom": "ativ_atividades_comissao",
+          "columnsFrom": [
+            "deputado_id"
+          ],
+          "tableTo": "deputados",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "ativ_atividades_comissao_legislatura_id_legislaturas_id_fk": {
+          "name": "ativ_atividades_comissao_legislatura_id_legislaturas_id_fk",
+          "tableFrom": "ativ_atividades_comissao",
+          "columnsFrom": [
+            "legislatura_id"
+          ],
+          "tableTo": "legislaturas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ativ_cms": {
+      "name": "ativ_cms",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "deputado_id": {
+          "name": "deputado_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "legislatura_id": {
+          "name": "legislatura_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cms_cd": {
+          "name": "cms_cd",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cms_lg": {
+          "name": "cms_lg",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cms_no": {
+          "name": "cms_no",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cms_cargo": {
+          "name": "cms_cargo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cms_situacao": {
+          "name": "cms_situacao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cms_sub_cargo": {
+          "name": "cms_sub_cargo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_ativ_cms_dep": {
+          "name": "idx_ativ_cms_dep",
+          "columns": [
+            {
+              "expression": "deputado_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "ativ_cms_deputado_id_deputados_id_fk": {
+          "name": "ativ_cms_deputado_id_deputados_id_fk",
+          "tableFrom": "ativ_cms",
+          "columnsFrom": [
+            "deputado_id"
+          ],
+          "tableTo": "deputados",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "ativ_cms_legislatura_id_legislaturas_id_fk": {
+          "name": "ativ_cms_legislatura_id_legislaturas_id_fk",
+          "tableFrom": "ativ_cms",
+          "columnsFrom": [
+            "legislatura_id"
+          ],
+          "tableTo": "legislaturas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ativ_dados_legis": {
+      "name": "ativ_dados_legis",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "deputado_id": {
+          "name": "deputado_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "legislatura_id": {
+          "name": "legislatura_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nome": {
+          "name": "nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dpl_lg": {
+          "name": "dpl_lg",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dpl_grpar": {
+          "name": "dpl_grpar",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_ativ_dados_legis_dep": {
+          "name": "idx_ativ_dados_legis_dep",
+          "columns": [
+            {
+              "expression": "deputado_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "ativ_dados_legis_deputado_id_deputados_id_fk": {
+          "name": "ativ_dados_legis_deputado_id_deputados_id_fk",
+          "tableFrom": "ativ_dados_legis",
+          "columnsFrom": [
+            "deputado_id"
+          ],
+          "tableTo": "deputados",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "ativ_dados_legis_legislatura_id_legislaturas_id_fk": {
+          "name": "ativ_dados_legis_legislatura_id_legislaturas_id_fk",
+          "tableFrom": "ativ_dados_legis",
+          "columnsFrom": [
+            "legislatura_id"
+          ],
+          "tableTo": "legislaturas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ativ_dle": {
+      "name": "ativ_dle",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "deputado_id": {
+          "name": "deputado_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "legislatura_id": {
+          "name": "legislatura_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "dev_id": {
+          "name": "dev_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dev_loc": {
+          "name": "dev_loc",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dev_no": {
+          "name": "dev_no",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dev_sel_lg": {
+          "name": "dev_sel_lg",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dev_sel_nr": {
+          "name": "dev_sel_nr",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dev_dtfim": {
+          "name": "dev_dtfim",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dev_dtini": {
+          "name": "dev_dtini",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dev_tp": {
+          "name": "dev_tp",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_ativ_dle_dep": {
+          "name": "idx_ativ_dle_dep",
+          "columns": [
+            {
+              "expression": "deputado_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "ativ_dle_deputado_id_deputados_id_fk": {
+          "name": "ativ_dle_deputado_id_deputados_id_fk",
+          "tableFrom": "ativ_dle",
+          "columnsFrom": [
+            "deputado_id"
+          ],
+          "tableTo": "deputados",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "ativ_dle_legislatura_id_legislaturas_id_fk": {
+          "name": "ativ_dle_legislatura_id_legislaturas_id_fk",
+          "tableFrom": "ativ_dle",
+          "columnsFrom": [
+            "legislatura_id"
+          ],
+          "tableTo": "legislaturas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ativ_dlp": {
+      "name": "ativ_dlp",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "deputado_id": {
+          "name": "deputado_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "legislatura_id": {
+          "name": "legislatura_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "dep_id": {
+          "name": "dep_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dep_no": {
+          "name": "dep_no",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dep_sel_lg": {
+          "name": "dep_sel_lg",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dep_sel_nr": {
+          "name": "dep_sel_nr",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cde_crg": {
+          "name": "cde_crg",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dep_reunioes": {
+          "name": "dep_reunioes",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_ativ_dlp_dep": {
+          "name": "idx_ativ_dlp_dep",
+          "columns": [
+            {
+              "expression": "deputado_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "ativ_dlp_deputado_id_deputados_id_fk": {
+          "name": "ativ_dlp_deputado_id_deputados_id_fk",
+          "tableFrom": "ativ_dlp",
+          "columnsFrom": [
+            "deputado_id"
+          ],
+          "tableTo": "deputados",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "ativ_dlp_legislatura_id_legislaturas_id_fk": {
+          "name": "ativ_dlp_legislatura_id_legislaturas_id_fk",
+          "tableFrom": "ativ_dlp",
+          "columnsFrom": [
+            "legislatura_id"
+          ],
+          "tableTo": "legislaturas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ativ_gpa": {
+      "name": "ativ_gpa",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "deputado_id": {
+          "name": "deputado_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "legislatura_id": {
+          "name": "legislatura_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "gpl_id": {
+          "name": "gpl_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "gpl_no": {
+          "name": "gpl_no",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cga_dtini": {
+          "name": "cga_dtini",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cga_dtfim": {
+          "name": "cga_dtfim",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "gpl_sel_lg": {
+          "name": "gpl_sel_lg",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cga_crg": {
+          "name": "cga_crg",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_ativ_gpa_dep": {
+          "name": "idx_ativ_gpa_dep",
+          "columns": [
+            {
+              "expression": "deputado_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "ativ_gpa_deputado_id_deputados_id_fk": {
+          "name": "ativ_gpa_deputado_id_deputados_id_fk",
+          "tableFrom": "ativ_gpa",
+          "columnsFrom": [
+            "deputado_id"
+          ],
+          "tableTo": "deputados",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "ativ_gpa_legislatura_id_legislaturas_id_fk": {
+          "name": "ativ_gpa_legislatura_id_legislaturas_id_fk",
+          "tableFrom": "ativ_gpa",
+          "columnsFrom": [
+            "legislatura_id"
+          ],
+          "tableTo": "legislaturas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ativ_ini": {
+      "name": "ativ_ini",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "deputado_id": {
+          "name": "deputado_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "legislatura_id": {
+          "name": "legislatura_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ini_id": {
+          "name": "ini_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ini_nr": {
+          "name": "ini_nr",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ini_tp": {
+          "name": "ini_tp",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ini_tpdesc": {
+          "name": "ini_tpdesc",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ini_sel_lg": {
+          "name": "ini_sel_lg",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ini_sel_nr": {
+          "name": "ini_sel_nr",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ini_ti": {
+          "name": "ini_ti",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_ativ_ini_dep": {
+          "name": "idx_ativ_ini_dep",
+          "columns": [
+            {
+              "expression": "deputado_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "idx_ativ_ini_leg": {
+          "name": "idx_ativ_ini_leg",
+          "columns": [
+            {
+              "expression": "legislatura_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "ativ_ini_deputado_id_deputados_id_fk": {
+          "name": "ativ_ini_deputado_id_deputados_id_fk",
+          "tableFrom": "ativ_ini",
+          "columnsFrom": [
+            "deputado_id"
+          ],
+          "tableTo": "deputados",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "ativ_ini_legislatura_id_legislaturas_id_fk": {
+          "name": "ativ_ini_legislatura_id_legislaturas_id_fk",
+          "tableFrom": "ativ_ini",
+          "columnsFrom": [
+            "legislatura_id"
+          ],
+          "tableTo": "legislaturas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ativ_intev": {
+      "name": "ativ_intev",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "deputado_id": {
+          "name": "deputado_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "legislatura_id": {
+          "name": "legislatura_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "int_id": {
+          "name": "int_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "int_te": {
+          "name": "int_te",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "int_su": {
+          "name": "int_su",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pub_dar": {
+          "name": "pub_dar",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pub_dtreu": {
+          "name": "pub_dtreu",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pub_lg": {
+          "name": "pub_lg",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pub_nr": {
+          "name": "pub_nr",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pub_sl": {
+          "name": "pub_sl",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pub_tp": {
+          "name": "pub_tp",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tin_ds": {
+          "name": "tin_ds",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_ativ_intev_dep": {
+          "name": "idx_ativ_intev_dep",
+          "columns": [
+            {
+              "expression": "deputado_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "ativ_intev_deputado_id_deputados_id_fk": {
+          "name": "ativ_intev_deputado_id_deputados_id_fk",
+          "tableFrom": "ativ_intev",
+          "columnsFrom": [
+            "deputado_id"
+          ],
+          "tableTo": "deputados",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "ativ_intev_legislatura_id_legislaturas_id_fk": {
+          "name": "ativ_intev_legislatura_id_legislaturas_id_fk",
+          "tableFrom": "ativ_intev",
+          "columnsFrom": [
+            "legislatura_id"
+          ],
+          "tableTo": "legislaturas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ativ_parl_jovens": {
+      "name": "ativ_parl_jovens",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "deputado_id": {
+          "name": "deputado_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "legislatura_id": {
+          "name": "legislatura_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "legislatura": {
+          "name": "legislatura",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data": {
+          "name": "data",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tipo_reuniao": {
+          "name": "tipo_reuniao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "estabelecimento": {
+          "name": "estabelecimento",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "circulo_eleitoral": {
+          "name": "circulo_eleitoral",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sessao": {
+          "name": "sessao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_ativ_parl_jovens_dep": {
+          "name": "idx_ativ_parl_jovens_dep",
+          "columns": [
+            {
+              "expression": "deputado_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "ativ_parl_jovens_deputado_id_deputados_id_fk": {
+          "name": "ativ_parl_jovens_deputado_id_deputados_id_fk",
+          "tableFrom": "ativ_parl_jovens",
+          "columnsFrom": [
+            "deputado_id"
+          ],
+          "tableTo": "deputados",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "ativ_parl_jovens_legislatura_id_legislaturas_id_fk": {
+          "name": "ativ_parl_jovens_legislatura_id_legislaturas_id_fk",
+          "tableFrom": "ativ_parl_jovens",
+          "columnsFrom": [
+            "legislatura_id"
+          ],
+          "tableTo": "legislaturas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ativ_rel_contas": {
+      "name": "ativ_rel_contas",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "deputado_id": {
+          "name": "deputado_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "legislatura_id": {
+          "name": "legislatura_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "act_id": {
+          "name": "act_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "act_as": {
+          "name": "act_as",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "act_tp": {
+          "name": "act_tp",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "act_tp_cod": {
+          "name": "act_tp_cod",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "act_sel_lg": {
+          "name": "act_sel_lg",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ano_civ": {
+          "name": "ano_civ",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dt_nom": {
+          "name": "dt_nom",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_ativ_rel_contas_dep": {
+          "name": "idx_ativ_rel_contas_dep",
+          "columns": [
+            {
+              "expression": "deputado_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "ativ_rel_contas_deputado_id_deputados_id_fk": {
+          "name": "ativ_rel_contas_deputado_id_deputados_id_fk",
+          "tableFrom": "ativ_rel_contas",
+          "columnsFrom": [
+            "deputado_id"
+          ],
+          "tableTo": "deputados",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "ativ_rel_contas_legislatura_id_legislaturas_id_fk": {
+          "name": "ativ_rel_contas_legislatura_id_legislaturas_id_fk",
+          "tableFrom": "ativ_rel_contas",
+          "columnsFrom": [
+            "legislatura_id"
+          ],
+          "tableTo": "legislaturas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ativ_rel_ini": {
+      "name": "ativ_rel_ini",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "deputado_id": {
+          "name": "deputado_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "legislatura_id": {
+          "name": "legislatura_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ini_id": {
+          "name": "ini_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ini_nr": {
+          "name": "ini_nr",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ini_tp": {
+          "name": "ini_tp",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ini_sel_lg": {
+          "name": "ini_sel_lg",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ini_ti": {
+          "name": "ini_ti",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "rel_fase": {
+          "name": "rel_fase",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "acc_dtrel": {
+          "name": "acc_dtrel",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ini_link": {
+          "name": "ini_link",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_ativ_rel_ini_dep": {
+          "name": "idx_ativ_rel_ini_dep",
+          "columns": [
+            {
+              "expression": "deputado_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "ativ_rel_ini_deputado_id_deputados_id_fk": {
+          "name": "ativ_rel_ini_deputado_id_deputados_id_fk",
+          "tableFrom": "ativ_rel_ini",
+          "columnsFrom": [
+            "deputado_id"
+          ],
+          "tableTo": "deputados",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "ativ_rel_ini_legislatura_id_legislaturas_id_fk": {
+          "name": "ativ_rel_ini_legislatura_id_legislaturas_id_fk",
+          "tableFrom": "ativ_rel_ini",
+          "columnsFrom": [
+            "legislatura_id"
+          ],
+          "tableTo": "legislaturas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ativ_rel_ini_eur": {
+      "name": "ativ_rel_ini_eur",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "deputado_id": {
+          "name": "deputado_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "legislatura_id": {
+          "name": "legislatura_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ine_id": {
+          "name": "ine_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ine_referencia": {
+          "name": "ine_referencia",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ine_titulo": {
+          "name": "ine_titulo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ine_tipo": {
+          "name": "ine_tipo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ine_data_relatorio": {
+          "name": "ine_data_relatorio",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ine_link": {
+          "name": "ine_link",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "leg": {
+          "name": "leg",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_ativ_rel_ini_eur_dep": {
+          "name": "idx_ativ_rel_ini_eur_dep",
+          "columns": [
+            {
+              "expression": "deputado_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "ativ_rel_ini_eur_deputado_id_deputados_id_fk": {
+          "name": "ativ_rel_ini_eur_deputado_id_deputados_id_fk",
+          "tableFrom": "ativ_rel_ini_eur",
+          "columnsFrom": [
+            "deputado_id"
+          ],
+          "tableTo": "deputados",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "ativ_rel_ini_eur_legislatura_id_legislaturas_id_fk": {
+          "name": "ativ_rel_ini_eur_legislatura_id_legislaturas_id_fk",
+          "tableFrom": "ativ_rel_ini_eur",
+          "columnsFrom": [
+            "legislatura_id"
+          ],
+          "tableTo": "legislaturas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ativ_rel_pareceres": {
+      "name": "ativ_rel_pareceres",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "deputado_id": {
+          "name": "deputado_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "legislatura_id": {
+          "name": "legislatura_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "act_sel_lg": {
+          "name": "act_sel_lg",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "act_as": {
+          "name": "act_as",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "act_id": {
+          "name": "act_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "act_dt": {
+          "name": "act_dt",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "act_tp_cod": {
+          "name": "act_tp_cod",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "act_tp_desc": {
+          "name": "act_tp_desc",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_ativ_rel_pareceres_dep": {
+          "name": "idx_ativ_rel_pareceres_dep",
+          "columns": [
+            {
+              "expression": "deputado_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "ativ_rel_pareceres_deputado_id_deputados_id_fk": {
+          "name": "ativ_rel_pareceres_deputado_id_deputados_id_fk",
+          "tableFrom": "ativ_rel_pareceres",
+          "columnsFrom": [
+            "deputado_id"
+          ],
+          "tableTo": "deputados",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "ativ_rel_pareceres_legislatura_id_legislaturas_id_fk": {
+          "name": "ativ_rel_pareceres_legislatura_id_legislaturas_id_fk",
+          "tableFrom": "ativ_rel_pareceres",
+          "columnsFrom": [
+            "legislatura_id"
+          ],
+          "tableTo": "legislaturas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ativ_rel_pet": {
+      "name": "ativ_rel_pet",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "deputado_id": {
+          "name": "deputado_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "legislatura_id": {
+          "name": "legislatura_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pet_id": {
+          "name": "pet_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pet_nr": {
+          "name": "pet_nr",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pet_sel_lg_pk": {
+          "name": "pet_sel_lg_pk",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pet_sel_nr_pk": {
+          "name": "pet_sel_nr_pk",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pet_aspet": {
+          "name": "pet_aspet",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pec_dtrelf": {
+          "name": "pec_dtrelf",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_ativ_rel_pet_dep": {
+          "name": "idx_ativ_rel_pet_dep",
+          "columns": [
+            {
+              "expression": "deputado_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "ativ_rel_pet_deputado_id_deputados_id_fk": {
+          "name": "ativ_rel_pet_deputado_id_deputados_id_fk",
+          "tableFrom": "ativ_rel_pet",
+          "columnsFrom": [
+            "deputado_id"
+          ],
+          "tableTo": "deputados",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "ativ_rel_pet_legislatura_id_legislaturas_id_fk": {
+          "name": "ativ_rel_pet_legislatura_id_legislaturas_id_fk",
+          "tableFrom": "ativ_rel_pet",
+          "columnsFrom": [
+            "legislatura_id"
+          ],
+          "tableTo": "legislaturas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ativ_req": {
+      "name": "ativ_req",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "deputado_id": {
+          "name": "deputado_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "legislatura_id": {
+          "name": "legislatura_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "req_id": {
+          "name": "req_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "req_nr": {
+          "name": "req_nr",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "req_tp": {
+          "name": "req_tp",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "req_lg": {
+          "name": "req_lg",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "req_sl": {
+          "name": "req_sl",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "req_as": {
+          "name": "req_as",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "req_dt": {
+          "name": "req_dt",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "req_per_tp": {
+          "name": "req_per_tp",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_ativ_req_dep": {
+          "name": "idx_ativ_req_dep",
+          "columns": [
+            {
+              "expression": "deputado_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "ativ_req_deputado_id_deputados_id_fk": {
+          "name": "ativ_req_deputado_id_deputados_id_fk",
+          "tableFrom": "ativ_req",
+          "columnsFrom": [
+            "deputado_id"
+          ],
+          "tableTo": "deputados",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "ativ_req_legislatura_id_legislaturas_id_fk": {
+          "name": "ativ_req_legislatura_id_legislaturas_id_fk",
+          "tableFrom": "ativ_req",
+          "columnsFrom": [
+            "legislatura_id"
+          ],
+          "tableTo": "legislaturas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ativ_scgt": {
+      "name": "ativ_scgt",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "deputado_id": {
+          "name": "deputado_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "legislatura_id": {
+          "name": "legislatura_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "scm_com_lg": {
+          "name": "scm_com_lg",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ccm_dscom": {
+          "name": "ccm_dscom",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "scm_cd": {
+          "name": "scm_cd",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "scm_com_cd": {
+          "name": "scm_com_cd",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cms_cargo": {
+          "name": "cms_cargo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cms_situacao": {
+          "name": "cms_situacao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_ativ_scgt_dep": {
+          "name": "idx_ativ_scgt_dep",
+          "columns": [
+            {
+              "expression": "deputado_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "ativ_scgt_deputado_id_deputados_id_fk": {
+          "name": "ativ_scgt_deputado_id_deputados_id_fk",
+          "tableFrom": "ativ_scgt",
+          "columnsFrom": [
+            "deputado_id"
+          ],
+          "tableTo": "deputados",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "ativ_scgt_legislatura_id_legislaturas_id_fk": {
+          "name": "ativ_scgt_legislatura_id_legislaturas_id_fk",
+          "tableFrom": "ativ_scgt",
+          "columnsFrom": [
+            "legislatura_id"
+          ],
+          "tableTo": "legislaturas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.autores_iniciativas": {
+      "name": "autores_iniciativas",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "iniciativa_id": {
+          "name": "iniciativa_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tipo": {
+          "name": "tipo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "deputado_id": {
+          "name": "deputado_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "grupo_parlamentar": {
+          "name": "grupo_parlamentar",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "nome": {
+          "name": "nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_autores_iniciativa": {
+          "name": "idx_autores_iniciativa",
+          "columns": [
+            {
+              "expression": "iniciativa_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "idx_autores_grupo": {
+          "name": "idx_autores_grupo",
+          "columns": [
+            {
+              "expression": "grupo_parlamentar",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "idx_autores_deputado": {
+          "name": "idx_autores_deputado",
+          "columns": [
+            {
+              "expression": "deputado_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "autores_iniciativas_iniciativa_id_iniciativas_id_fk": {
+          "name": "autores_iniciativas_iniciativa_id_iniciativas_id_fk",
+          "tableFrom": "autores_iniciativas",
+          "columnsFrom": [
+            "iniciativa_id"
+          ],
+          "tableTo": "iniciativas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.circulos_eleitorais": {
+      "name": "circulos_eleitorais",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "legislatura_id": {
+          "name": "legislatura_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cp_id": {
+          "name": "cp_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nome": {
+          "name": "nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "uq_circulo_legislatura": {
+          "name": "uq_circulo_legislatura",
+          "columns": [
+            {
+              "expression": "legislatura_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "cp_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "circulos_eleitorais_legislatura_id_legislaturas_id_fk": {
+          "name": "circulos_eleitorais_legislatura_id_legislaturas_id_fk",
+          "tableFrom": "circulos_eleitorais",
+          "columnsFrom": [
+            "legislatura_id"
+          ],
+          "tableTo": "legislaturas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.comissao_audicoes": {
+      "name": "comissao_audicoes",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "comissao_fase_id": {
+          "name": "comissao_fase_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "evento_id": {
+          "name": "evento_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "iniciativa_id": {
+          "name": "iniciativa_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "fonte": {
+          "name": "fonte",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "audicao_id": {
+          "name": "audicao_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data": {
+          "name": "data",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tipo": {
+          "name": "tipo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_comissao_audicoes_fase": {
+          "name": "idx_comissao_audicoes_fase",
+          "columns": [
+            {
+              "expression": "comissao_fase_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "idx_comissao_audicoes_iniciativa": {
+          "name": "idx_comissao_audicoes_iniciativa",
+          "columns": [
+            {
+              "expression": "iniciativa_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "comissao_audicoes_comissao_fase_id_comissoes_fases_id_fk": {
+          "name": "comissao_audicoes_comissao_fase_id_comissoes_fases_id_fk",
+          "tableFrom": "comissao_audicoes",
+          "columnsFrom": [
+            "comissao_fase_id"
+          ],
+          "tableTo": "comissoes_fases",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "comissao_audicoes_evento_id_eventos_id_fk": {
+          "name": "comissao_audicoes_evento_id_eventos_id_fk",
+          "tableFrom": "comissao_audicoes",
+          "columnsFrom": [
+            "evento_id"
+          ],
+          "tableTo": "eventos",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "comissao_audicoes_iniciativa_id_iniciativas_id_fk": {
+          "name": "comissao_audicoes_iniciativa_id_iniciativas_id_fk",
+          "tableFrom": "comissao_audicoes",
+          "columnsFrom": [
+            "iniciativa_id"
+          ],
+          "tableTo": "iniciativas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.comissao_documentos": {
+      "name": "comissao_documentos",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "comissao_fase_id": {
+          "name": "comissao_fase_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "evento_id": {
+          "name": "evento_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "iniciativa_id": {
+          "name": "iniciativa_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "url": {
+          "name": "url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_documento": {
+          "name": "data_documento",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tipo_documento": {
+          "name": "tipo_documento",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "titulo_documento": {
+          "name": "titulo_documento",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_comissao_documentos_fase": {
+          "name": "idx_comissao_documentos_fase",
+          "columns": [
+            {
+              "expression": "comissao_fase_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "idx_comissao_documentos_iniciativa": {
+          "name": "idx_comissao_documentos_iniciativa",
+          "columns": [
+            {
+              "expression": "iniciativa_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "comissao_documentos_comissao_fase_id_comissoes_fases_id_fk": {
+          "name": "comissao_documentos_comissao_fase_id_comissoes_fases_id_fk",
+          "tableFrom": "comissao_documentos",
+          "columnsFrom": [
+            "comissao_fase_id"
+          ],
+          "tableTo": "comissoes_fases",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "comissao_documentos_evento_id_eventos_id_fk": {
+          "name": "comissao_documentos_evento_id_eventos_id_fk",
+          "tableFrom": "comissao_documentos",
+          "columnsFrom": [
+            "evento_id"
+          ],
+          "tableTo": "eventos",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "comissao_documentos_iniciativa_id_iniciativas_id_fk": {
+          "name": "comissao_documentos_iniciativa_id_iniciativas_id_fk",
+          "tableFrom": "comissao_documentos",
+          "columnsFrom": [
+            "iniciativa_id"
+          ],
+          "tableTo": "iniciativas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.comissao_publicacoes": {
+      "name": "comissao_publicacoes",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "comissao_fase_id": {
+          "name": "comissao_fase_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "evento_id": {
+          "name": "evento_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "iniciativa_id": {
+          "name": "iniciativa_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tipo_ref": {
+          "name": "tipo_ref",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "data": {
+          "name": "data",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "legislatura": {
+          "name": "legislatura",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "numero": {
+          "name": "numero",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sessao_legislativa": {
+          "name": "sessao_legislativa",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tipo": {
+          "name": "tipo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pub_tp": {
+          "name": "pub_tp",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "paginas": {
+          "name": "paginas",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "supl": {
+          "name": "supl",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pag_final_diario_supl": {
+          "name": "pag_final_diario_supl",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "url_diario": {
+          "name": "url_diario",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id_pag": {
+          "name": "id_pag",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id_deb": {
+          "name": "id_deb",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id_int": {
+          "name": "id_int",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id_act": {
+          "name": "id_act",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "debate_dt_reu": {
+          "name": "debate_dt_reu",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "obs": {
+          "name": "obs",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_comissao_publicacoes_fase": {
+          "name": "idx_comissao_publicacoes_fase",
+          "columns": [
+            {
+              "expression": "comissao_fase_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "idx_comissao_publicacoes_iniciativa": {
+          "name": "idx_comissao_publicacoes_iniciativa",
+          "columns": [
+            {
+              "expression": "iniciativa_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "comissao_publicacoes_comissao_fase_id_comissoes_fases_id_fk": {
+          "name": "comissao_publicacoes_comissao_fase_id_comissoes_fases_id_fk",
+          "tableFrom": "comissao_publicacoes",
+          "columnsFrom": [
+            "comissao_fase_id"
+          ],
+          "tableTo": "comissoes_fases",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "comissao_publicacoes_evento_id_eventos_id_fk": {
+          "name": "comissao_publicacoes_evento_id_eventos_id_fk",
+          "tableFrom": "comissao_publicacoes",
+          "columnsFrom": [
+            "evento_id"
+          ],
+          "tableTo": "eventos",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "comissao_publicacoes_iniciativa_id_iniciativas_id_fk": {
+          "name": "comissao_publicacoes_iniciativa_id_iniciativas_id_fk",
+          "tableFrom": "comissao_publicacoes",
+          "columnsFrom": [
+            "iniciativa_id"
+          ],
+          "tableTo": "iniciativas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.comissao_relatores": {
+      "name": "comissao_relatores",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "comissao_fase_id": {
+          "name": "comissao_fase_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "evento_id": {
+          "name": "evento_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "iniciativa_id": {
+          "name": "iniciativa_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "deputado_id": {
+          "name": "deputado_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "nome": {
+          "name": "nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "grupo_parlamentar": {
+          "name": "grupo_parlamentar",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_nomeacao": {
+          "name": "data_nomeacao",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_cessacao": {
+          "name": "data_cessacao",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "motivo_cessacao": {
+          "name": "motivo_cessacao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_comissao_relatores_fase": {
+          "name": "idx_comissao_relatores_fase",
+          "columns": [
+            {
+              "expression": "comissao_fase_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "idx_comissao_relatores_deputado": {
+          "name": "idx_comissao_relatores_deputado",
+          "columns": [
+            {
+              "expression": "deputado_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "idx_comissao_relatores_iniciativa": {
+          "name": "idx_comissao_relatores_iniciativa",
+          "columns": [
+            {
+              "expression": "iniciativa_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "comissao_relatores_comissao_fase_id_comissoes_fases_id_fk": {
+          "name": "comissao_relatores_comissao_fase_id_comissoes_fases_id_fk",
+          "tableFrom": "comissao_relatores",
+          "columnsFrom": [
+            "comissao_fase_id"
+          ],
+          "tableTo": "comissoes_fases",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "comissao_relatores_evento_id_eventos_id_fk": {
+          "name": "comissao_relatores_evento_id_eventos_id_fk",
+          "tableFrom": "comissao_relatores",
+          "columnsFrom": [
+            "evento_id"
+          ],
+          "tableTo": "eventos",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "comissao_relatores_iniciativa_id_iniciativas_id_fk": {
+          "name": "comissao_relatores_iniciativa_id_iniciativas_id_fk",
+          "tableFrom": "comissao_relatores",
+          "columnsFrom": [
+            "iniciativa_id"
+          ],
+          "tableTo": "iniciativas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.comissao_remessas": {
+      "name": "comissao_remessas",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "comissao_fase_id": {
+          "name": "comissao_fase_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "evento_id": {
+          "name": "evento_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "iniciativa_id": {
+          "name": "iniciativa_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "data_remessa": {
+          "name": "data_remessa",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "observacoes": {
+          "name": "observacoes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tipo_remessa": {
+          "name": "tipo_remessa",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "numero_oficio": {
+          "name": "numero_oficio",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_documento": {
+          "name": "data_documento",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_comissao_remessas_fase": {
+          "name": "idx_comissao_remessas_fase",
+          "columns": [
+            {
+              "expression": "comissao_fase_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "comissao_remessas_comissao_fase_id_comissoes_fases_id_fk": {
+          "name": "comissao_remessas_comissao_fase_id_comissoes_fases_id_fk",
+          "tableFrom": "comissao_remessas",
+          "columnsFrom": [
+            "comissao_fase_id"
+          ],
+          "tableTo": "comissoes_fases",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "comissao_remessas_evento_id_eventos_id_fk": {
+          "name": "comissao_remessas_evento_id_eventos_id_fk",
+          "tableFrom": "comissao_remessas",
+          "columnsFrom": [
+            "evento_id"
+          ],
+          "tableTo": "eventos",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "comissao_remessas_iniciativa_id_iniciativas_id_fk": {
+          "name": "comissao_remessas_iniciativa_id_iniciativas_id_fk",
+          "tableFrom": "comissao_remessas",
+          "columnsFrom": [
+            "iniciativa_id"
+          ],
+          "tableTo": "iniciativas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.comissao_votacao_publicacoes": {
+      "name": "comissao_votacao_publicacoes",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "comissao_votacao_id": {
+          "name": "comissao_votacao_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "evento_id": {
+          "name": "evento_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "iniciativa_id": {
+          "name": "iniciativa_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "data": {
+          "name": "data",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "legislatura": {
+          "name": "legislatura",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "numero": {
+          "name": "numero",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sessao_legislativa": {
+          "name": "sessao_legislativa",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tipo": {
+          "name": "tipo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pub_tp": {
+          "name": "pub_tp",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "paginas": {
+          "name": "paginas",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "supl": {
+          "name": "supl",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pag_final_diario_supl": {
+          "name": "pag_final_diario_supl",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "url_diario": {
+          "name": "url_diario",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id_pag": {
+          "name": "id_pag",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id_deb": {
+          "name": "id_deb",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id_int": {
+          "name": "id_int",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id_act": {
+          "name": "id_act",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "debate_dt_reu": {
+          "name": "debate_dt_reu",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "obs": {
+          "name": "obs",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_comissao_votacao_pub_votacao": {
+          "name": "idx_comissao_votacao_pub_votacao",
+          "columns": [
+            {
+              "expression": "comissao_votacao_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "comissao_votacao_publicacoes_comissao_votacao_id_comissao_votacoes_id_fk": {
+          "name": "comissao_votacao_publicacoes_comissao_votacao_id_comissao_votacoes_id_fk",
+          "tableFrom": "comissao_votacao_publicacoes",
+          "columnsFrom": [
+            "comissao_votacao_id"
+          ],
+          "tableTo": "comissao_votacoes",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "comissao_votacao_publicacoes_evento_id_eventos_id_fk": {
+          "name": "comissao_votacao_publicacoes_evento_id_eventos_id_fk",
+          "tableFrom": "comissao_votacao_publicacoes",
+          "columnsFrom": [
+            "evento_id"
+          ],
+          "tableTo": "eventos",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "comissao_votacao_publicacoes_iniciativa_id_iniciativas_id_fk": {
+          "name": "comissao_votacao_publicacoes_iniciativa_id_iniciativas_id_fk",
+          "tableFrom": "comissao_votacao_publicacoes",
+          "columnsFrom": [
+            "iniciativa_id"
+          ],
+          "tableTo": "iniciativas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.comissao_votacoes": {
+      "name": "comissao_votacoes",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "comissao_fase_id": {
+          "name": "comissao_fase_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "evento_id": {
+          "name": "evento_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "iniciativa_id": {
+          "name": "iniciativa_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "votacao_id": {
+          "name": "votacao_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data": {
+          "name": "data",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "resultado": {
+          "name": "resultado",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "unanime": {
+          "name": "unanime",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "reuniao": {
+          "name": "reuniao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tipo_reuniao": {
+          "name": "tipo_reuniao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "descricao": {
+          "name": "descricao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "detalhe": {
+          "name": "detalhe",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "a_favor": {
+          "name": "a_favor",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "contra": {
+          "name": "contra",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "abstencao": {
+          "name": "abstencao",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ausencias": {
+          "name": "ausencias",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_comissao_votacoes_fase": {
+          "name": "idx_comissao_votacoes_fase",
+          "columns": [
+            {
+              "expression": "comissao_fase_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "idx_comissao_votacoes_iniciativa": {
+          "name": "idx_comissao_votacoes_iniciativa",
+          "columns": [
+            {
+              "expression": "iniciativa_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "idx_comissao_votacoes_data": {
+          "name": "idx_comissao_votacoes_data",
+          "columns": [
+            {
+              "expression": "data",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "comissao_votacoes_comissao_fase_id_comissoes_fases_id_fk": {
+          "name": "comissao_votacoes_comissao_fase_id_comissoes_fases_id_fk",
+          "tableFrom": "comissao_votacoes",
+          "columnsFrom": [
+            "comissao_fase_id"
+          ],
+          "tableTo": "comissoes_fases",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "comissao_votacoes_evento_id_eventos_id_fk": {
+          "name": "comissao_votacoes_evento_id_eventos_id_fk",
+          "tableFrom": "comissao_votacoes",
+          "columnsFrom": [
+            "evento_id"
+          ],
+          "tableTo": "eventos",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "comissao_votacoes_iniciativa_id_iniciativas_id_fk": {
+          "name": "comissao_votacoes_iniciativa_id_iniciativas_id_fk",
+          "tableFrom": "comissao_votacoes",
+          "columnsFrom": [
+            "iniciativa_id"
+          ],
+          "tableTo": "iniciativas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.comissoes_fases": {
+      "name": "comissoes_fases",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "evento_id": {
+          "name": "evento_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "iniciativa_id": {
+          "name": "iniciativa_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "acc_id": {
+          "name": "acc_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sigla": {
+          "name": "sigla",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "nome": {
+          "name": "nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "numero": {
+          "name": "numero",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sessao": {
+          "name": "sessao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "legislatura": {
+          "name": "legislatura",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "competente": {
+          "name": "competente",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "observacao": {
+          "name": "observacao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "prorrogado": {
+          "name": "prorrogado",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_entrada": {
+          "name": "data_entrada",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_remessa": {
+          "name": "data_remessa",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_relatorio": {
+          "name": "data_relatorio",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_distribuicao": {
+          "name": "data_distribuicao",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_inicio_apreciacao_publica": {
+          "name": "data_inicio_apreciacao_publica",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_fim_apreciacao_publica": {
+          "name": "data_fim_apreciacao_publica",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_agendamento_plenario": {
+          "name": "data_agendamento_plenario",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_agendamento_discussao": {
+          "name": "data_agendamento_discussao",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_req_agendamento_plenario": {
+          "name": "data_req_agendamento_plenario",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "aguarda_agendamento_plenario": {
+          "name": "aguarda_agendamento_plenario",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "gp_agendamento_plenario": {
+          "name": "gp_agendamento_plenario",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "motivo_nao_parecer": {
+          "name": "motivo_nao_parecer",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_motivo_nao_parecer": {
+          "name": "data_motivo_nao_parecer",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "remessa_redacao_final": {
+          "name": "remessa_redacao_final",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "distribuicao_subcomissao": {
+          "name": "distribuicao_subcomissao",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_distribuicao_subcomissao": {
+          "name": "data_distribuicao_subcomissao",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pedidos_parecer": {
+          "name": "pedidos_parecer",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pareceres_recebidos": {
+          "name": "pareceres_recebidos",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_comissoes_fases_evento": {
+          "name": "idx_comissoes_fases_evento",
+          "columns": [
+            {
+              "expression": "evento_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "idx_comissoes_fases_iniciativa": {
+          "name": "idx_comissoes_fases_iniciativa",
+          "columns": [
+            {
+              "expression": "iniciativa_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "idx_comissoes_fases_numero": {
+          "name": "idx_comissoes_fases_numero",
+          "columns": [
+            {
+              "expression": "numero",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "comissoes_fases_evento_id_eventos_id_fk": {
+          "name": "comissoes_fases_evento_id_eventos_id_fk",
+          "tableFrom": "comissoes_fases",
+          "columnsFrom": [
+            "evento_id"
+          ],
+          "tableTo": "eventos",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "comissoes_fases_iniciativa_id_iniciativas_id_fk": {
+          "name": "comissoes_fases_iniciativa_id_iniciativas_id_fk",
+          "tableFrom": "comissoes_fases",
+          "columnsFrom": [
+            "iniciativa_id"
+          ],
+          "tableTo": "iniciativas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.deputado_cargos": {
+      "name": "deputado_cargos",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "deputado_id": {
+          "name": "deputado_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "legislatura_id": {
+          "name": "legislatura_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "car_id": {
+          "name": "car_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "car_des": {
+          "name": "car_des",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "car_dt_inicio": {
+          "name": "car_dt_inicio",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "car_dt_fim": {
+          "name": "car_dt_fim",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_dep_cargos_deputado": {
+          "name": "idx_dep_cargos_deputado",
+          "columns": [
+            {
+              "expression": "deputado_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "idx_dep_cargos_legislatura": {
+          "name": "idx_dep_cargos_legislatura",
+          "columns": [
+            {
+              "expression": "legislatura_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "deputado_cargos_deputado_id_deputados_id_fk": {
+          "name": "deputado_cargos_deputado_id_deputados_id_fk",
+          "tableFrom": "deputado_cargos",
+          "columnsFrom": [
+            "deputado_id"
+          ],
+          "tableTo": "deputados",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "deputado_cargos_legislatura_id_legislaturas_id_fk": {
+          "name": "deputado_cargos_legislatura_id_legislaturas_id_fk",
+          "tableFrom": "deputado_cargos",
+          "columnsFrom": [
+            "legislatura_id"
+          ],
+          "tableTo": "legislaturas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.deputado_situacoes": {
+      "name": "deputado_situacoes",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "deputado_id": {
+          "name": "deputado_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "legislatura_id": {
+          "name": "legislatura_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sio_des": {
+          "name": "sio_des",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sio_dt_inicio": {
+          "name": "sio_dt_inicio",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sio_dt_fim": {
+          "name": "sio_dt_fim",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_dep_situacoes_deputado": {
+          "name": "idx_dep_situacoes_deputado",
+          "columns": [
+            {
+              "expression": "deputado_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "idx_dep_situacoes_legislatura": {
+          "name": "idx_dep_situacoes_legislatura",
+          "columns": [
+            {
+              "expression": "legislatura_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "deputado_situacoes_deputado_id_deputados_id_fk": {
+          "name": "deputado_situacoes_deputado_id_deputados_id_fk",
+          "tableFrom": "deputado_situacoes",
+          "columnsFrom": [
+            "deputado_id"
+          ],
+          "tableTo": "deputados",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "deputado_situacoes_legislatura_id_legislaturas_id_fk": {
+          "name": "deputado_situacoes_legislatura_id_legislaturas_id_fk",
+          "tableFrom": "deputado_situacoes",
+          "columnsFrom": [
+            "legislatura_id"
+          ],
+          "tableTo": "legislaturas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.deputados": {
+      "name": "deputados",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "dep_id": {
+          "name": "dep_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "nome_completo": {
+          "name": "nome_completo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nome_parlamentar": {
+          "name": "nome_parlamentar",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "videos": {
+          "name": "videos",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.eventos": {
+      "name": "eventos",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "iniciativa_id": {
+          "name": "iniciativa_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "oev_id": {
+          "name": "oev_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "evt_id": {
+          "name": "evt_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fase": {
+          "name": "fase",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "codigo_fase": {
+          "name": "codigo_fase",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_fase": {
+          "name": "data_fase",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "obs": {
+          "name": "obs",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "act_id": {
+          "name": "act_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "oev_text_id": {
+          "name": "oev_text_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "recurso_deputados": {
+          "name": "recurso_deputados",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "recurso_gp": {
+          "name": "recurso_gp",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "textos_aprovados": {
+          "name": "textos_aprovados",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "actividades_conjuntas": {
+          "name": "actividades_conjuntas",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pcpublicas_conjuntas": {
+          "name": "pcpublicas_conjuntas",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "links": {
+          "name": "links",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_eventos_iniciativa": {
+          "name": "idx_eventos_iniciativa",
+          "columns": [
+            {
+              "expression": "iniciativa_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "idx_eventos_fase": {
+          "name": "idx_eventos_fase",
+          "columns": [
+            {
+              "expression": "fase",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "eventos_iniciativa_id_iniciativas_id_fk": {
+          "name": "eventos_iniciativa_id_iniciativas_id_fk",
+          "tableFrom": "eventos",
+          "columnsFrom": [
+            "iniciativa_id"
+          ],
+          "tableTo": "iniciativas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.grupos_parlamentares": {
+      "name": "grupos_parlamentares",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "legislatura_id": {
+          "name": "legislatura_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sigla": {
+          "name": "sigla",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nome": {
+          "name": "nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "uq_gp_legislatura_sigla": {
+          "name": "uq_gp_legislatura_sigla",
+          "columns": [
+            {
+              "expression": "legislatura_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "sigla",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "grupos_parlamentares_legislatura_id_legislaturas_id_fk": {
+          "name": "grupos_parlamentares_legislatura_id_legislaturas_id_fk",
+          "tableFrom": "grupos_parlamentares",
+          "columnsFrom": [
+            "legislatura_id"
+          ],
+          "tableTo": "legislaturas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.iniciativas": {
+      "name": "iniciativas",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "legislatura_id": {
+          "name": "legislatura_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "numero": {
+          "name": "numero",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tipo": {
+          "name": "tipo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tipo_desc": {
+          "name": "tipo_desc",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "titulo": {
+          "name": "titulo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "epigrafe": {
+          "name": "epigrafe",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_entrada": {
+          "name": "data_entrada",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_fim": {
+          "name": "data_fim",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "estado": {
+          "name": "estado",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "link_texto": {
+          "name": "link_texto",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "texto_substituido": {
+          "name": "texto_substituido",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "texto_subst_campo": {
+          "name": "texto_subst_campo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "obs": {
+          "name": "obs",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sel": {
+          "name": "sel",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "links": {
+          "name": "links",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_iniciativas_legislatura": {
+          "name": "idx_iniciativas_legislatura",
+          "columns": [
+            {
+              "expression": "legislatura_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "idx_iniciativas_tipo": {
+          "name": "idx_iniciativas_tipo",
+          "columns": [
+            {
+              "expression": "tipo",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "idx_iniciativas_estado": {
+          "name": "idx_iniciativas_estado",
+          "columns": [
+            {
+              "expression": "estado",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "idx_iniciativas_data": {
+          "name": "idx_iniciativas_data",
+          "columns": [
+            {
+              "expression": "data_entrada",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "iniciativas_legislatura_id_legislaturas_id_fk": {
+          "name": "iniciativas_legislatura_id_legislaturas_id_fk",
+          "tableFrom": "iniciativas",
+          "columnsFrom": [
+            "legislatura_id"
+          ],
+          "tableTo": "legislaturas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.iniciativas_conjuntas": {
+      "name": "iniciativas_conjuntas",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "evento_id": {
+          "name": "evento_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "iniciativa_id": {
+          "name": "iniciativa_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "conjunta_id": {
+          "name": "conjunta_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "conjunta_leg": {
+          "name": "conjunta_leg",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "conjunta_nr": {
+          "name": "conjunta_nr",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "conjunta_tipo": {
+          "name": "conjunta_tipo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "conjunta_desc_tipo": {
+          "name": "conjunta_desc_tipo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "conjunta_titulo": {
+          "name": "conjunta_titulo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "conjunta_sel": {
+          "name": "conjunta_sel",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "conjunta_data_entrada": {
+          "name": "conjunta_data_entrada",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_iniciativas_conjuntas_evento": {
+          "name": "idx_iniciativas_conjuntas_evento",
+          "columns": [
+            {
+              "expression": "evento_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "idx_iniciativas_conjuntas_iniciativa": {
+          "name": "idx_iniciativas_conjuntas_iniciativa",
+          "columns": [
+            {
+              "expression": "iniciativa_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "idx_iniciativas_conjuntas_conjunta_id": {
+          "name": "idx_iniciativas_conjuntas_conjunta_id",
+          "columns": [
+            {
+              "expression": "conjunta_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "iniciativas_conjuntas_evento_id_eventos_id_fk": {
+          "name": "iniciativas_conjuntas_evento_id_eventos_id_fk",
+          "tableFrom": "iniciativas_conjuntas",
+          "columnsFrom": [
+            "evento_id"
+          ],
+          "tableTo": "eventos",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "iniciativas_conjuntas_iniciativa_id_iniciativas_id_fk": {
+          "name": "iniciativas_conjuntas_iniciativa_id_iniciativas_id_fk",
+          "tableFrom": "iniciativas_conjuntas",
+          "columnsFrom": [
+            "iniciativa_id"
+          ],
+          "tableTo": "iniciativas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.iniciativas_relacionadas": {
+      "name": "iniciativas_relacionadas",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "iniciativa_id": {
+          "name": "iniciativa_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tipo": {
+          "name": "tipo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rel_id": {
+          "name": "rel_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "rel_legislatura": {
+          "name": "rel_legislatura",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "rel_numero": {
+          "name": "rel_numero",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "rel_sessao": {
+          "name": "rel_sessao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "rel_tipo": {
+          "name": "rel_tipo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "rel_desc_tipo": {
+          "name": "rel_desc_tipo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "rel_assunto": {
+          "name": "rel_assunto",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "rel_dcl": {
+          "name": "rel_dcl",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "url_europeia": {
+          "name": "url_europeia",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_rel_iniciativa": {
+          "name": "idx_rel_iniciativa",
+          "columns": [
+            {
+              "expression": "iniciativa_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "iniciativas_relacionadas_iniciativa_id_iniciativas_id_fk": {
+          "name": "iniciativas_relacionadas_iniciativa_id_iniciativas_id_fk",
+          "tableFrom": "iniciativas_relacionadas",
+          "columnsFrom": [
+            "iniciativa_id"
+          ],
+          "tableTo": "iniciativas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.intervencoesdebates": {
+      "name": "intervencoesdebates",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "evento_id": {
+          "name": "evento_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "iniciativa_id": {
+          "name": "iniciativa_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "data_reuniao": {
+          "name": "data_reuniao",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_intervencoes_evento": {
+          "name": "idx_intervencoes_evento",
+          "columns": [
+            {
+              "expression": "evento_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "idx_intervencoes_iniciativa": {
+          "name": "idx_intervencoes_iniciativa",
+          "columns": [
+            {
+              "expression": "iniciativa_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "intervencoesdebates_evento_id_eventos_id_fk": {
+          "name": "intervencoesdebates_evento_id_eventos_id_fk",
+          "tableFrom": "intervencoesdebates",
+          "columnsFrom": [
+            "evento_id"
+          ],
+          "tableTo": "eventos",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "intervencoesdebates_iniciativa_id_iniciativas_id_fk": {
+          "name": "intervencoesdebates_iniciativa_id_iniciativas_id_fk",
+          "tableFrom": "intervencoesdebates",
+          "columnsFrom": [
+            "iniciativa_id"
+          ],
+          "tableTo": "iniciativas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.legislaturas": {
+      "name": "legislaturas",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "nome": {
+          "name": "nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "data_inicio": {
+          "name": "data_inicio",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_fim": {
+          "name": "data_fim",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ar_id": {
+          "name": "ar_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sigla_antiga": {
+          "name": "sigla_antiga",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.mandatos": {
+      "name": "mandatos",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "deputado_id": {
+          "name": "deputado_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "legislatura_id": {
+          "name": "legislatura_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "grupo_parlamentar": {
+          "name": "grupo_parlamentar",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "gp_id": {
+          "name": "gp_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "circulo_eleitoral": {
+          "name": "circulo_eleitoral",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_inicio": {
+          "name": "data_inicio",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_fim": {
+          "name": "data_fim",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "situacao": {
+          "name": "situacao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_mandatos_deputado": {
+          "name": "idx_mandatos_deputado",
+          "columns": [
+            {
+              "expression": "deputado_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "idx_mandatos_legislatura": {
+          "name": "idx_mandatos_legislatura",
+          "columns": [
+            {
+              "expression": "legislatura_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "idx_mandatos_grupo": {
+          "name": "idx_mandatos_grupo",
+          "columns": [
+            {
+              "expression": "grupo_parlamentar",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "mandatos_deputado_id_deputados_id_fk": {
+          "name": "mandatos_deputado_id_deputados_id_fk",
+          "tableFrom": "mandatos",
+          "columnsFrom": [
+            "deputado_id"
+          ],
+          "tableTo": "deputados",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "mandatos_legislatura_id_legislaturas_id_fk": {
+          "name": "mandatos_legislatura_id_legislaturas_id_fk",
+          "tableFrom": "mandatos",
+          "columnsFrom": [
+            "legislatura_id"
+          ],
+          "tableTo": "legislaturas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.orador_publicacoes": {
+      "name": "orador_publicacoes",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "orador_id": {
+          "name": "orador_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "evento_id": {
+          "name": "evento_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "iniciativa_id": {
+          "name": "iniciativa_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "data": {
+          "name": "data",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "legislatura": {
+          "name": "legislatura",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "numero": {
+          "name": "numero",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sessao_legislativa": {
+          "name": "sessao_legislativa",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tipo": {
+          "name": "tipo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pub_tp": {
+          "name": "pub_tp",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "paginas": {
+          "name": "paginas",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "supl": {
+          "name": "supl",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pag_final_diario_supl": {
+          "name": "pag_final_diario_supl",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "url_diario": {
+          "name": "url_diario",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id_pag": {
+          "name": "id_pag",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id_deb": {
+          "name": "id_deb",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id_int": {
+          "name": "id_int",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id_act": {
+          "name": "id_act",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "debate_dt_reu": {
+          "name": "debate_dt_reu",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "obs": {
+          "name": "obs",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_orador_pub_orador": {
+          "name": "idx_orador_pub_orador",
+          "columns": [
+            {
+              "expression": "orador_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "idx_orador_pub_iniciativa": {
+          "name": "idx_orador_pub_iniciativa",
+          "columns": [
+            {
+              "expression": "iniciativa_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "orador_publicacoes_orador_id_oradores_id_fk": {
+          "name": "orador_publicacoes_orador_id_oradores_id_fk",
+          "tableFrom": "orador_publicacoes",
+          "columnsFrom": [
+            "orador_id"
+          ],
+          "tableTo": "oradores",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "orador_publicacoes_evento_id_eventos_id_fk": {
+          "name": "orador_publicacoes_evento_id_eventos_id_fk",
+          "tableFrom": "orador_publicacoes",
+          "columnsFrom": [
+            "evento_id"
+          ],
+          "tableTo": "eventos",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "orador_publicacoes_iniciativa_id_iniciativas_id_fk": {
+          "name": "orador_publicacoes_iniciativa_id_iniciativas_id_fk",
+          "tableFrom": "orador_publicacoes",
+          "columnsFrom": [
+            "iniciativa_id"
+          ],
+          "tableTo": "iniciativas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.oradores": {
+      "name": "oradores",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "intervencao_id": {
+          "name": "intervencao_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "fase_debate": {
+          "name": "fase_debate",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "fase_sessao": {
+          "name": "fase_sessao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "hora_inicio": {
+          "name": "hora_inicio",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "hora_termo": {
+          "name": "hora_termo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sumario": {
+          "name": "sumario",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "teor": {
+          "name": "teor",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "link_videos": {
+          "name": "link_videos",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "deputados": {
+          "name": "deputados",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "membro_governo_nome": {
+          "name": "membro_governo_nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "membro_governo_cargo": {
+          "name": "membro_governo_cargo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "membro_governo_governo": {
+          "name": "membro_governo_governo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "convidado_nome": {
+          "name": "convidado_nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "convidado_cargo": {
+          "name": "convidado_cargo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "convidado_pais": {
+          "name": "convidado_pais",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "convidado_honra": {
+          "name": "convidado_honra",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_oradores_intervencao": {
+          "name": "idx_oradores_intervencao",
+          "columns": [
+            {
+              "expression": "intervencao_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "oradores_intervencao_id_intervencoesdebates_id_fk": {
+          "name": "oradores_intervencao_id_intervencoesdebates_id_fk",
+          "tableFrom": "oradores",
+          "columnsFrom": [
+            "intervencao_id"
+          ],
+          "tableTo": "intervencoesdebates",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.peticoes_conjuntas": {
+      "name": "peticoes_conjuntas",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "evento_id": {
+          "name": "evento_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "iniciativa_id": {
+          "name": "iniciativa_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "peticao_id": {
+          "name": "peticao_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "peticao_leg": {
+          "name": "peticao_leg",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "peticao_nr": {
+          "name": "peticao_nr",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "peticao_tipo": {
+          "name": "peticao_tipo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "peticao_desc_tipo": {
+          "name": "peticao_desc_tipo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "peticao_titulo": {
+          "name": "peticao_titulo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "peticao_sel": {
+          "name": "peticao_sel",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "peticao_data_entrada": {
+          "name": "peticao_data_entrada",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_peticoes_conjuntas_evento": {
+          "name": "idx_peticoes_conjuntas_evento",
+          "columns": [
+            {
+              "expression": "evento_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "idx_peticoes_conjuntas_iniciativa": {
+          "name": "idx_peticoes_conjuntas_iniciativa",
+          "columns": [
+            {
+              "expression": "iniciativa_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "peticoes_conjuntas_evento_id_eventos_id_fk": {
+          "name": "peticoes_conjuntas_evento_id_eventos_id_fk",
+          "tableFrom": "peticoes_conjuntas",
+          "columnsFrom": [
+            "evento_id"
+          ],
+          "tableTo": "eventos",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "peticoes_conjuntas_iniciativa_id_iniciativas_id_fk": {
+          "name": "peticoes_conjuntas_iniciativa_id_iniciativas_id_fk",
+          "tableFrom": "peticoes_conjuntas",
+          "columnsFrom": [
+            "iniciativa_id"
+          ],
+          "tableTo": "iniciativas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.proposta_publicacoes": {
+      "name": "proposta_publicacoes",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "proposta_alteracao_id": {
+          "name": "proposta_alteracao_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "iniciativa_id": {
+          "name": "iniciativa_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "data": {
+          "name": "data",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "legislatura": {
+          "name": "legislatura",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "numero": {
+          "name": "numero",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sessao_legislativa": {
+          "name": "sessao_legislativa",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tipo": {
+          "name": "tipo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pub_tp": {
+          "name": "pub_tp",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "paginas": {
+          "name": "paginas",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "supl": {
+          "name": "supl",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pag_final_diario_supl": {
+          "name": "pag_final_diario_supl",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "url_diario": {
+          "name": "url_diario",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id_pag": {
+          "name": "id_pag",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id_deb": {
+          "name": "id_deb",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id_int": {
+          "name": "id_int",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id_act": {
+          "name": "id_act",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "debate_dt_reu": {
+          "name": "debate_dt_reu",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "obs": {
+          "name": "obs",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_proposta_pub_proposta": {
+          "name": "idx_proposta_pub_proposta",
+          "columns": [
+            {
+              "expression": "proposta_alteracao_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "idx_proposta_pub_iniciativa": {
+          "name": "idx_proposta_pub_iniciativa",
+          "columns": [
+            {
+              "expression": "iniciativa_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "proposta_publicacoes_proposta_alteracao_id_propostas_alteracao_id_fk": {
+          "name": "proposta_publicacoes_proposta_alteracao_id_propostas_alteracao_id_fk",
+          "tableFrom": "proposta_publicacoes",
+          "columnsFrom": [
+            "proposta_alteracao_id"
+          ],
+          "tableTo": "propostas_alteracao",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "proposta_publicacoes_iniciativa_id_iniciativas_id_fk": {
+          "name": "proposta_publicacoes_iniciativa_id_iniciativas_id_fk",
+          "tableFrom": "proposta_publicacoes",
+          "columnsFrom": [
+            "iniciativa_id"
+          ],
+          "tableTo": "iniciativas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.propostas_alteracao": {
+      "name": "propostas_alteracao",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "iniciativa_id": {
+          "name": "iniciativa_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "proposta_id": {
+          "name": "proposta_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "autor": {
+          "name": "autor",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tipo": {
+          "name": "tipo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_propostas_iniciativa": {
+          "name": "idx_propostas_iniciativa",
+          "columns": [
+            {
+              "expression": "iniciativa_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "propostas_alteracao_iniciativa_id_iniciativas_id_fk": {
+          "name": "propostas_alteracao_iniciativa_id_iniciativas_id_fk",
+          "tableFrom": "propostas_alteracao",
+          "columnsFrom": [
+            "iniciativa_id"
+          ],
+          "tableTo": "iniciativas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.publicacoes": {
+      "name": "publicacoes",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "evento_id": {
+          "name": "evento_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "iniciativa_id": {
+          "name": "iniciativa_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "data": {
+          "name": "data",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "legislatura": {
+          "name": "legislatura",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "numero": {
+          "name": "numero",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sessao_legislativa": {
+          "name": "sessao_legislativa",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tipo": {
+          "name": "tipo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pub_tp": {
+          "name": "pub_tp",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "paginas": {
+          "name": "paginas",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "supl": {
+          "name": "supl",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pag_final_diario_supl": {
+          "name": "pag_final_diario_supl",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "url_diario": {
+          "name": "url_diario",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id_pag": {
+          "name": "id_pag",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id_deb": {
+          "name": "id_deb",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id_int": {
+          "name": "id_int",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id_act": {
+          "name": "id_act",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "debate_dt_reu": {
+          "name": "debate_dt_reu",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "obs": {
+          "name": "obs",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_publicacoes_evento": {
+          "name": "idx_publicacoes_evento",
+          "columns": [
+            {
+              "expression": "evento_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "idx_publicacoes_iniciativa": {
+          "name": "idx_publicacoes_iniciativa",
+          "columns": [
+            {
+              "expression": "iniciativa_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "publicacoes_evento_id_eventos_id_fk": {
+          "name": "publicacoes_evento_id_eventos_id_fk",
+          "tableFrom": "publicacoes",
+          "columnsFrom": [
+            "evento_id"
+          ],
+          "tableTo": "eventos",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "publicacoes_iniciativa_id_iniciativas_id_fk": {
+          "name": "publicacoes_iniciativa_id_iniciativas_id_fk",
+          "tableFrom": "publicacoes",
+          "columnsFrom": [
+            "iniciativa_id"
+          ],
+          "tableTo": "iniciativas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.sessoes_legislativas": {
+      "name": "sessoes_legislativas",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "legislatura_id": {
+          "name": "legislatura_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "num_sessao": {
+          "name": "num_sessao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_inicio": {
+          "name": "data_inicio",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_fim": {
+          "name": "data_fim",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_sessoes_legislatura": {
+          "name": "idx_sessoes_legislatura",
+          "columns": [
+            {
+              "expression": "legislatura_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "sessoes_legislativas_legislatura_id_legislaturas_id_fk": {
+          "name": "sessoes_legislativas_legislatura_id_legislaturas_id_fk",
+          "tableFrom": "sessoes_legislativas",
+          "columnsFrom": [
+            "legislatura_id"
+          ],
+          "tableTo": "legislaturas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.votacao_publicacoes": {
+      "name": "votacao_publicacoes",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "votacao_ini_id": {
+          "name": "votacao_ini_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "votacao_id": {
+          "name": "votacao_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "evento_id": {
+          "name": "evento_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "data": {
+          "name": "data",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "legislatura": {
+          "name": "legislatura",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "numero": {
+          "name": "numero",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sessao_legislativa": {
+          "name": "sessao_legislativa",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tipo": {
+          "name": "tipo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pub_tp": {
+          "name": "pub_tp",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "paginas": {
+          "name": "paginas",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "supl": {
+          "name": "supl",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pag_final_diario_supl": {
+          "name": "pag_final_diario_supl",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "url_diario": {
+          "name": "url_diario",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id_pag": {
+          "name": "id_pag",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id_deb": {
+          "name": "id_deb",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id_int": {
+          "name": "id_int",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id_act": {
+          "name": "id_act",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "debate_dt_reu": {
+          "name": "debate_dt_reu",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "obs": {
+          "name": "obs",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_votacao_pub_votacao": {
+          "name": "idx_votacao_pub_votacao",
+          "columns": [
+            {
+              "expression": "votacao_ini_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "votacao_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "idx_votacao_pub_evento": {
+          "name": "idx_votacao_pub_evento",
+          "columns": [
+            {
+              "expression": "evento_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "votacao_publicacoes_votacao_ini_id_iniciativas_id_fk": {
+          "name": "votacao_publicacoes_votacao_ini_id_iniciativas_id_fk",
+          "tableFrom": "votacao_publicacoes",
+          "columnsFrom": [
+            "votacao_ini_id"
+          ],
+          "tableTo": "iniciativas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "votacao_publicacoes_evento_id_eventos_id_fk": {
+          "name": "votacao_publicacoes_evento_id_eventos_id_fk",
+          "tableFrom": "votacao_publicacoes",
+          "columnsFrom": [
+            "evento_id"
+          ],
+          "tableTo": "eventos",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.votacoes": {
+      "name": "votacoes",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "evento_id": {
+          "name": "evento_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "iniciativa_id": {
+          "name": "iniciativa_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "data": {
+          "name": "data",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "resultado": {
+          "name": "resultado",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "unanime": {
+          "name": "unanime",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "reuniao": {
+          "name": "reuniao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tipo_reuniao": {
+          "name": "tipo_reuniao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "descricao": {
+          "name": "descricao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "detalhe": {
+          "name": "detalhe",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "a_favor": {
+          "name": "a_favor",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "contra": {
+          "name": "contra",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "abstencao": {
+          "name": "abstencao",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ausencias": {
+          "name": "ausencias",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_votacoes_data": {
+          "name": "idx_votacoes_data",
+          "columns": [
+            {
+              "expression": "data",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "idx_votacoes_resultado": {
+          "name": "idx_votacoes_resultado",
+          "columns": [
+            {
+              "expression": "resultado",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "idx_votacoes_evento": {
+          "name": "idx_votacoes_evento",
+          "columns": [
+            {
+              "expression": "evento_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "votacoes_evento_id_eventos_id_fk": {
+          "name": "votacoes_evento_id_eventos_id_fk",
+          "tableFrom": "votacoes",
+          "columnsFrom": [
+            "evento_id"
+          ],
+          "tableTo": "eventos",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "votacoes_iniciativa_id_iniciativas_id_fk": {
+          "name": "votacoes_iniciativa_id_iniciativas_id_fk",
+          "tableFrom": "votacoes",
+          "columnsFrom": [
+            "iniciativa_id"
+          ],
+          "tableTo": "iniciativas",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "votacoes_iniciativa_id_id_pk": {
+          "name": "votacoes_iniciativa_id_id_pk",
+          "columns": [
+            "iniciativa_id",
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "views": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

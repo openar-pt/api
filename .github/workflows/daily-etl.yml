@@ -1,0 +1,75 @@
+name: Daily ETL
+
+on:
+  schedule:
+    - cron: "0 4 * * *"   # 04:00 UTC daily
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "ETL mode"
+        required: false
+        default: "--current"
+        type: choice
+        options:
+          - "--current"
+          - "--all"
+          - "--force-all"
+          - "--leg I"
+          - "--leg II"
+          - "--leg III"
+          - "--leg IV"
+          - "--leg V"
+          - "--leg VI"
+          - "--leg VII"
+          - "--leg VIII"
+          - "--leg IX"
+          - "--leg X"
+          - "--leg XI"
+          - "--leg XII"
+          - "--leg XIII"
+          - "--leg XIV"
+          - "--leg XV"
+          - "--leg XVI"
+          - "--leg XVII"
+          - "--photos"
+      source:
+        description: "Limit to one source type (optional)"
+        required: false
+        default: ""
+        type: choice
+        options:
+          - ""
+          - "informacao"
+          - "iniciativas"
+          - "atividade"
+          - "peticoes"
+          - "bio"
+
+jobs:
+  etl:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run build
+
+      - name: Run migrations
+        run: npm run db:migrate:prod
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Run ETL
+        run: node dist/etl/load.js ${{ github.event.inputs.mode || '--current' }} ${{ github.event.inputs.source && format('--source {0}', github.event.inputs.source) || '' }}
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}

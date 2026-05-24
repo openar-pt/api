@@ -1,0 +1,7 @@
+.env
+node_modules/
+dist/
+brand/
+banner-preview.html
+readme-preview.html
+
