@@ -304,6 +304,14 @@ function estadoFromEventos(eventos: RawEvento[] | null): string | null {
 
 // ── Normalização ──────────────────────────────────────────────────────────────
 
+function dataEntradaFromRaw(raw: RawIniciativa): string | null {
+  // DataInicioleg is the legislature start date in XVII (not the submission date).
+  // Use the first "Entrada" event's DataFase as the canonical submission date,
+  // falling back to DataInicioleg for legislatures where it was correct.
+  const entradaEvt = raw.IniEventos?.find((e) => e.Fase === "Entrada");
+  return toDate(entradaEvt?.DataFase ?? raw.DataInicioleg);
+}
+
 export function normalizeIniciativa(raw: RawIniciativa) {
   return {
     id: raw.IniId,
@@ -313,7 +321,7 @@ export function normalizeIniciativa(raw: RawIniciativa) {
     tipoDesc: raw.IniDescTipo,
     titulo: raw.IniTitulo.trim(),
     epigrafe: raw.IniEpigrafe?.trim() || null,
-    dataEntrada: toDate(raw.DataInicioleg),
+    dataEntrada: dataEntradaFromRaw(raw),
     dataFim: toDate(raw.DataFimleg),
     estado: estadoFromEventos(raw.IniEventos),
     linkTexto: raw.IniLinkTexto || null,
