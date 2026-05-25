@@ -555,6 +555,22 @@ export const spec = {
           contra: { type: "array", items: { type: "string" } },
           abstencao: { type: "array", items: { type: "string" } },
           ausencias: { type: "array", items: { type: "string" } },
+          publicacoes: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                tipoRef: { type: "string" },
+                data: { type: ["string", "null"], format: "date" },
+                legislatura: { type: ["string", "null"] },
+                numero: { type: ["string", "null"] },
+                sessaoLegislativa: { type: ["string", "null"] },
+                tipo: { type: ["string", "null"] },
+                paginas: { type: "array", items: { type: "string" } },
+                urlDiario: { type: ["string", "null"] },
+              },
+            },
+          },
         },
       },
       ComissaoFase: {
@@ -639,7 +655,7 @@ export const spec = {
           {
             type: "object",
             properties: {
-              relatores: { type: "array", items: { $ref: "#/components/schemas/ComissaoRelator" } },
+              comissoesFases: { type: "array", items: { $ref: "#/components/schemas/ComissaoFase" } },
             },
           },
         ],
