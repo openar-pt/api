@@ -91,36 +91,33 @@ app.get("/:numero", async (c) => {
   ]);
 
   const iniIds = iniciativaRows.map((r) => r.id);
-  const relatores = iniIds.length
-    ? await db
-        .select({
-          iniciativaId: t.comissaoRelatores.iniciativaId,
-          deputadoId: t.comissaoRelatores.deputadoId,
-          nome: t.comissaoRelatores.nome,
-          grupoParlamentar: t.comissaoRelatores.grupoParlamentar,
-          dataNomeacao: t.comissaoRelatores.dataNomeacao,
-          dataCessacao: t.comissaoRelatores.dataCessacao,
-        })
-        .from(t.comissaoRelatores)
-        .innerJoin(t.comissoesFases, eq(t.comissaoRelatores.comissaoFaseId, t.comissoesFases.id))
-        .where(
-          and(
-            eq(t.comissoesFases.numero, numero),
-            inArray(t.comissaoRelatores.iniciativaId, iniIds),
-          ),
-        )
+  const fases = iniIds.length
+    ? await db.query.comissoesFases.findMany({
+        where: and(
+          eq(t.comissoesFases.numero, numero),
+          inArray(t.comissoesFases.iniciativaId, iniIds),
+        ),
+        with: {
+          relatores: true,
+          votacoes: { with: { publicacoes: true } },
+          documentos: true,
+          audicoes: true,
+          remessas: true,
+          publicacoes: true,
+        },
+      })
     : [];
 
-  const relatoresByIni = new Map<number, typeof relatores>();
-  for (const rel of relatores) {
-    const list = relatoresByIni.get(rel.iniciativaId!) ?? [];
-    list.push(rel);
-    relatoresByIni.set(rel.iniciativaId!, list);
+  const fasesByIni = new Map<number, typeof fases>();
+  for (const fase of fases) {
+    const list = fasesByIni.get(fase.iniciativaId) ?? [];
+    list.push(fase);
+    fasesByIni.set(fase.iniciativaId, list);
   }
 
   const data = iniciativaRows.map((ini) => ({
     ...ini,
-    relatores: relatoresByIni.get(ini.id) ?? [],
+    comissoesFases: fasesByIni.get(ini.id) ?? [],
   }));
 
   return c.json({ ...comissao, total, page, limit, data });
