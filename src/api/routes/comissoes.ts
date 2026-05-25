@@ -100,7 +100,7 @@ app.get("/:numero", async (c) => {
       .innerJoin(t.iniciativas, eq(t.comissoesFases.iniciativaId, t.iniciativas.id))
       .where(iniFilters),
     db
-      .selectDistinct({ legislaturaId: t.iniciativas.legislaturaId })
+      .selectDistinct({ legislaturaId: t.iniciativas.legislaturaId, dataInicio: t.legislaturas.dataInicio })
       .from(t.comissoesFases)
       .innerJoin(t.iniciativas, eq(t.comissoesFases.iniciativaId, t.iniciativas.id))
       .innerJoin(t.legislaturas, eq(t.iniciativas.legislaturaId, t.legislaturas.id))
@@ -138,7 +138,7 @@ app.get("/:numero", async (c) => {
     comissoesFases: fasesByIni.get(ini.id) ?? [],
   }));
 
-  const legislaturas = legislaturasRows.map((r) => r.legislaturaId);
+  const legislaturas = legislaturasRows.map((r) => r.legislaturaId).filter(Boolean) as string[];
 
   return c.json({ ...comissao, legislaturas, total, page, limit, data });
 });

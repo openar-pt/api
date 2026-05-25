@@ -135,7 +135,7 @@ app.get("/:id", async (c) => {
       eventos: {
         orderBy: [asc(t.eventos.dataFase)],
         with: {
-          votacoes: { with: { publicacoes: true } },
+          votacoes: true,
           publicacoes: true,
           anexos: true,
           iniciativasConjuntas: true,
