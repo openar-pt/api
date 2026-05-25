@@ -28,7 +28,7 @@
     font-size="112"
     letter-spacing="-4.5"
     fill="#F4F1EA"
-  >OpenAR</text>
+  >openAR</text>
 
   <!-- Hairline -->
   <rect x="222" y="286" width="560" height="1" fill="#7FB69A" opacity="0.4"/>

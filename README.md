@@ -1,4 +1,4 @@
-<img src="banner.svg" alt="OpenAR" width="100%"/>
+<img src="banner.svg" alt="openAR" width="100%"/>
 
 API REST de dados abertos para a Assembleia da República.
 
