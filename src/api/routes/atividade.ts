@@ -28,12 +28,16 @@ app.get("/:id/atividade", async (c) => {
     comissoes,
     atividadesComissao,
     gpa,
+    dlp,
     dle,
     relIni,
     relPet,
+    relContas,
     relIniEur,
     relPareceres,
     parlJovens,
+    dadosLegis,
+    scgt,
   ] = await Promise.all([
     db.query.deputados.findFirst({ where: eq(t.deputados.id, id), columns: { id: true, nomeParlamentar: true } }),
     db.select().from(t.ativIni).where(where(t.ativIni)),
@@ -43,12 +47,16 @@ app.get("/:id/atividade", async (c) => {
     db.select().from(t.ativCms).where(where(t.ativCms)),
     db.select().from(t.ativAtividadesComissao).where(where(t.ativAtividadesComissao)),
     db.select().from(t.ativGpa).where(where(t.ativGpa)),
+    db.select().from(t.ativDlp).where(where(t.ativDlp)),
     db.select().from(t.ativDle).where(where(t.ativDle)),
     db.select().from(t.ativRelIni).where(where(t.ativRelIni)),
     db.select().from(t.ativRelPet).where(where(t.ativRelPet)),
+    db.select().from(t.ativRelContas).where(where(t.ativRelContas)),
     db.select().from(t.ativRelIniEur).where(where(t.ativRelIniEur)),
     db.select().from(t.ativRelPareceres).where(where(t.ativRelPareceres)),
     db.select().from(t.ativParlJovens).where(where(t.ativParlJovens)),
+    db.select().from(t.ativDadosLegis).where(where(t.ativDadosLegis)),
+    db.select().from(t.ativScgt).where(where(t.ativScgt)),
   ]);
 
   if (!dep) return c.json({ error: "Not found" }, 404);
@@ -62,12 +70,16 @@ app.get("/:id/atividade", async (c) => {
     comissoes,
     atividadesComissao,
     gpa,
+    dlp,
     dle,
     relIni,
     relPet,
+    relContas,
     relIniEur,
     relPareceres,
     parlJovens,
+    dadosLegis,
+    scgt,
   });
 });
 

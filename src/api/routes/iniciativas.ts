@@ -131,62 +131,33 @@ app.get("/:id", async (c) => {
   const ini = await db.query.iniciativas.findFirst({
     where: eq(t.iniciativas.id, id),
     with: {
-      autores: {
-        columns: { tipo: true, deputadoId: true, grupoParlamentar: true, nome: true },
-      },
+      autores: true,
       eventos: {
         orderBy: [asc(t.eventos.dataFase)],
         with: {
-          votacoes: {
-            columns: {
-              id: true, data: true, resultado: true, unanime: true,
-              reuniao: true, tipoReuniao: true, descricao: true,
-              aFavor: true, contra: true, abstencao: true, ausencias: true,
-            },
-          },
-          publicacoes: {
-            columns: {
-              data: true, legislatura: true, numero: true,
-              sessaoLegislativa: true, tipo: true, paginas: true, urlDiario: true,
-            },
-          },
+          votacoes: { with: { publicacoes: true } },
+          publicacoes: true,
+          anexos: true,
+          iniciativasConjuntas: true,
+          peticoesConjuntas: true,
+          intervencoesdebates: { with: { oradores: { with: { publicacoes: true } } } },
           comissoesFases: {
             with: {
-              relatores: {
-                columns: {
-                  deputadoId: true, nome: true, grupoParlamentar: true,
-                  dataNomeacao: true, dataCessacao: true,
-                },
-              },
-              votacoes: {
-                columns: {
-                  data: true, resultado: true, unanime: true, descricao: true,
-                  aFavor: true, contra: true, abstencao: true, ausencias: true,
-                },
-              },
-              documentos: {
-                columns: { url: true, dataDocumento: true, tipoDocumento: true, tituloDocumento: true },
-              },
-              audicoes: {
-                columns: { fonte: true, data: true, tipo: true },
-              },
-              remessas: {
-                columns: { dataRemessa: true, tipoRemessa: true, observacoes: true },
-              },
-              publicacoes: {
-                columns: {
-                  tipoRef: true, data: true, legislatura: true, numero: true,
-                  sessaoLegislativa: true, tipo: true, paginas: true, urlDiario: true,
-                },
-              },
+              relatores: true,
+              votacoes: { with: { publicacoes: true } },
+              documentos: true,
+              audicoes: true,
+              remessas: true,
+              publicacoes: true,
             },
           },
         },
       },
       relacionadas: true,
-      anexos: {
-        columns: { id: true, eventoId: true, nome: true, url: true },
-      },
+      anexos: true,
+      conjuntas: true,
+      peticoes: true,
+      propostasAlteracao: { with: { publicacoes: true } },
     },
   });
 

@@ -69,7 +69,7 @@ app.get("/:id", async (c) => {
   const [dep, stats, iniciativas, bioHab, bioTit, bioCar, bioCond, bioObras] = await Promise.all([
     db.query.deputados.findFirst({
       where: eq(t.deputados.id, id),
-      with: { mandatos: true },
+      with: { mandatos: true, cargos: true, situacoes: true },
     }),
 
     // Aggregate stats across all authored iniciativas

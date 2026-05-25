@@ -45,6 +45,8 @@ app.get("/", async (c) => {
       aFavor: t.votacoes.aFavor,
       contra: t.votacoes.contra,
       abstencao: t.votacoes.abstencao,
+      ausencias: t.votacoes.ausencias,
+      detalhe: t.votacoes.detalhe,
     })
     .from(t.votacoes)
     .innerJoin(t.iniciativas, eq(t.votacoes.iniciativaId, t.iniciativas.id))
@@ -79,6 +81,7 @@ app.get("/:id", async (c) => {
 
   const vot = await db.query.votacoes.findFirst({
     where: and(eq(t.votacoes.id, id), eq(t.votacoes.iniciativaId, iniciativaId)),
+    with: { publicacoes: true },
   });
   if (!vot) return c.json({ error: "Not found" }, 404);
 
