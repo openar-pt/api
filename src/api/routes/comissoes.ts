@@ -59,12 +59,23 @@ app.get("/:numero", async (c) => {
   });
   if (!comissao) return c.json({ error: "Not found" }, 404);
 
+  // Resolve all numero values that share the same normalized name so that
+  // legislatura filtering works across legislature eras (the same committee
+  // gets a different numero in each era).
+  const sameNome = await db
+    .selectDistinct({ numero: t.comissoesFases.numero })
+    .from(t.comissoesFases)
+    .where(
+      sql`lower(trim(${t.comissoesFases.nome})) = lower(trim(${comissao.nome}))`,
+    );
+  const numeros = sameNome.map((r) => r.numero).filter(Boolean) as string[];
+
   const iniFilters = and(
-    eq(t.comissoesFases.numero, numero),
+    inArray(t.comissoesFases.numero, numeros),
     legislatura ? eq(t.iniciativas.legislaturaId, legislatura) : undefined,
   );
 
-  const [iniciativaRows, [{ total }]] = await Promise.all([
+  const [iniciativaRows, [{ total }], legislaturasRows] = await Promise.all([
     db
       .selectDistinctOn([t.comissoesFases.iniciativaId], {
         id: t.iniciativas.id,
@@ -88,13 +99,20 @@ app.get("/:numero", async (c) => {
       .from(t.comissoesFases)
       .innerJoin(t.iniciativas, eq(t.comissoesFases.iniciativaId, t.iniciativas.id))
       .where(iniFilters),
+    db
+      .selectDistinct({ legislaturaId: t.iniciativas.legislaturaId })
+      .from(t.comissoesFases)
+      .innerJoin(t.iniciativas, eq(t.comissoesFases.iniciativaId, t.iniciativas.id))
+      .innerJoin(t.legislaturas, eq(t.iniciativas.legislaturaId, t.legislaturas.id))
+      .where(inArray(t.comissoesFases.numero, numeros))
+      .orderBy(desc(t.legislaturas.dataInicio)),
   ]);
 
   const iniIds = iniciativaRows.map((r) => r.id);
   const fases = iniIds.length
     ? await db.query.comissoesFases.findMany({
         where: and(
-          eq(t.comissoesFases.numero, numero),
+          inArray(t.comissoesFases.numero, numeros),
           inArray(t.comissoesFases.iniciativaId, iniIds),
         ),
         with: {
@@ -120,7 +138,9 @@ app.get("/:numero", async (c) => {
     comissoesFases: fasesByIni.get(ini.id) ?? [],
   }));
 
-  return c.json({ ...comissao, total, page, limit, data });
+  const legislaturas = legislaturasRows.map((r) => r.legislaturaId);
+
+  return c.json({ ...comissao, legislaturas, total, page, limit, data });
 });
 
 export default app;
