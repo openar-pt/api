@@ -17,6 +17,8 @@ app.get("/", async (c) => {
   const legislatura = c.req.query("legislatura");
   const q = c.req.query("q");
 
+  const normalizedNome = sql`lower(trim(${t.comissoesFases.nome}))`;
+
   const filters = and(
     legislatura ? eq(t.iniciativas.legislaturaId, legislatura) : undefined,
     q ? ilike(t.comissoesFases.nome, `%${q}%`) : undefined,
@@ -24,19 +26,19 @@ app.get("/", async (c) => {
 
   const [rows, [{ total }]] = await Promise.all([
     db
-      .selectDistinctOn([t.comissoesFases.numero], {
+      .selectDistinctOn([normalizedNome], {
         numero: t.comissoesFases.numero,
         sigla: t.comissoesFases.sigla,
-        nome: t.comissoesFases.nome,
+        nome: sql<string>`trim(${t.comissoesFases.nome})`,
       })
       .from(t.comissoesFases)
       .innerJoin(t.iniciativas, eq(t.comissoesFases.iniciativaId, t.iniciativas.id))
       .where(filters)
-      .orderBy(t.comissoesFases.numero)
+      .orderBy(normalizedNome)
       .limit(limit)
       .offset(offset),
     db
-      .select({ total: sql<number>`count(distinct ${t.comissoesFases.numero})::int` })
+      .select({ total: sql<number>`count(distinct lower(trim(${t.comissoesFases.nome})))::int` })
       .from(t.comissoesFases)
       .innerJoin(t.iniciativas, eq(t.comissoesFases.iniciativaId, t.iniciativas.id))
       .where(filters),
