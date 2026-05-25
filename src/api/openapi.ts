@@ -17,6 +17,7 @@ export const spec = {
     { name: "Iniciativas", description: "Iniciativas legislativas (projectos de lei, resoluções, etc.)" },
     { name: "Votações", description: "Votações em plenário" },
     { name: "Petições", description: "Petições à Assembleia da República" },
+    { name: "Comissões", description: "Comissões parlamentares e as iniciativas que nelas foram apreciadas" },
   ],
   paths: {
     "/meta": {
@@ -233,7 +234,7 @@ export const spec = {
         operationId: "getIniciativa",
         tags: ["Iniciativas"],
         summary: "Obter uma iniciativa com detalhe completo",
-        description: "Devolve a iniciativa com `autores`, `eventos` (cada um com `votacoes` e `publicacoes`) e `relacionadas`.",
+        description: "Devolve a iniciativa com `autores`, `eventos` (cada um com `votacoes`, `publicacoes` e `comissoesFases`), `relacionadas` e `anexos`.",
         parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" }, description: "Identificador da iniciativa (IniId)" }],
         responses: {
           "200": {
@@ -276,6 +277,47 @@ export const spec = {
             content: { "application/json": { schema: { $ref: "#/components/schemas/PeticaoDetail" } } },
           },
           "400": { description: "ID inválido", content: { "application/json": { schema: { $ref: "#/components/schemas/Error" } } } },
+          "404": { $ref: "#/components/responses/NotFound" },
+        },
+      },
+    },
+    "/comissoes": {
+      get: {
+        operationId: "listComissoes",
+        tags: ["Comissões"],
+        summary: "Listar comissões parlamentares",
+        description: "Devolve comissões distintas (por `numero`) presentes nas fases das iniciativas.",
+        parameters: [
+          { name: "legislatura", in: "query", schema: { type: "string" }, description: "Filtrar pela legislatura das iniciativas associadas (ex: `XVII`)" },
+          { name: "q", in: "query", schema: { type: "string" }, description: "Pesquisa no nome da comissão" },
+          { $ref: "#/components/parameters/page" },
+          { $ref: "#/components/parameters/limit" },
+        ],
+        responses: {
+          "200": {
+            description: "Lista paginada de comissões",
+            content: { "application/json": { schema: { $ref: "#/components/schemas/PaginatedComissoes" } } },
+          },
+        },
+      },
+    },
+    "/comissoes/{numero}": {
+      get: {
+        operationId: "getComissao",
+        tags: ["Comissões"],
+        summary: "Obter uma comissão com as suas iniciativas",
+        description: "Devolve metadados da comissão (nome, sigla) e a lista paginada de iniciativas que por ela passaram, cada uma com os respetivos relatores.",
+        parameters: [
+          { name: "numero", in: "path", required: true, schema: { type: "string" }, description: "Identificador da comissão (ex: `1COM`)" },
+          { name: "legislatura", in: "query", schema: { type: "string" }, description: "Filtrar iniciativas por legislatura (ex: `XVII`)" },
+          { $ref: "#/components/parameters/page" },
+          { $ref: "#/components/parameters/limit" },
+        ],
+        responses: {
+          "200": {
+            description: "Comissão com iniciativas e relatores",
+            content: { "application/json": { schema: { $ref: "#/components/schemas/ComissaoDetail" } } },
+          },
           "404": { $ref: "#/components/responses/NotFound" },
         },
       },
@@ -489,6 +531,138 @@ export const spec = {
           iniciativasConjuntas: { description: "JSONB — iniciativas conjuntas, quando aplicável" },
           votacoes: { type: "array", items: { $ref: "#/components/schemas/Votacao" } },
           publicacoes: { type: "array", items: { $ref: "#/components/schemas/Publicacao" } },
+          comissoesFases: { type: "array", items: { $ref: "#/components/schemas/ComissaoFase" } },
+        },
+      },
+      ComissaoRelator: {
+        type: "object",
+        properties: {
+          deputadoId: { type: ["integer", "null"] },
+          nome: { type: ["string", "null"] },
+          grupoParlamentar: { type: ["string", "null"] },
+          dataNomeacao: { type: ["string", "null"], format: "date" },
+          dataCessacao: { type: ["string", "null"], format: "date" },
+        },
+      },
+      ComissaoVotacao: {
+        type: "object",
+        properties: {
+          data: { type: ["string", "null"], format: "date" },
+          resultado: { type: ["string", "null"] },
+          unanime: { type: ["boolean", "null"] },
+          descricao: { type: ["string", "null"] },
+          aFavor: { type: "array", items: { type: "string" } },
+          contra: { type: "array", items: { type: "string" } },
+          abstencao: { type: "array", items: { type: "string" } },
+          ausencias: { type: "array", items: { type: "string" } },
+        },
+      },
+      ComissaoFase: {
+        type: "object",
+        description: "Fase de apreciação de uma iniciativa numa comissão",
+        properties: {
+          id: { type: "integer" },
+          numero: { type: ["string", "null"], description: "Identificador da comissão" },
+          sigla: { type: ["string", "null"] },
+          nome: { type: ["string", "null"] },
+          competente: { type: ["boolean", "null"], description: "true se for a comissão competente" },
+          dataEntrada: { type: ["string", "null"], format: "date" },
+          dataRelatorio: { type: ["string", "null"], format: "date" },
+          dataDistribuicao: { type: ["string", "null"], format: "date" },
+          dataAgendamentoPlenario: { type: ["string", "null"], format: "date" },
+          motivoNaoParecer: { type: ["string", "null"] },
+          relatores: { type: "array", items: { $ref: "#/components/schemas/ComissaoRelator" } },
+          votacoes: { type: "array", items: { $ref: "#/components/schemas/ComissaoVotacao" } },
+          documentos: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                url: { type: ["string", "null"] },
+                dataDocumento: { type: ["string", "null"], format: "date" },
+                tipoDocumento: { type: ["string", "null"], example: "Parecer" },
+                tituloDocumento: { type: ["string", "null"] },
+              },
+            },
+          },
+          audicoes: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                fonte: { type: "string", enum: ["Audicoes", "Audiencias"] },
+                data: { type: ["string", "null"], format: "date" },
+                tipo: { type: ["string", "null"], example: "AUD" },
+              },
+            },
+          },
+          remessas: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                dataRemessa: { type: ["string", "null"], format: "date" },
+                tipoRemessa: { type: ["string", "null"] },
+                observacoes: { type: ["string", "null"] },
+              },
+            },
+          },
+          publicacoes: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                tipoRef: { type: "string", enum: ["publicacao", "relatorio"] },
+                data: { type: ["string", "null"], format: "date" },
+                legislatura: { type: ["string", "null"] },
+                numero: { type: ["string", "null"] },
+                sessaoLegislativa: { type: ["string", "null"] },
+                tipo: { type: ["string", "null"] },
+                paginas: { type: "array", items: { type: "string" } },
+                urlDiario: { type: ["string", "null"] },
+              },
+            },
+          },
+        },
+      },
+      Comissao: {
+        type: "object",
+        properties: {
+          numero: { type: ["string", "null"] },
+          sigla: { type: ["string", "null"] },
+          nome: { type: ["string", "null"] },
+        },
+      },
+      ComissaoIniciativa: {
+        allOf: [
+          { $ref: "#/components/schemas/Iniciativa" },
+          {
+            type: "object",
+            properties: {
+              relatores: { type: "array", items: { $ref: "#/components/schemas/ComissaoRelator" } },
+            },
+          },
+        ],
+      },
+      ComissaoDetail: {
+        type: "object",
+        properties: {
+          numero: { type: ["string", "null"] },
+          sigla: { type: ["string", "null"] },
+          nome: { type: ["string", "null"] },
+          total: { type: "integer" },
+          page: { type: "integer" },
+          limit: { type: "integer" },
+          data: { type: "array", items: { $ref: "#/components/schemas/ComissaoIniciativa" } },
+        },
+      },
+      PaginatedComissoes: {
+        type: "object",
+        properties: {
+          data: { type: "array", items: { $ref: "#/components/schemas/Comissao" } },
+          total: { type: "integer" },
+          page: { type: "integer" },
+          limit: { type: "integer" },
         },
       },
       Relacionada: {

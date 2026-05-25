@@ -14,6 +14,7 @@ import meta from "./routes/meta.js";
 import fotos from "./routes/fotos.js";
 import atividade from "./routes/atividade.js";
 import peticoes from "./routes/peticoes.js";
+import comissoes from "./routes/comissoes.js";
 import { rateLimiter, validateInput } from "./middleware/security.js";
 
 export const app = new Hono();
@@ -52,6 +53,7 @@ app.route("/deputados", atividade);
 app.route("/iniciativas", iniciativas);
 app.route("/votacoes", votacoes);
 app.route("/peticoes", peticoes);
+app.route("/comissoes", comissoes);
 
 app.notFound((c) => c.json({ error: "Not found" }, 404));
 app.onError((err, c) => {

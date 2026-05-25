@@ -150,6 +150,37 @@ app.get("/:id", async (c) => {
               sessaoLegislativa: true, tipo: true, paginas: true, urlDiario: true,
             },
           },
+          comissoesFases: {
+            with: {
+              relatores: {
+                columns: {
+                  deputadoId: true, nome: true, grupoParlamentar: true,
+                  dataNomeacao: true, dataCessacao: true,
+                },
+              },
+              votacoes: {
+                columns: {
+                  data: true, resultado: true, unanime: true, descricao: true,
+                  aFavor: true, contra: true, abstencao: true, ausencias: true,
+                },
+              },
+              documentos: {
+                columns: { url: true, dataDocumento: true, tipoDocumento: true, tituloDocumento: true },
+              },
+              audicoes: {
+                columns: { fonte: true, data: true, tipo: true },
+              },
+              remessas: {
+                columns: { dataRemessa: true, tipoRemessa: true, observacoes: true },
+              },
+              publicacoes: {
+                columns: {
+                  tipoRef: true, data: true, legislatura: true, numero: true,
+                  sessaoLegislativa: true, tipo: true, paginas: true, urlDiario: true,
+                },
+              },
+            },
+          },
         },
       },
       relacionadas: true,
