@@ -65,7 +65,7 @@ app.get("/", async (c) => {
         `).then(r => r.rows.map((x: Record<string, unknown>) => x.estado as string)),
   ]);
 
-  return c.json({ legislaturas, grupos, tipos, estados });
+  return c.json({ legislaturas, grupos: ["Governo", ...grupos], tipos, estados });
 });
 
 export default app;

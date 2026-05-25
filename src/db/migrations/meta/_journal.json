@@ -36,6 +36,13 @@
       "when": 1779626103949,
       "tag": "0004_peticoes",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1748131200000,
+      "tag": "0005_comissoes_canonical",
+      "breakpoints": true
     }
   ]
 }

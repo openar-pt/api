@@ -79,7 +79,11 @@ app.get("/", async (c) => {
         iniciativaId: t.autoresIniciativas.iniciativaId,
       })
       .from(t.autoresIniciativas)
-      .where(eq(t.autoresIniciativas.grupoParlamentar, grupo));
+      .where(
+        grupo === "Governo"
+          ? eq(t.autoresIniciativas.tipo, "governo")
+          : eq(t.autoresIniciativas.grupoParlamentar, grupo),
+      );
     grupoIniIds = autores.map((a) => a.iniciativaId);
     if (grupoIniIds.length === 0) return c.json({ data: [], total: 0, page, limit });
   }

@@ -469,8 +469,33 @@ async function loadIniciativas(legId: string) {
     })
   );
 
+  // Upsert canonical comissoes and build nome → id map
+  const uniqueComissoes = new Map<string, { nome: string; sigla: string | null }>();
+  for (const cf of allCFs) {
+    if (!cf.nome) continue;
+    const key = cf.nome.trim().toLowerCase();
+    if (!uniqueComissoes.has(key)) uniqueComissoes.set(key, { nome: cf.nome.trim(), sigla: cf.sigla ?? null });
+  }
+  const comissaoNomeToId = new Map<string, number>();
+  if (uniqueComissoes.size) {
+    for (const chunk of chunks(Array.from(uniqueComissoes.values()), 200)) {
+      const returned = await db
+        .insert(t.comissoes)
+        .values(chunk)
+        .onConflictDoUpdate({
+          target: t.comissoes.nome,
+          set: { sigla: sql`COALESCE(EXCLUDED.sigla, comissoes.sigla)` },
+        })
+        .returning({ id: t.comissoes.id, nome: t.comissoes.nome });
+      for (const r of returned) comissaoNomeToId.set(r.nome.trim().toLowerCase(), r.id);
+    }
+  }
+
   const returnedCFIds: number[] = [];
-  for (const chunk of chunks(allCFs.map(({ eventoOevId: _o, eventoEvtId: _e, _votacoes: _v, _relatores: _r, _documentos: _d, _audicoes: _a, _remessas: _rm, _publicacoes: _p, ...cf }) => cf), 100)) {
+  for (const chunk of chunks(allCFs.map(({ eventoOevId: _o, eventoEvtId: _e, _votacoes: _v, _relatores: _r, _documentos: _d, _audicoes: _a, _remessas: _rm, _publicacoes: _p, ...cf }) => ({
+    ...cf,
+    comissaoId: cf.nome ? (comissaoNomeToId.get(cf.nome.trim().toLowerCase()) ?? null) : null,
+  })), 100)) {
     if (!chunk.length) continue;
     const returned = await db.insert(t.comissoesFases).values(chunk).returning({ id: t.comissoesFases.id });
     for (const r of returned) returnedCFIds.push(r.id);
@@ -876,7 +901,17 @@ async function loadAtividadeDeputado(legId: string) {
   await insert(relIniEur, t.ativRelIniEur);
   await insert(relPareceres, t.ativRelPareceres);
   await insert(atividadesComissao, t.ativAtividadesComissao);
-  await insert(cms, t.ativCms);
+
+  const cmsEnriched = await (async () => {
+    if (!cms.length) return cms;
+    const allComissoes = await db.select({ id: t.comissoes.id, nome: t.comissoes.nome }).from(t.comissoes);
+    const nomeToId = new Map(allComissoes.map(r => [r.nome.trim().toLowerCase(), r.id]));
+    return cms.map(c => ({
+      ...c,
+      comissaoId: c.nome ? (nomeToId.get(c.nome.trim().toLowerCase()) ?? null) : null,
+    }));
+  })();
+  await insert(cmsEnriched, t.ativCms);
   await insert(dadosLegis, t.ativDadosLegis);
   await insert(parlJovens, t.ativParlJovens);
 

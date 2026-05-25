@@ -17,62 +17,74 @@ app.get("/", async (c) => {
   const legislatura = c.req.query("legislatura");
   const q = c.req.query("q");
 
-  const normalizedNome = sql`lower(trim(${t.comissoesFases.nome}))`;
-
   const filters = and(
-    legislatura ? eq(t.iniciativas.legislaturaId, legislatura) : undefined,
-    q ? ilike(t.comissoesFases.nome, `%${q}%`) : undefined,
+    q ? ilike(t.comissoes.nome, `%${q}%`) : undefined,
   );
+
+  // When filtering by legislatura, restrict to committees that appear in that era
+  const legislaturaFilter = legislatura
+    ? sql`${t.comissoes.id} IN (
+        SELECT DISTINCT comissao_id FROM comissoes_fases
+        INNER JOIN iniciativas ON comissoes_fases.iniciativa_id = iniciativas.id
+        WHERE comissoes_fases.comissao_id IS NOT NULL AND iniciativas.legislatura_id = ${legislatura}
+        UNION
+        SELECT DISTINCT comissao_id FROM ativ_cms
+        WHERE comissao_id IS NOT NULL AND legislatura_id = ${legislatura}
+      )`
+    : undefined;
+
+  const baseFilter = and(filters, legislaturaFilter);
 
   const [rows, [{ total }]] = await Promise.all([
     db
-      .selectDistinctOn([normalizedNome], {
-        numero: t.comissoesFases.numero,
-        sigla: t.comissoesFases.sigla,
-        nome: sql<string>`trim(${t.comissoesFases.nome})`,
-      })
-      .from(t.comissoesFases)
-      .innerJoin(t.iniciativas, eq(t.comissoesFases.iniciativaId, t.iniciativas.id))
-      .where(filters)
-      .orderBy(normalizedNome)
+      .select({ id: t.comissoes.id, nome: t.comissoes.nome, sigla: t.comissoes.sigla })
+      .from(t.comissoes)
+      .where(baseFilter)
+      .orderBy(t.comissoes.nome)
       .limit(limit)
       .offset(offset),
     db
-      .select({ total: sql<number>`count(distinct lower(trim(${t.comissoesFases.nome})))::int` })
-      .from(t.comissoesFases)
-      .innerJoin(t.iniciativas, eq(t.comissoesFases.iniciativaId, t.iniciativas.id))
-      .where(filters),
+      .select({ total: sql<number>`count(*)::int` })
+      .from(t.comissoes)
+      .where(baseFilter),
   ]);
 
   return c.json({ data: rows, total, page, limit });
 });
 
-// GET /comissoes/:numero?legislatura=XVI&page=1&limit=50
-app.get("/:numero", async (c) => {
-  const numero = c.req.param("numero");
+// GET /comissoes/:id?legislatura=XVI&q=habitação&estado=Aprovado&tipo=P&page=1&limit=50
+// :id can be a numeric comissoes.id or a committee name (for backward-compat)
+app.get("/:id", async (c) => {
+  const idParam = c.req.param("id");
   const { page, limit, offset } = parsePage(c);
   const legislatura = c.req.query("legislatura");
+  const q = c.req.query("q");
+  const estado = c.req.query("estado");
+  const tipo = c.req.query("tipo");
 
-  const comissao = await db.query.comissoesFases.findFirst({
-    where: eq(t.comissoesFases.numero, numero),
-    columns: { numero: true, sigla: true, nome: true },
-  });
+  // Resolve comissao: numeric id first, then name-based fallback
+  let comissao: { id: number; nome: string; sigla: string | null } | undefined;
+  const numericId = /^\d+$/.test(idParam) ? parseInt(idParam, 10) : null;
+  if (numericId !== null) {
+    comissao = await db.query.comissoes.findFirst({
+      where: eq(t.comissoes.id, numericId),
+      columns: { id: true, nome: true, sigla: true },
+    });
+  }
+  if (!comissao) {
+    comissao = await db.query.comissoes.findFirst({
+      where: sql`lower(trim(${t.comissoes.nome})) = lower(trim(${idParam}))`,
+      columns: { id: true, nome: true, sigla: true },
+    });
+  }
   if (!comissao) return c.json({ error: "Not found" }, 404);
 
-  // Resolve all numero values that share the same normalized name so that
-  // legislatura filtering works across legislature eras (the same committee
-  // gets a different numero in each era).
-  const sameNome = await db
-    .selectDistinct({ numero: t.comissoesFases.numero })
-    .from(t.comissoesFases)
-    .where(
-      sql`lower(trim(${t.comissoesFases.nome})) = lower(trim(${comissao.nome}))`,
-    );
-  const numeros = sameNome.map((r) => r.numero).filter(Boolean) as string[];
-
   const iniFilters = and(
-    inArray(t.comissoesFases.numero, numeros),
+    eq(t.comissoesFases.comissaoId, comissao.id),
     legislatura ? eq(t.iniciativas.legislaturaId, legislatura) : undefined,
+    q ? ilike(t.iniciativas.titulo, `%${q}%`) : undefined,
+    estado ? eq(t.iniciativas.estado, estado) : undefined,
+    tipo ? eq(t.iniciativas.tipo, tipo) : undefined,
   );
 
   const [iniciativaRows, [{ total }], legislaturasRows] = await Promise.all([
@@ -99,20 +111,29 @@ app.get("/:numero", async (c) => {
       .from(t.comissoesFases)
       .innerJoin(t.iniciativas, eq(t.comissoesFases.iniciativaId, t.iniciativas.id))
       .where(iniFilters),
-    db
-      .selectDistinct({ legislaturaId: t.iniciativas.legislaturaId, dataInicio: t.legislaturas.dataInicio })
-      .from(t.comissoesFases)
-      .innerJoin(t.iniciativas, eq(t.comissoesFases.iniciativaId, t.iniciativas.id))
-      .innerJoin(t.legislaturas, eq(t.iniciativas.legislaturaId, t.legislaturas.id))
-      .where(inArray(t.comissoesFases.numero, numeros))
-      .orderBy(desc(t.legislaturas.dataInicio)),
+    // Legislaturas where this committee is active — from both iniciativas and deputy membership
+    db.execute(sql`
+      SELECT leg.id AS legislatura_id, leg.data_inicio
+      FROM legislaturas leg
+      WHERE leg.id IN (
+        SELECT DISTINCT i.legislatura_id
+        FROM comissoes_fases cf
+        INNER JOIN iniciativas i ON cf.iniciativa_id = i.id
+        WHERE cf.comissao_id = ${comissao.id}
+        UNION
+        SELECT DISTINCT legislatura_id
+        FROM ativ_cms
+        WHERE comissao_id = ${comissao.id}
+      )
+      ORDER BY leg.data_inicio DESC
+    `),
   ]);
 
   const iniIds = iniciativaRows.map((r) => r.id);
   const fases = iniIds.length
     ? await db.query.comissoesFases.findMany({
         where: and(
-          inArray(t.comissoesFases.numero, numeros),
+          eq(t.comissoesFases.comissaoId, comissao.id),
           inArray(t.comissoesFases.iniciativaId, iniIds),
         ),
         with: {
@@ -138,9 +159,11 @@ app.get("/:numero", async (c) => {
     comissoesFases: fasesByIni.get(ini.id) ?? [],
   }));
 
-  const legislaturas = legislaturasRows.map((r) => r.legislaturaId).filter(Boolean) as string[];
+  const legislaturas = (legislaturasRows.rows as { legislatura_id: string }[])
+    .map((r) => r.legislatura_id)
+    .filter(Boolean);
 
-  return c.json({ ...comissao, legislaturas, total, page, limit, data });
+  return c.json({ id: comissao.id, nome: comissao.nome, sigla: comissao.sigla, legislaturas, total, page, limit, data });
 });
 
 export default app;

@@ -12,6 +12,20 @@ import {
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
+// ── Comissões (canonical master table) ───────────────────────────────────────
+
+export const comissoes = pgTable(
+  "comissoes",
+  {
+    id:    serial("id").primaryKey(),
+    nome:  text("nome").notNull(),   // canonical: trim() of source nome
+    sigla: text("sigla"),
+  },
+  (t) => [
+    uniqueIndex("uq_comissoes_nome").on(t.nome),
+  ]
+);
+
 // ── Legislaturas ─────────────────────────────────────────────────────────────
 
 export const legislaturas = pgTable("legislaturas", {
@@ -448,6 +462,7 @@ export const comissoesFases = pgTable(
   "comissoes_fases",
   {
     id: serial("id").primaryKey(),
+    comissaoId: integer("comissao_id").references(() => comissoes.id),  // FK to canonical comissoes table
     eventoId: integer("evento_id").notNull().references(() => eventos.id),
     iniciativaId: integer("iniciativa_id").notNull().references(() => iniciativas.id),
     accId: text("acc_id"),              // AccId
@@ -479,6 +494,7 @@ export const comissoesFases = pgTable(
     pareceresRecebidos: jsonb("pareceres_recebidos"),     // unknown structure, always null so far
   },
   (t) => [
+    index("idx_comissoes_fases_comissao").on(t.comissaoId),
     index("idx_comissoes_fases_evento").on(t.eventoId),
     index("idx_comissoes_fases_iniciativa").on(t.iniciativaId),
     index("idx_comissoes_fases_numero").on(t.numero),
@@ -1110,6 +1126,7 @@ export const ativCms = pgTable(
   "ativ_cms",
   {
     id: serial("id").primaryKey(),
+    comissaoId: integer("comissao_id").references(() => comissoes.id),  // FK to canonical comissoes table (nullable)
     deputadoId: integer("deputado_id").notNull().references(() => deputados.id),
     legislaturaId: text("legislatura_id").notNull().references(() => legislaturas.id),
     codigo: text("codigo"),
@@ -1119,7 +1136,10 @@ export const ativCms = pgTable(
     situacao: text("situacao"),
     subCargo: text("sub_cargo"),
   },
-  (t) => [index("idx_ativ_cms_dep").on(t.deputadoId)]
+  (t) => [
+    index("idx_ativ_cms_dep").on(t.deputadoId),
+    index("idx_ativ_cms_comissao").on(t.comissaoId),
+  ]
 );
 
 export const ativDadosLegis = pgTable(
@@ -1275,7 +1295,13 @@ export const anexosRelations = relations(anexos, ({ one }) => ({
   evento: one(eventos, { fields: [anexos.eventoId], references: [eventos.id] }),
 }));
 
+export const comissoesRelations = relations(comissoes, ({ many }) => ({
+  fases: many(comissoesFases),
+  membros: many(ativCms),
+}));
+
 export const comissoesFasesRelations = relations(comissoesFases, ({ one, many }) => ({
+  comissao: one(comissoes, { fields: [comissoesFases.comissaoId], references: [comissoes.id] }),
   evento: one(eventos, { fields: [comissoesFases.eventoId], references: [eventos.id] }),
   iniciativa: one(iniciativas, { fields: [comissoesFases.iniciativaId], references: [iniciativas.id] }),
   votacoes: many(comissaoVotacoes),
@@ -1413,6 +1439,7 @@ export const ativAtividadesComissaoRelations = relations(ativAtividadesComissao,
 }));
 
 export const ativCmsRelations = relations(ativCms, ({ one }) => ({
+  comissao: one(comissoes, { fields: [ativCms.comissaoId], references: [comissoes.id] }),
   deputado: one(deputados, { fields: [ativCms.deputadoId], references: [deputados.id] }),
   legislatura: one(legislaturas, { fields: [ativCms.legislaturaId], references: [legislaturas.id] }),
 }));
