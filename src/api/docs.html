@@ -665,7 +665,7 @@ function renderRespRows(schema, spec) {
   return `<div class="resp-fields">${rows(flatProps(s, spec))}</div>`;
 }
 
-function renderEndpoint(path, method, op, spec) {
+function renderEndpoint(path, method, op, spec, serverUrl) {
   const id = op.operationId;
   const params = (op.parameters||[]).map(p=>p.$ref?resolveRef(p.$ref,spec):p).filter(Boolean);
   const fields = params.map(p=>({name:p.name,type:typeStr(p.schema,spec),required:!!p.required,desc:p.description||'',default:p.schema?.default,enum:p.schema?.enum}));
@@ -673,7 +673,7 @@ function renderEndpoint(path, method, op, spec) {
   const ok = resps.find(([s])=>s.startsWith('2'));
   const errs = resps.filter(([s])=>!s.startsWith('2'));
   const okSchema = ok?.[1]?.content?.['application/json']?.schema;
-  const url = 'https://api.openar.pt' + path;
+  const url = serverUrl + path;
   const pathHtml = esc(path).replace(/(\{[^}]+\})/g,'<span class="param">$1</span>');
   const label = esc(method.toUpperCase() + ' ' + path);
 
@@ -789,7 +789,7 @@ async function boot() {
       <div class="chapter-header" id="tag-${esc(tag)}">
         <div class="chapter-label">${esc(tag)}</div>
       </div>
-      ${eps.map(({path,method,op}) => renderEndpoint(path,method,op,spec)).join('')}`;
+      ${eps.map(({path,method,op}) => renderEndpoint(path,method,op,spec,serverUrl)).join('')}`;
     }).join('')}
   `;
 
