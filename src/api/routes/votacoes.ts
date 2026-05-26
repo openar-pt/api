@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { and, asc, count, desc, eq, gte, lte } from "drizzle-orm";
+import { and, asc, count, desc, eq, gte, lte, sql } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import * as t from "../../db/schema.js";
 
@@ -54,7 +54,12 @@ app.get("/", async (c) => {
 
   const [rows, [{ total }]] = await Promise.all([
     base
-      .orderBy(desc(t.votacoes.data), asc(t.votacoes.id))
+      .orderBy(
+        c.req.query("sort") === "asc"
+          ? sql`${t.votacoes.data} ASC NULLS LAST`
+          : sql`${t.votacoes.data} DESC NULLS LAST`,
+        asc(t.votacoes.id),
+      )
       .limit(limit)
       .offset(offset),
     db

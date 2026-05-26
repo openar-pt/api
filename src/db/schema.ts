@@ -6,6 +6,7 @@ import {
   date,
   serial,
   jsonb,
+  timestamp,
   index,
   uniqueIndex,
   primaryKey,
@@ -88,6 +89,7 @@ export const deputados = pgTable("deputados", {
   dataNascimento: date("data_nascimento"),
   sexo: text("sexo"),
   profissao: text("profissao"),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
 // ── Registo Biográfico ────────────────────────────────────────────────────────
@@ -217,12 +219,14 @@ export const iniciativas = pgTable(
     obs: text("obs"),                       // IniObs
     sel: text("sel"),                       // IniSel: internal state code "1"|"2"|"3"|"4"
     links: jsonb("links"),                  // DocsOut[] — always null so far
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [
     index("idx_iniciativas_legislatura").on(t.legislaturaId),
     index("idx_iniciativas_tipo").on(t.tipo),
     index("idx_iniciativas_estado").on(t.estado),
     index("idx_iniciativas_data").on(t.dataEntrada),
+    index("idx_iniciativas_updated_at").on(t.updatedAt),
   ]
 );
 
@@ -820,9 +824,11 @@ export const peticoes = pgTable("peticoes", {
   obs: text("obs"),
   urlTexto: text("url_texto"),
   dataDebate: date("data_debate"),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 }, (t) => [
   index("idx_peticoes_legislatura").on(t.legislaturaId),
   index("idx_peticoes_situacao").on(t.situacao),
+  index("idx_peticoes_updated_at").on(t.updatedAt),
 ]);
 
 export const peticaoComissoes = pgTable("peticao_comissoes", {

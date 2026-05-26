@@ -61,22 +61,14 @@ app.get("/:id", async (c) => {
   const q = c.req.query("q");
   const estado = c.req.query("estado");
   const tipo = c.req.query("tipo");
+  const sort = c.req.query("sort") === "asc" ? "asc" : "desc";
 
-  // Resolve comissao: numeric id first, then name-based fallback
-  let comissao: { id: number; nome: string; sigla: string | null } | undefined;
-  const numericId = /^\d+$/.test(idParam) ? parseInt(idParam, 10) : null;
-  if (numericId !== null) {
-    comissao = await db.query.comissoes.findFirst({
-      where: eq(t.comissoes.id, numericId),
-      columns: { id: true, nome: true, sigla: true },
-    });
-  }
-  if (!comissao) {
-    comissao = await db.query.comissoes.findFirst({
-      where: sql`lower(trim(${t.comissoes.nome})) = lower(trim(${idParam}))`,
-      columns: { id: true, nome: true, sigla: true },
-    });
-  }
+  const numericId = parseInt(idParam, 10);
+  if (!Number.isInteger(numericId) || numericId <= 0) return c.json({ error: "Invalid id" }, 400);
+  const comissao = await db.query.comissoes.findFirst({
+    where: eq(t.comissoes.id, numericId),
+    columns: { id: true, nome: true, sigla: true },
+  });
   if (!comissao) return c.json({ error: "Not found" }, 404);
 
   const iniFilters = and(
@@ -87,23 +79,31 @@ app.get("/:id", async (c) => {
     tipo ? eq(t.iniciativas.tipo, tipo) : undefined,
   );
 
+  const dedupSub = db
+    .selectDistinctOn([t.comissoesFases.iniciativaId], {
+      id: t.iniciativas.id,
+      legislaturaId: t.iniciativas.legislaturaId,
+      numero: t.iniciativas.numero,
+      tipo: t.iniciativas.tipo,
+      tipoDesc: t.iniciativas.tipoDesc,
+      titulo: t.iniciativas.titulo,
+      dataEntrada: t.iniciativas.dataEntrada,
+      dataFim: t.iniciativas.dataFim,
+      estado: t.iniciativas.estado,
+    })
+    .from(t.comissoesFases)
+    .innerJoin(t.iniciativas, eq(t.comissoesFases.iniciativaId, t.iniciativas.id))
+    .where(iniFilters)
+    .orderBy(t.comissoesFases.iniciativaId, desc(t.iniciativas.dataEntrada))
+    .as("sub");
+
   const [iniciativaRows, [{ total }], legislaturasRows] = await Promise.all([
     db
-      .selectDistinctOn([t.comissoesFases.iniciativaId], {
-        id: t.iniciativas.id,
-        legislaturaId: t.iniciativas.legislaturaId,
-        numero: t.iniciativas.numero,
-        tipo: t.iniciativas.tipo,
-        tipoDesc: t.iniciativas.tipoDesc,
-        titulo: t.iniciativas.titulo,
-        dataEntrada: t.iniciativas.dataEntrada,
-        dataFim: t.iniciativas.dataFim,
-        estado: t.iniciativas.estado,
-      })
-      .from(t.comissoesFases)
-      .innerJoin(t.iniciativas, eq(t.comissoesFases.iniciativaId, t.iniciativas.id))
-      .where(iniFilters)
-      .orderBy(t.comissoesFases.iniciativaId, desc(t.iniciativas.dataEntrada))
+      .select()
+      .from(dedupSub)
+      .orderBy(sort === "asc"
+        ? sql`${dedupSub.dataEntrada} ASC NULLS LAST`
+        : sql`${dedupSub.dataEntrada} DESC NULLS LAST`)
       .limit(limit)
       .offset(offset),
     db

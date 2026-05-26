@@ -223,6 +223,14 @@ async function loadIniciativas(legId: string) {
           obs: sql`excluded.obs`,
           sel: sql`excluded.sel`,
           links: sql`excluded.links`,
+          updatedAt: sql`CASE
+            WHEN iniciativas.estado IS DISTINCT FROM excluded.estado
+              OR iniciativas.data_fim IS DISTINCT FROM excluded.data_fim
+              OR iniciativas.titulo IS DISTINCT FROM excluded.titulo
+              OR iniciativas.sel IS DISTINCT FROM excluded.sel
+            THEN NOW()
+            ELSE iniciativas.updated_at
+          END`,
         },
       })
       .catch((e) => {
@@ -232,6 +240,30 @@ async function loadIniciativas(legId: string) {
         if (cause) log(`  ✗ cause: ${cause?.message ?? String(cause)}`);
         throw e;
       });
+  }
+
+  // 1b. Pre-upsert canonical comissoes — fail before deleting anything if DB state is wrong
+  const comissaoNomeToId = new Map<string, number>();
+  {
+    const uniqueComissoes = new Map<string, { nome: string; sigla: string | null }>();
+    for (const n of normalized) {
+      for (const cf of n.cfs) {
+        if (!cf.nome) continue;
+        const key = cf.nome.trim().toLowerCase();
+        if (!uniqueComissoes.has(key)) uniqueComissoes.set(key, { nome: cf.nome.trim(), sigla: cf.sigla ?? null });
+      }
+    }
+    for (const chunk of chunks(Array.from(uniqueComissoes.values()), 200)) {
+      const returned = await db
+        .insert(t.comissoes)
+        .values(chunk)
+        .onConflictDoUpdate({
+          target: t.comissoes.nome,
+          set: { sigla: sql`COALESCE(EXCLUDED.sigla, comissoes.sigla)` },
+        })
+        .returning({ id: t.comissoes.id, nome: t.comissoes.nome });
+      for (const r of returned) comissaoNomeToId.set(r.nome.trim().toLowerCase(), r.id);
+    }
   }
 
   // 2. Delete dependents in FK-safe order (deepest first)
@@ -469,28 +501,6 @@ async function loadIniciativas(legId: string) {
     })
   );
 
-  // Upsert canonical comissoes and build nome → id map
-  const uniqueComissoes = new Map<string, { nome: string; sigla: string | null }>();
-  for (const cf of allCFs) {
-    if (!cf.nome) continue;
-    const key = cf.nome.trim().toLowerCase();
-    if (!uniqueComissoes.has(key)) uniqueComissoes.set(key, { nome: cf.nome.trim(), sigla: cf.sigla ?? null });
-  }
-  const comissaoNomeToId = new Map<string, number>();
-  if (uniqueComissoes.size) {
-    for (const chunk of chunks(Array.from(uniqueComissoes.values()), 200)) {
-      const returned = await db
-        .insert(t.comissoes)
-        .values(chunk)
-        .onConflictDoUpdate({
-          target: t.comissoes.nome,
-          set: { sigla: sql`COALESCE(EXCLUDED.sigla, comissoes.sigla)` },
-        })
-        .returning({ id: t.comissoes.id, nome: t.comissoes.nome });
-      for (const r of returned) comissaoNomeToId.set(r.nome.trim().toLowerCase(), r.id);
-    }
-  }
-
   const returnedCFIds: number[] = [];
   for (const chunk of chunks(allCFs.map(({ eventoOevId: _o, eventoEvtId: _e, _votacoes: _v, _relatores: _r, _documentos: _d, _audicoes: _a, _remessas: _rm, _publicacoes: _p, ...cf }) => ({
     ...cf,
@@ -626,7 +636,18 @@ async function loadRegistoBiografico() {
     for (const u of chunk) {
       await db
         .update(t.deputados)
-        .set({ dataNascimento: u.dataNascimento, sexo: u.sexo, profissao: u.profissao })
+        .set({
+          dataNascimento: u.dataNascimento,
+          sexo: u.sexo,
+          profissao: u.profissao,
+          updatedAt: sql`CASE
+            WHEN deputados.data_nascimento IS DISTINCT FROM ${u.dataNascimento}::date
+              OR deputados.sexo IS DISTINCT FROM ${u.sexo}
+              OR deputados.profissao IS DISTINCT FROM ${u.profissao}
+            THEN NOW()
+            ELSE deputados.updated_at
+          END`,
+        })
         .where(eq(t.deputados.id, u.deputadoId));
     }
   }
@@ -678,17 +699,39 @@ async function loadPeticoes(legId: string) {
     await db.select({ id: t.peticoes.id }).from(t.peticoes).where(eq(t.peticoes.legislaturaId, legId))
   ).map((r) => r.id);
 
+  // Delete child tables — they are always fully replaced (no stable external IDs)
   if (existingIds.length) {
     for (const chunk of chunks(existingIds, 500)) {
       await db.delete(t.peticaoDocumentos).where(inArray(t.peticaoDocumentos.peticaoId, chunk));
       await db.delete(t.peticaoComissoes).where(inArray(t.peticaoComissoes.peticaoId, chunk));
     }
   }
-  await db.delete(t.peticoes).where(eq(t.peticoes.legislaturaId, legId));
 
+  // Upsert peticoes — preserves updated_at unless assinaturas or situacao changes
   for (const chunk of chunks(peticoes, 500)) {
     if (!chunk.length) continue;
-    await db.insert(t.peticoes).values(chunk);
+    await db.insert(t.peticoes).values(chunk).onConflictDoUpdate({
+      target: t.peticoes.id,
+      set: {
+        numero: sql`excluded.numero`,
+        assunto: sql`excluded.assunto`,
+        autor: sql`excluded.autor`,
+        dataEntrada: sql`excluded.data_entrada`,
+        assinaturas: sql`excluded.assinaturas`,
+        assinaturasInicial: sql`excluded.assinaturas_inicial`,
+        situacao: sql`excluded.situacao`,
+        sel: sql`excluded.sel`,
+        obs: sql`excluded.obs`,
+        urlTexto: sql`excluded.url_texto`,
+        dataDebate: sql`excluded.data_debate`,
+        updatedAt: sql`CASE
+          WHEN peticoes.assinaturas IS DISTINCT FROM excluded.assinaturas
+            OR peticoes.situacao IS DISTINCT FROM excluded.situacao
+          THEN NOW()
+          ELSE peticoes.updated_at
+        END`,
+      },
+    });
   }
 
   // Insert comissoes and collect their IDs for relatores

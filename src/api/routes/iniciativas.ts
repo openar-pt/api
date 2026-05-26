@@ -1,7 +1,11 @@
 import { Hono } from "hono";
-import { and, asc, count, desc, eq, gte, ilike, inArray, lte, notInArray, or } from "drizzle-orm";
+import { and, asc, count, desc, eq, gte, ilike, inArray, lte, notInArray, or, sql } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import * as t from "../../db/schema.js";
+
+function weakEtag(d: Date): string {
+  return `W/"${d.getTime().toString(36)}"`;
+}
 
 const app = new Hono();
 
@@ -11,7 +15,7 @@ function parsePage(c: { req: { query: (k: string) => string | undefined } }) {
   return { page, limit, offset: (page - 1) * limit };
 }
 
-// GET /iniciativas?legislatura=XVII&tipo=P&estado=Aprovado&grupo=PS&resultado=aprovado&dataEntradaDe=2023-01-01&dataEntradaAte=2023-12-31&deputado=123&q=habitação&page=1&limit=50
+// GET /iniciativas?legislatura=XVII&tipo=P&estado=Aprovado&grupo=PS&resultado=aprovado&dataEntradaDe=2023-01-01&dataEntradaAte=2023-12-31&deputado=123&q=habitação&updated_since=2026-05-01T00:00:00Z&page=1&limit=50
 app.get("/", async (c) => {
   const { page, limit, offset } = parsePage(c);
   const legislatura = c.req.query("legislatura");
@@ -21,6 +25,7 @@ app.get("/", async (c) => {
   const resultado = c.req.query("resultado"); // "aprovado" | "rejeitado" | "pendente"
   const dataEntradaDe = c.req.query("dataEntradaDe");
   const dataEntradaAte = c.req.query("dataEntradaAte");
+  const updatedSince = c.req.query("updated_since");
   const deputadoParam = c.req.query("deputado");
   const deputadoId: number | undefined = deputadoParam
     ? (Number.isNaN(parseInt(deputadoParam, 10)) ? undefined : parseInt(deputadoParam, 10))
@@ -98,6 +103,7 @@ app.get("/", async (c) => {
     deputadoIniIds ? inArray(t.iniciativas.id, deputadoIniIds) : undefined,
     dataEntradaDe ? gte(t.iniciativas.dataEntrada, dataEntradaDe) : undefined,
     dataEntradaAte ? lte(t.iniciativas.dataEntrada, dataEntradaAte) : undefined,
+    updatedSince ? gte(t.iniciativas.updatedAt, new Date(updatedSince)) : undefined,
     q ? ilike(t.iniciativas.titulo, `%${q}%`) : undefined,
   );
 
@@ -115,10 +121,13 @@ app.get("/", async (c) => {
         dataFim: t.iniciativas.dataFim,
         estado: t.iniciativas.estado,
         linkTexto: t.iniciativas.linkTexto,
+        updatedAt: t.iniciativas.updatedAt,
       })
       .from(t.iniciativas)
       .where(filters)
-      .orderBy(desc(t.iniciativas.dataEntrada))
+      .orderBy(c.req.query("sort") === "asc"
+        ? sql`${t.iniciativas.dataEntrada} ASC NULLS LAST`
+        : sql`${t.iniciativas.dataEntrada} DESC NULLS LAST`)
       .limit(limit)
       .offset(offset),
     db.select({ total: count() }).from(t.iniciativas).where(filters),
@@ -166,6 +175,12 @@ app.get("/:id", async (c) => {
   });
 
   if (!ini) return c.json({ error: "Not found" }, 404);
+
+  const etag = weakEtag(ini.updatedAt);
+  c.header("ETag", etag);
+  c.header("Cache-Control", "no-cache");
+  if (c.req.header("if-none-match") === etag) return c.body(null, 304);
+
   return c.json(ini);
 });
 

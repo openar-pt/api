@@ -9,7 +9,7 @@ export const spec = {
     license: { name: "MIT", url: "https://opensource.org/licenses/MIT" },
     contact: { url: "https://openar.pt" },
   },
-  servers: [{ url: "https://api.openar.pt", description: "Produção" }],
+  servers: [{ url: "https://api.openar.pt/v1", description: "Produção" }],
   tags: [
     { name: "Meta", description: "Metadados para popular filtros (legislaturas, grupos, tipos)" },
     { name: "Legislaturas", description: "Legislaturas da Assembleia da República" },
@@ -218,6 +218,7 @@ export const spec = {
           { name: "dataEntradaAte", in: "query", schema: { type: "string", format: "date" }, description: "Data de entrada máxima, inclusive (AAAA-MM-DD)" },
           { name: "deputado", in: "query", schema: { type: "string" }, description: "Filtrar por autor deputado — aceita ID numérico ou nome parlamentar (pesquisa parcial, case-insensitive)" },
           { name: "q", in: "query", schema: { type: "string" }, description: "Pesquisa no título" },
+          { name: "sort", in: "query", schema: { type: "string", enum: ["desc", "asc"], default: "desc" }, description: "Ordenação por data de entrada" },
           { $ref: "#/components/parameters/page" },
           { $ref: "#/components/parameters/limit" },
         ],
@@ -254,6 +255,7 @@ export const spec = {
           { name: "legislatura", in: "query", schema: { type: "string" }, description: "Identificador da legislatura (ex: `XVII`)" },
           { name: "situacao", in: "query", schema: { type: "string" }, description: "Situação da petição (ex: `Admitida`, `Arquivada`)" },
           { name: "q", in: "query", schema: { type: "string" }, description: "Pesquisa no assunto" },
+          { name: "sort", in: "query", schema: { type: "string", enum: ["desc", "asc"], default: "desc" }, description: "Ordenação por data de entrada" },
           { $ref: "#/components/parameters/page" },
           { $ref: "#/components/parameters/limit" },
         ],
@@ -286,9 +288,9 @@ export const spec = {
         operationId: "listComissoes",
         tags: ["Comissões"],
         summary: "Listar comissões parlamentares",
-        description: "Devolve comissões distintas (por `numero`) presentes nas fases das iniciativas.",
+        description: "Devolve a tabela canónica de comissões, cada uma com um `id` numérico estável.",
         parameters: [
-          { name: "legislatura", in: "query", schema: { type: "string" }, description: "Filtrar pela legislatura das iniciativas associadas (ex: `XVII`)" },
+          { name: "legislatura", in: "query", schema: { type: "string" }, description: "Filtrar pelas legislaturas em que a comissão esteve activa (ex: `XVII`)" },
           { name: "q", in: "query", schema: { type: "string" }, description: "Pesquisa no nome da comissão" },
           { $ref: "#/components/parameters/page" },
           { $ref: "#/components/parameters/limit" },
@@ -301,15 +303,19 @@ export const spec = {
         },
       },
     },
-    "/comissoes/{numero}": {
+    "/comissoes/{id}": {
       get: {
         operationId: "getComissao",
         tags: ["Comissões"],
         summary: "Obter uma comissão com as suas iniciativas",
-        description: "Devolve metadados da comissão (nome, sigla) e a lista paginada de iniciativas que por ela passaram, cada uma com os respetivos relatores.",
+        description: "Devolve metadados da comissão e a lista paginada de iniciativas que por ela passaram, ordenadas da mais recente para a mais antiga. Aceita `id` numérico ou nome da comissão (backward-compat).",
         parameters: [
-          { name: "numero", in: "path", required: true, schema: { type: "string" }, description: "Identificador da comissão (ex: `1COM`)" },
+          { name: "id", in: "path", required: true, schema: { type: "string" }, description: "ID numérico da comissão (ex: `42`) ou nome completo (ex: `Comissão de Saúde`)" },
           { name: "legislatura", in: "query", schema: { type: "string" }, description: "Filtrar iniciativas por legislatura (ex: `XVII`)" },
+          { name: "estado", in: "query", schema: { type: "string" }, description: "Estado da iniciativa (ex: `Aprovado`)" },
+          { name: "tipo", in: "query", schema: { type: "string" }, description: "Tipo de iniciativa (ex: `J`, `P`)" },
+          { name: "q", in: "query", schema: { type: "string" }, description: "Pesquisa no título da iniciativa" },
+          { name: "sort", in: "query", schema: { type: "string", enum: ["desc", "asc"], default: "desc" }, description: "Ordenação por data de entrada" },
           { $ref: "#/components/parameters/page" },
           { $ref: "#/components/parameters/limit" },
         ],
@@ -333,6 +339,7 @@ export const spec = {
           { name: "unanime", in: "query", schema: { type: "boolean" }, description: "Filtrar votações unânimes" },
           { name: "data_inicio", in: "query", schema: { type: "string", format: "date" }, description: "Data de início, inclusive (AAAA-MM-DD)" },
           { name: "data_fim", in: "query", schema: { type: "string", format: "date" }, description: "Data de fim, inclusive (AAAA-MM-DD)" },
+          { name: "sort", in: "query", schema: { type: "string", enum: ["desc", "asc"], default: "desc" }, description: "Ordenação por data da votação" },
           { $ref: "#/components/parameters/page" },
           { $ref: "#/components/parameters/limit" },
         ],
@@ -369,6 +376,7 @@ export const spec = {
       legislaturaId: { name: "id", in: "path" as const, required: true, schema: { type: "string" }, description: "Identificador da legislatura (ex: `XVII`, `XIII`, `Constituinte`)" },
       page: { name: "page", in: "query" as const, schema: { type: "integer", default: 1, minimum: 1 } },
       limit: { name: "limit", in: "query" as const, schema: { type: "integer", default: 50, minimum: 1, maximum: 200 } },
+      sort: { name: "sort", in: "query" as const, schema: { type: "string", enum: ["desc", "asc"], default: "desc" }, description: "Ordenação por data (desc = mais recente primeiro)" },
     },
     responses: {
       NotFound: {
@@ -578,7 +586,8 @@ export const spec = {
         description: "Fase de apreciação de uma iniciativa numa comissão",
         properties: {
           id: { type: "integer" },
-          numero: { type: ["string", "null"], description: "Identificador da comissão" },
+          comissaoId: { type: ["integer", "null"], description: "ID da comissão canónica" },
+          numero: { type: ["string", "null"], description: "Identificador da comissão no contexto da legislatura" },
           sigla: { type: ["string", "null"] },
           nome: { type: ["string", "null"] },
           competente: { type: ["boolean", "null"], description: "true se for a comissão competente" },
@@ -644,7 +653,7 @@ export const spec = {
       Comissao: {
         type: "object",
         properties: {
-          numero: { type: ["string", "null"] },
+          id: { type: "integer", description: "Identificador canónico estável" },
           sigla: { type: ["string", "null"] },
           nome: { type: ["string", "null"] },
         },
@@ -663,9 +672,10 @@ export const spec = {
       ComissaoDetail: {
         type: "object",
         properties: {
-          numero: { type: ["string", "null"] },
+          id: { type: "integer", description: "Identificador canónico estável" },
           sigla: { type: ["string", "null"] },
           nome: { type: ["string", "null"] },
+          legislaturas: { type: "array", items: { type: "string" }, description: "Legislaturas em que a comissão esteve activa, da mais recente para a mais antiga" },
           total: { type: "integer" },
           page: { type: "integer" },
           limit: { type: "integer" },

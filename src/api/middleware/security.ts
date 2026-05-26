@@ -49,7 +49,9 @@ export function rateLimiter(): MiddlewareHandler {
 // ── Input validation ──────────────────────────────────────────────────────────
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const DATETIME_RE = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d{1,3})?Z?)?$/;
 const DATE_PARAMS = ["dataEntradaDe", "dataEntradaAte", "data_inicio", "data_fim"];
+const DATETIME_PARAMS = ["updated_since"];
 const MAX_QUERY_STRING = 500;
 const MAX_Q_LENGTH = 100;
 
@@ -70,6 +72,13 @@ export function validateInput(): MiddlewareHandler {
       const val = c.req.query(param);
       if (val && !DATE_RE.test(val)) {
         return c.json({ error: `'${param}' must be in YYYY-MM-DD format` }, 400);
+      }
+    }
+
+    for (const param of DATETIME_PARAMS) {
+      const val = c.req.query(param);
+      if (val && !DATETIME_RE.test(val)) {
+        return c.json({ error: `'${param}' must be in YYYY-MM-DD or YYYY-MM-DDTHH:MM:SSZ format` }, 400);
       }
     }
 

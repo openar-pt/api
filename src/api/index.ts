@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { compress } from "hono/compress";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { secureHeaders } from "hono/secure-headers";
@@ -23,11 +24,12 @@ app.use("*", secureHeaders());
 app.use("*", cors({
   origin: "*",
   allowMethods: ["GET", "HEAD", "OPTIONS"],
-  allowHeaders: ["Content-Type"],
-  exposeHeaders: ["X-RateLimit-Limit", "X-RateLimit-Remaining"],
+  allowHeaders: ["Content-Type", "If-None-Match"],
+  exposeHeaders: ["X-RateLimit-Limit", "X-RateLimit-Remaining", "ETag"],
   maxAge: 86400,
 }));
 app.use("*", logger());
+app.use("*", compress());
 app.use("*", rateLimiter());
 app.use("*", validateInput());
 
@@ -43,17 +45,20 @@ app.get("/", (c) => {
   return c.body(docsHtml);
 });
 
-// ── Routes ────────────────────────────────────────────────────────────────────
+// ── Versioned routes ──────────────────────────────────────────────────────────
 
-app.route("/meta", meta);
-app.route("/", fotos);
-app.route("/legislaturas", legislaturas);
-app.route("/deputados", deputados);
-app.route("/deputados", atividade);
-app.route("/iniciativas", iniciativas);
-app.route("/votacoes", votacoes);
-app.route("/peticoes", peticoes);
-app.route("/comissoes", comissoes);
+const v1 = new Hono();
+v1.route("/meta", meta);
+v1.route("/", fotos);
+v1.route("/legislaturas", legislaturas);
+v1.route("/deputados", deputados);
+v1.route("/deputados", atividade);
+v1.route("/iniciativas", iniciativas);
+v1.route("/votacoes", votacoes);
+v1.route("/peticoes", peticoes);
+v1.route("/comissoes", comissoes);
+
+app.route("/v1", v1);
 
 app.notFound((c) => c.json({ error: "Not found" }, 404));
 app.onError((err, c) => {
