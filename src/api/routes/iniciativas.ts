@@ -2,10 +2,7 @@ import { Hono } from "hono";
 import { and, asc, count, desc, eq, gte, ilike, inArray, lte, notInArray, or, sql } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import * as t from "../../db/schema.js";
-
-function weakEtag(d: Date): string {
-  return `W/"${d.getTime().toString(36)}"`;
-}
+import { parsePage, weakEtag } from "./utils.js";
 
 const OUTRO_AUTORES: Record<string, string> = {
   PAR: "PAR",
@@ -15,12 +12,6 @@ const OUTRO_AUTORES: Record<string, string> = {
 };
 
 const app = new Hono();
-
-function parsePage(c: { req: { query: (k: string) => string | undefined } }) {
-  const page = Math.max(1, parseInt(c.req.query("page") ?? "1", 10) || 1);
-  const limit = Math.min(200, Math.max(1, parseInt(c.req.query("limit") ?? "50", 10) || 50));
-  return { page, limit, offset: (page - 1) * limit };
-}
 
 // GET /iniciativas?legislatura=XVII&tipo=P&estado=Aprovado&grupo=PS&resultado=aprovado&dataEntradaDe=2023-01-01&dataEntradaAte=2023-12-31&deputado=123&q=habitação&updated_since=2026-05-01T00:00:00Z&page=1&limit=50
 app.get("/", async (c) => {

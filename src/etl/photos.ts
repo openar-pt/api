@@ -1,7 +1,7 @@
 import https from "node:https";
 import { S3Client, HeadObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
+import { agent } from "./http.js";
 
-const agent = new https.Agent({ rejectUnauthorized: false });
 const PLACEHOLDER_SIZE = 200;
 
 const s3 = new S3Client({

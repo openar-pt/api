@@ -2,14 +2,9 @@ import { Hono } from "hono";
 import { and, desc, eq, ilike, inArray, sql } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import * as t from "../../db/schema.js";
+import { parsePage } from "./utils.js";
 
 const app = new Hono();
-
-function parsePage(c: { req: { query: (k: string) => string | undefined } }) {
-  const page = Math.max(1, parseInt(c.req.query("page") ?? "1", 10) || 1);
-  const limit = Math.min(200, Math.max(1, parseInt(c.req.query("limit") ?? "50", 10) || 50));
-  return { page, limit, offset: (page - 1) * limit };
-}
 
 // GET /comissoes?legislatura=XVI&q=saude&page=1&limit=50
 app.get("/", async (c) => {
@@ -53,7 +48,6 @@ app.get("/", async (c) => {
 });
 
 // GET /comissoes/:id?legislatura=XVI&q=habitação&estado=Aprovado&tipo=P&page=1&limit=50
-// :id can be a numeric comissoes.id or a committee name (for backward-compat)
 app.get("/:id", async (c) => {
   const idParam = c.req.param("id");
   const { page, limit, offset } = parsePage(c);

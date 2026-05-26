@@ -2,14 +2,9 @@ import { Hono } from "hono";
 import { and, asc, desc, eq, ilike, inArray, sql } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import * as t from "../../db/schema.js";
+import { parsePage } from "./utils.js";
 
 const app = new Hono();
-
-function parsePage(c: { req: { query: (k: string) => string | undefined } }) {
-  const page = Math.max(1, parseInt(c.req.query("page") ?? "1", 10) || 1);
-  const limit = Math.min(200, Math.max(1, parseInt(c.req.query("limit") ?? "50", 10) || 50));
-  return { page, limit, offset: (page - 1) * limit };
-}
 
 // GET /deputados?legislatura=XVII&grupo=PS&situacao=Efetivo&q=António&page=1&limit=50
 app.get("/", async (c) => {

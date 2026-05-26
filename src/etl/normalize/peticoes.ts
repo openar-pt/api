@@ -1,4 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// Raw JSON from parlamento.pt has no TypeScript types
 type Raw = any;
 
 function toArr(v: Raw): Raw[] {

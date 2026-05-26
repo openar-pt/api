@@ -12,7 +12,6 @@ app.get("/:id/atividade", async (c) => {
 
   const legislatura = c.req.query("legislatura");
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const where = (table: any) =>
     and(
       eq(table.deputadoId, id),

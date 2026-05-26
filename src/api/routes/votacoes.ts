@@ -2,14 +2,9 @@ import { Hono } from "hono";
 import { and, asc, count, desc, eq, gte, lte, sql } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import * as t from "../../db/schema.js";
+import { parsePage } from "./utils.js";
 
 const app = new Hono();
-
-function parsePage(c: { req: { query: (k: string) => string | undefined } }) {
-  const page = Math.max(1, parseInt(c.req.query("page") ?? "1", 10) || 1);
-  const limit = Math.min(200, Math.max(1, parseInt(c.req.query("limit") ?? "50", 10) || 50));
-  return { page, limit, offset: (page - 1) * limit };
-}
 
 // GET /votacoes?legislatura=XVII&resultado=Aprovado&unanime=true&data_inicio=2025-01-01&data_fim=2025-12-31
 app.get("/", async (c) => {
