@@ -56,6 +56,58 @@ app.get("/", async (c) => {
   return c.json({ data: rows, total, page, limit });
 });
 
+// GET /deputados/carreiras?limit=50
+// Returns deputies ranked by number of legislaturas served (one row per person),
+// plus aggregate stats for all deputies.
+app.get("/carreiras", async (c) => {
+  const limit = Math.min(200, Math.max(1, parseInt(c.req.query("limit") ?? "50", 10) || 50));
+
+  const [rows, statsRows] = await Promise.all([
+    db.execute(sql`
+      SELECT
+        d.id,
+        d.nome_parlamentar  AS "nomeParlamentar",
+        COUNT(DISTINCT m.legislatura_id)::int AS "totalLegs",
+        MIN(l.data_inicio)  AS "firstLegStart",
+        MAX(l.data_inicio)  AS "lastLegStart",
+        (
+          SELECT m2.grupo_parlamentar
+          FROM mandatos m2
+          JOIN legislaturas l2 ON l2.id = m2.legislatura_id
+          WHERE m2.deputado_id = d.id
+            AND m2.situacao NOT IN ('Suplente')
+          ORDER BY l2.data_inicio DESC
+          LIMIT 1
+        ) AS "lastParty",
+        array_agg(DISTINCT m.legislatura_id ORDER BY m.legislatura_id) AS "legIds"
+      FROM deputados d
+      JOIN mandatos m ON m.deputado_id = d.id
+      JOIN legislaturas l ON l.id = m.legislatura_id
+      WHERE m.situacao NOT IN ('Suplente')
+      GROUP BY d.id, d.nome_parlamentar
+      ORDER BY "totalLegs" DESC, d.nome_parlamentar
+      LIMIT ${limit}
+    `),
+    db.execute(sql`
+      SELECT
+        COUNT(DISTINCT d.id)::int                                    AS "totalDeputies",
+        COUNT(DISTINCT d.id) FILTER (
+          WHERE sub.leg_count = 1
+        )::int                                                       AS "singleTerm",
+        ROUND(AVG(sub.leg_count), 1)::float                         AS "avgLegs"
+      FROM deputados d
+      JOIN (
+        SELECT deputado_id, COUNT(DISTINCT legislatura_id)::int AS leg_count
+        FROM mandatos
+        WHERE situacao NOT IN ('Suplente')
+        GROUP BY deputado_id
+      ) sub ON sub.deputado_id = d.id
+    `),
+  ]);
+
+  return c.json({ data: rows.rows, stats: statsRows.rows[0] ?? null });
+});
+
 // GET /deputados/:id
 app.get("/:id", async (c) => {
   const id = parseInt(c.req.param("id"), 10);
