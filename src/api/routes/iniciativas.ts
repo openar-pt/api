@@ -7,6 +7,13 @@ function weakEtag(d: Date): string {
   return `W/"${d.getTime().toString(36)}"`;
 }
 
+const OUTRO_AUTORES: Record<string, string> = {
+  PAR: "PAR",
+  Madeira: "Assembleia Legislativa da Região Autónoma da Madeira",
+  Açores: "Assembleia Legislativa da Região Autónoma dos Açores",
+  Mesa: "Mesa da Assembleia",
+};
+
 const app = new Hono();
 
 function parsePage(c: { req: { query: (k: string) => string | undefined } }) {
@@ -87,7 +94,9 @@ app.get("/", async (c) => {
       .where(
         grupo === "Governo"
           ? eq(t.autoresIniciativas.tipo, "governo")
-          : eq(t.autoresIniciativas.grupoParlamentar, grupo),
+          : OUTRO_AUTORES[grupo]
+            ? and(eq(t.autoresIniciativas.tipo, "outro"), eq(t.autoresIniciativas.nome, OUTRO_AUTORES[grupo]))
+            : eq(t.autoresIniciativas.grupoParlamentar, grupo),
       );
     grupoIniIds = autores.map((a) => a.iniciativaId);
     if (grupoIniIds.length === 0) return c.json({ data: [], total: 0, page, limit });
