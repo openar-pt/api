@@ -1275,6 +1275,10 @@ export const votacoesRelations = relations(votacoes, ({ one, many }) => ({
 
 export const votacaoPublicacoesRelations = relations(votacaoPublicacoes, ({ one }) => ({
   evento: one(eventos, { fields: [votacaoPublicacoes.eventoId], references: [eventos.id] }),
+  votacao: one(votacoes, {
+    fields: [votacaoPublicacoes.votacaoIniId, votacaoPublicacoes.votacaoId],
+    references: [votacoes.iniciativaId, votacoes.id],
+  }),
 }));
 
 export const publicacoesRelations = relations(publicacoes, ({ one }) => ({
