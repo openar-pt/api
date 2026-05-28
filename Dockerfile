@@ -1,14 +1,16 @@
 FROM node:22-alpine AS deps
 WORKDIR /app
-COPY package*.json ./
-RUN npm ci --omit=dev
+RUN corepack enable && corepack prepare pnpm@latest --activate
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile --prod
 
 FROM node:22-alpine AS builder
 WORKDIR /app
-COPY package*.json tsconfig.json ./
-RUN npm ci
+RUN corepack enable && corepack prepare pnpm@latest --activate
+COPY package.json pnpm-lock.yaml tsconfig.json ./
+RUN pnpm install --frozen-lockfile
 COPY src ./src
-RUN npm run build
+RUN pnpm run build
 
 FROM node:22-alpine
 WORKDIR /app
