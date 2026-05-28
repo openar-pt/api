@@ -136,43 +136,72 @@ app.get("/", async (c) => {
   return c.json({ data: rows, total, page, limit });
 });
 
-// GET /iniciativas/:id — full detail with autores, eventos, votações, relacionadas
+// GET /iniciativas/:id — returns everything by default.
+// Pass ?include=A,B to receive only those relations (whitelist).
+// Top-level: autores, eventos, relacionadas, anexos, conjuntas, peticoes, propostasAlteracao
+// Within eventos (prefix or bare): eventos.votacoes, eventos.publicacoes,
+//   eventos.comissoesFases, eventos.intervencoesdebates
 app.get("/:id", async (c) => {
   const id = parseInt(c.req.param("id"), 10);
   if (!id) return c.json({ error: "Invalid id" }, 400);
 
-  const ini = await db.query.iniciativas.findFirst({
-    where: eq(t.iniciativas.id, id),
-    with: {
-      autores: true,
-      eventos: {
-        orderBy: [asc(t.eventos.dataFase)],
-        with: {
-          votacoes: true,
-          publicacoes: true,
-          anexos: true,
-          iniciativasConjuntas: true,
-          peticoesConjuntas: true,
-          intervencoesdebates: { with: { oradores: { with: { publicacoes: true } } } },
-          comissoesFases: {
-            with: {
-              relatores: true,
-              votacoes: { with: { publicacoes: true } },
-              documentos: true,
-              audicoes: true,
-              remessas: true,
-              publicacoes: true,
-            },
-          },
-        },
+  const includeParam = c.req.query("include");
+  // null = no restriction → include everything; Set = whitelist
+  const includes: Set<string> | null = includeParam !== undefined
+    ? new Set(includeParam.split(",").map((s) => s.trim()).filter(Boolean))
+    : null;
+  const all = includes === null;
+
+  // Top-level relation included?
+  const has = (key: string) => all || includes!.has(key);
+  // Evento sub-relation included? Supports bare key or "eventos.key" prefix.
+  const hasEvento = (sub: string) =>
+    all || includes!.has("eventos") || includes!.has(`eventos.${sub}`) || includes!.has(sub);
+
+  const needsEventos = all
+    || has("eventos")
+    || hasEvento("votacoes")
+    || hasEvento("publicacoes")
+    || hasEvento("comissoesFases")
+    || hasEvento("intervencoesdebates");
+
+  const eventoWith: Record<string, unknown> = {};
+  if (hasEvento("votacoes"))    eventoWith.votacoes    = true;
+  if (hasEvento("publicacoes")) eventoWith.publicacoes = true;
+  if (all) {
+    eventoWith.iniciativasConjuntas = true;
+    eventoWith.peticoesConjuntas    = true;
+    eventoWith.anexos               = true;
+  }
+  if (hasEvento("comissoesFases")) {
+    eventoWith.comissoesFases = {
+      with: {
+        relatores: true,
+        votacoes: { with: { publicacoes: true } },
+        documentos: true,
+        audicoes: true,
+        remessas: true,
+        publicacoes: true,
       },
-      relacionadas: true,
-      anexos: true,
-      conjuntas: true,
-      peticoes: true,
-      propostasAlteracao: { with: { publicacoes: true } },
-    },
-  });
+    };
+  }
+  if (hasEvento("intervencoesdebates")) {
+    eventoWith.intervencoesdebates = { with: { oradores: { with: { publicacoes: true } } } };
+  }
+
+  const withClause: Record<string, unknown> = {};
+  if (has("autores"))    withClause.autores    = true;
+  if (has("relacionadas")) withClause.relacionadas = true;
+  if (has("anexos"))     withClause.anexos     = true;
+  if (needsEventos) withClause.eventos = { orderBy: [asc(t.eventos.dataFase)], with: eventoWith };
+  if (all) {
+    withClause.conjuntas         = true;
+    withClause.peticoes          = true;
+    withClause.propostasAlteracao = { with: { publicacoes: true } };
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const ini = await db.query.iniciativas.findFirst({ where: eq(t.iniciativas.id, id), with: withClause as any });
 
   if (!ini) return c.json({ error: "Not found" }, 404);
 
