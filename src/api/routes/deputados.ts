@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { and, asc, desc, eq, ilike, inArray, sql } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import * as t from "../../db/schema.js";
-import { parsePage } from "./utils.js";
+import { parsePage, setCache } from "./utils.js";
 
 const app = new Hono();
 
@@ -53,6 +53,7 @@ app.get("/", async (c) => {
 
   const total = totalRows[0]?.total ?? 0;
 
+  setCache(c);
   return c.json({ data: rows, total, page, limit });
 });
 
@@ -105,6 +106,7 @@ app.get("/carreiras", async (c) => {
     `),
   ]);
 
+  setCache(c);
   return c.json({ data: rows.rows, stats: statsRows.rows[0] ?? null });
 });
 
@@ -171,6 +173,7 @@ app.get("/:id", async (c) => {
 
   if (!dep) return c.json({ error: "Not found" }, 404);
 
+  setCache(c);
   return c.json({
     ...dep,
     stats,

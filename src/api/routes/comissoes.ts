@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { and, desc, eq, ilike, inArray, sql } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import * as t from "../../db/schema.js";
-import { parsePage } from "./utils.js";
+import { parsePage, setCache } from "./utils.js";
 
 const app = new Hono();
 
@@ -44,6 +44,7 @@ app.get("/", async (c) => {
       .where(baseFilter),
   ]);
 
+  setCache(c);
   return c.json({ data: rows, total, page, limit });
 });
 
@@ -157,6 +158,7 @@ app.get("/:id", async (c) => {
     .map((r) => r.legislatura_id)
     .filter(Boolean);
 
+  setCache(c);
   return c.json({ id: comissao.id, nome: comissao.nome, sigla: comissao.sigla, legislaturas, total, page, limit, data });
 });
 

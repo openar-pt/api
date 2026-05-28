@@ -2,11 +2,13 @@ import { Hono } from "hono";
 import { count, eq } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import * as t from "../../db/schema.js";
+import { setCache } from "./utils.js";
 
 const app = new Hono();
 
 app.get("/", async (c) => {
   const rows = await db.select().from(t.legislaturas).orderBy(t.legislaturas.dataInicio);
+  setCache(c, "long");
   return c.json(rows);
 });
 
@@ -35,6 +37,7 @@ app.get("/:id", async (c) => {
         .where(eq(t.iniciativas.legislaturaId, id)),
     ]);
 
+  setCache(c, "long");
   return c.json({ ...leg, iniciativasTotal, deputadosTotal, votacoesTotal });
 });
 

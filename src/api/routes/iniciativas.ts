@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { and, asc, count, desc, eq, gte, ilike, inArray, lte, notInArray, or, sql } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import * as t from "../../db/schema.js";
-import { parsePage, weakEtag } from "./utils.js";
+import { parsePage, setCache, setCacheWithEtag } from "./utils.js";
 
 const OUTRO_AUTORES: Record<string, string> = {
   PAR: "PAR",
@@ -133,6 +133,7 @@ app.get("/", async (c) => {
     db.select({ total: count() }).from(t.iniciativas).where(filters),
   ]);
 
+  setCache(c);
   return c.json({ data: rows, total, page, limit });
 });
 
@@ -205,11 +206,7 @@ app.get("/:id", async (c) => {
 
   if (!ini) return c.json({ error: "Not found" }, 404);
 
-  const etag = weakEtag(ini.updatedAt);
-  c.header("ETag", etag);
-  c.header("Cache-Control", "no-cache");
-  if (c.req.header("if-none-match") === etag) return c.body(null, 304);
-
+  if (setCacheWithEtag(c, ini.updatedAt)) return c.body(null, 304);
   return c.json(ini);
 });
 

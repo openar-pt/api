@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { sql } from "drizzle-orm";
 import { db } from "../../db/index.js";
+import { setCache } from "./utils.js";
 
 const app = new Hono();
 
@@ -65,6 +66,7 @@ app.get("/", async (c) => {
         `).then(r => r.rows.map((x: Record<string, unknown>) => x.estado as string)),
   ]);
 
+  setCache(c, "long");
   return c.json({ legislaturas, grupos: ["Governo", "PAR", "Madeira", "Açores", "Mesa", ...grupos], tipos, estados });
 });
 

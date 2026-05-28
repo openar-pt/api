@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { and, asc, count, desc, eq, gte, lte, sql } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import * as t from "../../db/schema.js";
-import { parsePage } from "./utils.js";
+import { parsePage, setCache } from "./utils.js";
 
 const app = new Hono();
 
@@ -64,6 +64,7 @@ app.get("/", async (c) => {
       .where(filters),
   ]);
 
+  setCache(c);
   return c.json({ data: rows, total, page, limit });
 });
 
@@ -90,6 +91,7 @@ app.get("/:id", async (c) => {
     columns: { id: true, titulo: true, numero: true, tipo: true, legislaturaId: true },
   });
 
+  setCache(c);
   return c.json({ ...vot, iniciativa: ini });
 });
 

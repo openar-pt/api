@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { and, eq } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import * as t from "../../db/schema.js";
+import { setCache } from "./utils.js";
 
 const app = new Hono();
 
@@ -60,6 +61,7 @@ app.get("/:id/atividade", async (c) => {
 
   if (!dep) return c.json({ error: "Not found" }, 404);
 
+  setCache(c);
   return c.json({
     deputado: dep,
     iniciativas,

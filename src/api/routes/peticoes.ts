@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { and, asc, desc, eq, gte, ilike, sql } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import * as t from "../../db/schema.js";
-import { parsePage, weakEtag } from "./utils.js";
+import { parsePage, setCache, setCacheWithEtag } from "./utils.js";
 
 const app = new Hono();
 
@@ -37,6 +37,7 @@ app.get("/", async (c) => {
     db.select({ total: sql<number>`count(*)::int` }).from(t.peticoes).where(filters),
   ]);
 
+  setCache(c);
   return c.json({ data: rows, total: totalRows[0]?.total ?? 0, page, limit });
 });
 
@@ -56,11 +57,7 @@ app.get("/:id", async (c) => {
 
   if (!pet) return c.json({ error: "Not found" }, 404);
 
-  const etag = weakEtag(pet.updatedAt);
-  c.header("ETag", etag);
-  c.header("Cache-Control", "no-cache");
-  if (c.req.header("if-none-match") === etag) return c.body(null, 304);
-
+  if (setCacheWithEtag(c, pet.updatedAt)) return c.body(null, 304);
   return c.json({ ...pet, comissoes, documentos });
 });
 
