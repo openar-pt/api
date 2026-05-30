@@ -54,20 +54,24 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
 
-      - run: npm ci
+      - run: pnpm install --frozen-lockfile
 
-      - run: npm run build
+      - run: pnpm run build
 
       - name: Run migrations
-        run: npm run db:migrate:prod
+        run: pnpm run db:migrate:prod
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Run ETL
-        run: node dist/etl/load.js ${{ github.event.inputs.mode || '--current' }} ${{ github.event.inputs.source && format('--source {0}', github.event.inputs.source) || '' }}
+        run: |
+          ARGS="$ETL_MODE"
+          if [ -n "$ETL_SOURCE" ]; then ARGS="$ARGS --source $ETL_SOURCE"; fi
+          node dist/etl/load.js $ARGS
         env:
+          ETL_MODE: ${{ github.event.inputs.mode || '--current' }}
+          ETL_SOURCE: ${{ github.event.inputs.source || '' }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
           R2_BUCKET: ${{ secrets.R2_BUCKET }}
