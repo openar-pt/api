@@ -586,10 +586,12 @@ export const spec = {
       Legislatura: {
         type: "object",
         properties: {
-          id: { type: "string", example: "XVII" },
+          id: { type: "string", example: "XVII", description: "`Constituinte`, ou numeração romana de `I` a `XVII`" },
           nome: { type: "string", example: "XVII Legislatura" },
-          dataInicio: { type: "string", format: "date", example: "2025-06-03" },
+          dataInicio: { type: ["string", "null"], format: "date", example: "2025-06-03" },
           dataFim: { type: ["string", "null"], format: "date", description: "null para a legislatura em curso" },
+          arId: { type: ["string", "null"], description: "Identificador numérico interno da AR (`DetalheLegislatura.id`)", example: "108" },
+          siglaAntiga: { type: ["string", "null"], description: "Sigla usada nos dados de origem", example: "XVII" },
         },
       },
       LegislaturaDetail: {
