@@ -264,6 +264,64 @@ describe("GET /v1/iniciativas/:id — ?include= scoping", () => {
       const { status } = await get("/v1/iniciativas/999999999");
       expect(status).toBe(404);
     });
+
+    it("returns 400 for an unknown include key", async () => {
+      const { status, body } = await get(`/v1/iniciativas/${id}?include=autores,bogus`);
+      expect(status).toBe(400);
+      expect(body.error).toContain("bogus");
+      expect(body.valid).toContain("autores");
+    });
+
+    it("returns 400 for a misspelled evento prefix", async () => {
+      const { status } = await get(`/v1/iniciativas/${id}?include=evento.votacoes`);
+      expect(status).toBe(400);
+    });
+
+    it("accepts every documented include key", async () => {
+      const all = [
+        "autores", "eventos", "relacionadas", "anexos", "conjuntas", "peticoes", "propostasAlteracao",
+        "eventos.votacoes", "eventos.publicacoes", "eventos.comissoesFases",
+        "eventos.intervencoesdebates", "eventos.iniciativasConjuntas",
+        "eventos.peticoesConjuntas", "eventos.anexos",
+      ].join(",");
+      const { status } = await get(`/v1/iniciativas/${id}?include=${encodeURIComponent(all)}`);
+      expect(status).toBe(200);
+    });
+  });
+
+  // ── Relations that were previously unreachable via ?include= ────────────────
+
+  describe("heavy top-level relations are individually requestable", () => {
+    for (const key of ["conjuntas", "peticoes", "propostasAlteracao"]) {
+      it(`?include=${key} returns ${key} and nothing else`, async () => {
+        const { status, body } = await get(`/v1/iniciativas/${id}?include=${key}`);
+        expect(status).toBe(200);
+        expect(body).toHaveProperty(key);
+        for (const other of ["autores", "eventos", "relacionadas", "anexos"]) {
+          expect(body).not.toHaveProperty(other);
+        }
+      });
+    }
+  });
+
+  // ── `anexos` is ambiguous: bare form means the top-level relation ───────────
+
+  describe("anexos disambiguation", () => {
+    it("bare 'anexos' gives the top-level relation, not the evento one", async () => {
+      const { body } = await get(`/v1/iniciativas/${id}?include=anexos,eventos.votacoes`);
+      expect(body).toHaveProperty("anexos");
+      const ev = firstEvento(body);
+      if (!ev) return;
+      expect(ev).not.toHaveProperty("anexos");
+    });
+
+    it("'eventos.anexos' gives the evento relation, not the top-level one", async () => {
+      const { body } = await get(`/v1/iniciativas/${id}?include=eventos.anexos`);
+      expect(body).not.toHaveProperty("anexos");
+      const ev = firstEvento(body);
+      if (!ev) return;
+      expect(ev).toHaveProperty("anexos");
+    });
   });
 
   // ── Regression guard ───────────────────────────────────────────────────────

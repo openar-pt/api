@@ -115,7 +115,7 @@ intervenções, comissões, relatorias, delegações e mais. Sem `legislatura` d
 ### Iniciativas
 
 ```
-GET /v1/iniciativas?legislatura=XVII&tipo=P&estado=Aprovado&grupo=PS&q=habitação
+GET /v1/iniciativas?legislatura=XVII&tipo=P&resultado=aprovado&grupo=PS&q=habitação
 GET /v1/iniciativas/:id?include=autores,eventos.votacoes
 ```
 
@@ -124,7 +124,9 @@ Parâmetros: `legislatura`, `tipo`, `estado` (repetível), `grupo`, `resultado`,
 
 - `tipo` — `R` Resolução, `P` Proposta de Lei, `J` Projeto de Lei, `D` Decreto, `S` Outros,
   `A` Apreciação, `I` Iniciativa Europeia, `C` Pergunta/Requerimento, `F` Outros
-- `estado` — pode repetir-se: `?estado=Aprovado&estado=Rejeitado`
+- `estado` — fase actual do processo, **não** um veredicto. Pode repetir-se:
+  `?estado=Lei (Publicação DR)&estado=Iniciativa Caducada`. Valores exactos em `/meta`
+  (`Aprovado` não é um deles — para aprovação use `resultado`)
 - `grupo` — sigla do partido autor, ou `Governo` / `PAR` / `Madeira` / `Açores` / `Mesa`
 - `resultado` — `aprovado` (≥1 votação aprovada), `rejeitado`, `pendente` (sem votações)
 - `deputado` — ID numérico ou nome parlamentar (pesquisa parcial)
@@ -162,7 +164,7 @@ GET /v1/votacoes?legislatura=XVII&resultado=Aprovado&unanime=true&a_favor=PS
 GET /v1/votacoes/:id?iniciativa_id=123
 ```
 
-Parâmetros: `legislatura`, `resultado` (`Aprovado` / `Rejeitado`), `unanime`
+Parâmetros: `legislatura`, `resultado` (`Aprovado` / `Rejeitado` / `Prejudicado`), `unanime`
 (`true`/`false`/`1`/`0`), `iniciativa`, `tipo`, `grupo` (partido autor da iniciativa),
 `a_favor` / `contra` / `abstencao` (sigla que votou nesse sentido), `data_inicio`,
 `data_fim`, `sort`.
@@ -184,7 +186,7 @@ Parâmetros: `legislatura`, `situacao`, `q` (assunto), `data_inicio`, `data_fim`
 
 ```
 GET /v1/comissoes?legislatura=XVII&q=saude
-GET /v1/comissoes/:id?legislatura=XVII&estado=Aprovado
+GET /v1/comissoes/:id?legislatura=XVII&tipo=J
 ```
 
 `/comissoes` devolve a tabela canónica, cada comissão com um `id` numérico estável.

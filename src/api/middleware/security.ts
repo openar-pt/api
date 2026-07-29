@@ -52,6 +52,8 @@ const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const DATETIME_RE = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d{1,3})?Z?)?$/;
 const DATE_PARAMS = ["dataEntradaDe", "dataEntradaAte", "data_inicio", "data_fim"];
 const DATETIME_PARAMS = ["updated_since"];
+const BOOL_PARAMS = ["unanime"];
+const BOOL_VALUES = new Set(["true", "false", "1", "0"]);
 const MAX_QUERY_STRING = 500;
 const MAX_Q_LENGTH = 100;
 
@@ -79,6 +81,13 @@ export function validateInput(): MiddlewareHandler {
       const val = c.req.query(param);
       if (val && !DATETIME_RE.test(val)) {
         return c.json({ error: `'${param}' must be in YYYY-MM-DD or YYYY-MM-DDTHH:MM:SSZ format` }, 400);
+      }
+    }
+
+    for (const param of BOOL_PARAMS) {
+      const val = c.req.query(param);
+      if (val !== undefined && !BOOL_VALUES.has(val)) {
+        return c.json({ error: `'${param}' must be one of true, false, 1, 0` }, 400);
       }
     }
 

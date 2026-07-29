@@ -2,15 +2,16 @@ import { Hono } from "hono";
 import { and, asc, desc, eq, ilike, inArray, sql } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import * as t from "../../db/schema.js";
-import { parsePage, setCache } from "./utils.js";
+import { parsePage, parseSort, setCache } from "./utils.js";
 
 const app = new Hono();
 
-// GET /comissoes?legislatura=XVI&q=saude&page=1&limit=50
+// GET /comissoes?legislatura=XVI&q=saude&sort=asc&page=1&limit=50
 app.get("/", async (c) => {
   const { page, limit, offset } = parsePage(c);
   const legislatura = c.req.query("legislatura");
   const q = c.req.query("q");
+  const sort = parseSort(c, "asc"); // ordered by name, so A–Z is the natural default
 
   const filters = and(
     q ? ilike(t.comissoes.nome, `%${q}%`) : undefined,
@@ -35,7 +36,10 @@ app.get("/", async (c) => {
       .select({ id: t.comissoes.id, nome: t.comissoes.nome, sigla: t.comissoes.sigla })
       .from(t.comissoes)
       .where(baseFilter)
-      .orderBy(asc(t.comissoes.nome), asc(t.comissoes.id))
+      .orderBy(
+        sort === "asc" ? asc(t.comissoes.nome) : desc(t.comissoes.nome),
+        asc(t.comissoes.id),
+      )
       .limit(limit)
       .offset(offset),
     db
@@ -56,7 +60,7 @@ app.get("/:id", async (c) => {
   const q = c.req.query("q");
   const estado = c.req.query("estado");
   const tipo = c.req.query("tipo");
-  const sort = c.req.query("sort") === "asc" ? "asc" : "desc";
+  const sort = parseSort(c);
 
   const numericId = parseInt(idParam, 10);
   if (!Number.isInteger(numericId) || numericId <= 0) return c.json({ error: "Invalid id" }, 400);

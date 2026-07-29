@@ -25,7 +25,7 @@ app.use("*", cors({
   origin: "*",
   allowMethods: ["GET", "HEAD", "OPTIONS"],
   allowHeaders: ["Content-Type", "If-None-Match"],
-  exposeHeaders: ["X-RateLimit-Limit", "X-RateLimit-Remaining", "ETag"],
+  exposeHeaders: ["X-RateLimit-Limit", "X-RateLimit-Remaining", "Retry-After", "ETag"],
   maxAge: 86400,
 }));
 app.use("*", logger());

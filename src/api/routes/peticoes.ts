@@ -1,22 +1,25 @@
 import { Hono } from "hono";
-import { and, asc, desc, eq, gte, ilike, sql } from "drizzle-orm";
+import { and, asc, eq, gte, ilike, lte, sql } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import * as t from "../../db/schema.js";
-import { parsePage, setCache, setCacheWithEtag } from "./utils.js";
+import { parseDateRange, parsePage, parseSort, setCache, setCacheWithEtag } from "./utils.js";
 
 const app = new Hono();
 
-// GET /peticoes?legislatura=XVII&situacao=...&q=...&updated_since=2026-05-01T00:00:00Z&page=1&limit=50
+// GET /peticoes?legislatura=XVII&situacao=...&q=...&data_inicio=2025-01-01&data_fim=2025-12-31&updated_since=2026-05-01T00:00:00Z&page=1&limit=50
 app.get("/", async (c) => {
   const { page, limit, offset } = parsePage(c);
   const legislatura = c.req.query("legislatura");
   const situacao = c.req.query("situacao");
   const updatedSince = c.req.query("updated_since");
+  const { from: dataDe, to: dataAte } = parseDateRange(c);
   const q = c.req.query("q");
 
   const filters = and(
     legislatura ? eq(t.peticoes.legislaturaId, legislatura) : undefined,
     situacao ? eq(t.peticoes.situacao, situacao) : undefined,
+    dataDe ? gte(t.peticoes.dataEntrada, dataDe) : undefined,
+    dataAte ? lte(t.peticoes.dataEntrada, dataAte) : undefined,
     updatedSince ? gte(t.peticoes.updatedAt, new Date(updatedSince)) : undefined,
     q ? ilike(t.peticoes.assunto, `%${q}%`) : undefined,
   );
@@ -27,7 +30,7 @@ app.get("/", async (c) => {
       .from(t.peticoes)
       .where(filters)
       .orderBy(
-        c.req.query("sort") === "asc"
+        parseSort(c) === "asc"
           ? sql`${t.peticoes.dataEntrada} ASC NULLS LAST`
           : sql`${t.peticoes.dataEntrada} DESC NULLS LAST`,
         asc(t.peticoes.id),

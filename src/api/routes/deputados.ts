@@ -1,18 +1,20 @@
 import { Hono } from "hono";
-import { and, asc, desc, eq, ilike, inArray, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, ilike, inArray, sql } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import * as t from "../../db/schema.js";
-import { parsePage, setCache } from "./utils.js";
+import { parsePage, parseSort, setCache } from "./utils.js";
 
 const app = new Hono();
 
-// GET /deputados?legislatura=XVII&grupo=PS&situacao=Efetivo&q=António&page=1&limit=50
+// GET /deputados?legislatura=XVII&grupo=PS&situacao=Efetivo&q=António&sort=asc&page=1&limit=50
 app.get("/", async (c) => {
   const { page, limit, offset } = parsePage(c);
   const legislatura = c.req.query("legislatura");
   const grupo = c.req.query("grupo");
   const situacao = c.req.query("situacao"); // "Efetivo" | "Suplente" | "Impedido" | "ativo" (Efetivo + Efetivo Temporário + Impedido)
+  const updatedSince = c.req.query("updated_since");
   const q = c.req.query("q");
+  const sort = parseSort(c, "asc"); // ordered by name, so A–Z is the natural default
 
   // "ativo" = currently seated: Efetivo + Efetivo Temporário + Efetivo Definitivo (= 230 seats)
   // Impedido are deputies serving in government — their suplente holds the seat instead
@@ -24,6 +26,7 @@ app.get("/", async (c) => {
     legislatura ? eq(t.mandatos.legislaturaId, legislatura) : undefined,
     grupo ? eq(t.mandatos.grupoParlamentar, grupo) : undefined,
     situacaoFilter,
+    updatedSince ? gte(t.deputados.updatedAt, new Date(updatedSince)) : undefined,
     q ? ilike(t.deputados.nomeParlamentar, `%${q}%`) : undefined,
   );
 
@@ -38,6 +41,7 @@ app.get("/", async (c) => {
       circuloEleitoral: t.mandatos.circuloEleitoral,
       legislaturaId: t.mandatos.legislaturaId,
       situacao: t.mandatos.situacao,
+      updatedAt: t.deputados.updatedAt,
     })
     .from(t.deputados)
     .innerJoin(t.mandatos, eq(t.deputados.id, t.mandatos.deputadoId))
@@ -50,7 +54,10 @@ app.get("/", async (c) => {
     db
       .select()
       .from(sub)
-      .orderBy(asc(sub.nomeParlamentar), asc(sub.id))
+      .orderBy(
+        sort === "asc" ? asc(sub.nomeParlamentar) : desc(sub.nomeParlamentar),
+        asc(sub.id),
+      )
       .limit(limit)
       .offset(offset),
     db.select({ total: sql<number>`count(*)::int` }).from(sub),

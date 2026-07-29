@@ -6,6 +6,31 @@ export function parsePage(c: Context) {
   return { page, limit, offset: (page - 1) * limit };
 }
 
+// Date-ordered endpoints default to "desc" (newest first); name-ordered ones
+// pass fallback "asc" so A–Z stays the default.
+export function parseSort(c: Context, fallback: "asc" | "desc" = "desc"): "asc" | "desc" {
+  const sort = c.req.query("sort");
+  return sort === "asc" || sort === "desc" ? sort : fallback;
+}
+
+// Canonical date-range params are `data_inicio` / `data_fim` on every list
+// endpoint. `legacy` names an older camelCase pair kept working for
+// backwards-compatibility (e.g. dataEntradaDe/dataEntradaAte on /iniciativas).
+export function parseDateRange(c: Context, legacy?: [string, string]) {
+  return {
+    from: c.req.query("data_inicio") ?? (legacy ? c.req.query(legacy[0]) : undefined),
+    to:   c.req.query("data_fim")    ?? (legacy ? c.req.query(legacy[1]) : undefined),
+  };
+}
+
+// Values are validated by the security middleware, so anything present here is
+// already one of true/false/1/0.
+export function parseBool(c: Context, name: string): boolean | undefined {
+  const v = c.req.query(name);
+  if (v === undefined) return undefined;
+  return v === "true" || v === "1";
+}
+
 export function weakEtag(d: Date): string {
   return `W/"${d.getTime().toString(36)}"`;
 }
