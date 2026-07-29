@@ -127,7 +127,7 @@ app.get("/:id", async (c) => {
   const id = parseInt(c.req.param("id"), 10);
   if (!id) return c.json({ error: "Invalid id" }, 400);
 
-  const [dep, stats, iniciativas, bioHab, bioTit, bioCar, bioCond, bioObras] = await Promise.all([
+  const [dep, stats, iniciativas, bioHab, bioTit, bioCar, bioCond, bioObras, bioLegis, bioOrgs] = await Promise.all([
     db.query.deputados.findFirst({
       where: eq(t.deputados.id, id),
       with: { mandatos: true, cargos: true, situacoes: true },
@@ -181,6 +181,14 @@ app.get("/:id", async (c) => {
     db.select().from(t.bioCargosFuncoes).where(eq(t.bioCargosFuncoes.deputadoId, id)).orderBy(t.bioCargosFuncoes.ordem),
     db.select().from(t.bioCondecoracoes).where(eq(t.bioCondecoracoes.deputadoId, id)).orderBy(t.bioCondecoracoes.ordem),
     db.select().from(t.bioObrasPublicadas).where(eq(t.bioObrasPublicadas.deputadoId, id)).orderBy(t.bioObrasPublicadas.ordem),
+
+    // Per-legislature history, including the party (distinct from the GP in mandatos)
+    db.select().from(t.bioDeputadoLegislaturas)
+      .where(eq(t.bioDeputadoLegislaturas.deputadoId, id))
+      .orderBy(t.bioDeputadoLegislaturas.legDes),
+    db.select().from(t.bioOrgaos)
+      .where(eq(t.bioOrgaos.deputadoId, id))
+      .orderBy(t.bioOrgaos.tipo, t.bioOrgaos.orgDes),
   ]);
 
   if (!dep) return c.json({ error: "Not found" }, 404);
@@ -196,6 +204,8 @@ app.get("/:id", async (c) => {
       cargosFuncoes: bioCar,
       condecoracoes: bioCond,
       obrasPublicadas: bioObras,
+      legislaturas: bioLegis,
+      orgaos: bioOrgs,
     },
   });
 });

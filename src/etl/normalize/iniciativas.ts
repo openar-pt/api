@@ -57,6 +57,10 @@ interface RawOrador {
   sumario: string | null;
   teor: string | null;      // Peticoes_OradoresOut.teor — always null so far in XVII
   linkVideo: { link: string }[] | null;
+  // The speakers are published under `deputadosOradores`. `deputados` is a legacy
+  // shape kept for legislaturas where the newer key is absent — it is null
+  // throughout XVI and XVII.
+  deputadosOradores: RawAutorDeputado[] | RawAutorDeputado | null;
   deputados: unknown | null;
   membrosGoverno: { nome: string | null; cargo: string | null; governo: string | null } | null;
   convidados: { nome: string | null; cargo: string | null; pais: string | null; honra: string | null } | null;
@@ -247,6 +251,12 @@ function toDate(s: string | null | undefined): string | null {
   // Guard against the source's "0001-01-01T00:00:00" sentinel
   if (s.startsWith("0001-")) return null;
   return s.slice(0, 10);
+}
+
+/** Always an array in XVI/XVII, but the feed unwraps single-element lists elsewhere. */
+function toArray<T>(v: T[] | T | null | undefined): T[] {
+  if (v == null) return [];
+  return Array.isArray(v) ? v : [v];
 }
 
 export function parseDetalhe(html: string | null): {
@@ -463,6 +473,7 @@ export function normalizeEventos(raw: RawIniciativa) {
       teor: string | null;
       linkVideos: string[];
       deputados: unknown | null;
+      _deputadosOradores: { cadastroId: string | null; nome: string | null; gp: string | null }[];
       membroGovernoNome: string | null;
       membroGovernoCargo: string | null;
       membroGovernoGoverno: string | null;
@@ -662,6 +673,11 @@ export function normalizeEventos(raw: RawIniciativa) {
           teor: o.teor ?? null,
           linkVideos: (o.linkVideo ?? []).map((lv) => lv.link),
           deputados: o.deputados ?? null,
+          _deputadosOradores: toArray(o.deputadosOradores).map((d) => ({
+            cadastroId: d.idCadastro != null ? String(d.idCadastro) : null,
+            nome: d.nome ?? null,
+            gp: d.GP ?? null,
+          })),
           membroGovernoNome: o.membrosGoverno?.nome ?? null,
           membroGovernoCargo: o.membrosGoverno?.cargo ?? null,
           membroGovernoGoverno: o.membrosGoverno?.governo ?? null,

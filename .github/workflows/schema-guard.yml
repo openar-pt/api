@@ -1,0 +1,49 @@
+name: Schema guard
+
+# Fetches the current legislatura's Dados Abertos files, re-derives the field
+# inventory and fails when the AR publishes a field no normalizer reads.
+#
+# This exists because the ETL spent two legislaturas reading `oradores.deputados`,
+# a key the feed does not publish, silently writing nulls for ~37k speaker→deputy
+# links. Nothing failed. Now it does.
+
+on:
+  schedule:
+    - cron: "0 6 * * 1" # Mondays, after the weekend's ETL runs
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "src/etl/normalize/**"
+      - "src/db/schema.ts"
+      - "scripts/inventory-source-schema.ts"
+      - "scripts/schema-gap-report.ts"
+      - "docs/ar-schema-gaps.baseline.json"
+
+jobs:
+  schema:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - run: npm install -g pnpm
+
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+
+      # Downloads ~100MB from parlamento.pt, which rate-limits — the script
+      # paces itself and skips files already present.
+      - name: Check source coverage
+        run: pnpm run schema:check
+
+      - name: Upload gap report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ar-schema-gaps
+          path: |
+            docs/ar-schema-gaps.json
+            docs/ar-source-schema.json
+          retention-days: 14

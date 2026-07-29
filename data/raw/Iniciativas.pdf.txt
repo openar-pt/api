@@ -1,0 +1,328 @@
+Significado das Tags
+do Ficheiro
+Iniciativas<Legislatura>.xml
+Dezembro 2017
+2
+Iniciativas
+Iniciativas entradas na Assembleia da República dando início ao processo legislativo.
+Da lista de tipo de Iniciativas entradas, constam Projetos e Propostas de Lei, Projetos e Propostas de
+Resolução, Apreciações Parlamentares, Inquéritos Parlamentares, Projetos de Revisão Constitucional,
+Projetos de Deliberação, Projetos de Regimento, Ratificações, sendo as mais usuais, projetos de lei que são
+apresentados por Deputados, Grupos Parlamentares ou um grupo de cidadãos, e as propostas de lei
+apresentadas pelo Governo e pelas Assembleias Legislativas das Regiões Autónomas.
+Iniciativas_DetalhePesquisaIniciativasOut
+Nome Descrição
+dataFimleg Data de Fim da Legislatura
+dataInicioleg Data de Inicio da Legislatura
+iniAnexos Anexos representados pela estrutura Iniciativas_AnexosOut
+iniAutorDeputados Deputado autor da Iniciativa, representado pela estrutura
+Iniciativas_AutoresDeputadosOut
+iniAutorGruposParlamentares Grupo Parlamentar autor da Iniciativa, representado pela estrutura
+AutoresGruposParlamentaresOut
+iniAutorOutros Outros autores da Iniciativa, representado pela estrutura
+AutoresOutrosOut
+iniciativasEuropeias Iniciativas Europeias que deram origem à iniciativa
+iniciativasOrigem Lista de outras iniciativas que deram origem à iniciativa, representadas
+por estrutura Iniciativa_DadosGeraisOut
+iniciativasOriginadas Lista de outras iniciativas que foram originadas pela iniciativa,
+representadas por estrutura Iniciativa_DadosGeraisOut
+iniDescTipo Descrição do Tipo de Iniciativa
+3
+iniEpigrafe Indica se tem texto em epígrafe
+iniEventos Eventos associados a Iniciativa, representados pela estrutura
+Iniciativas_EventosOut
+iniId Identificador da Iniciativa
+iniLeg Legislatura da iniciativa
+iniLinkTexto Link para o texto da iniciativa
+iniNr Número da Iniciativa
+iniObs Observações associadas
+iniSel Sessão legislativa da iniciativa
+iniTextoSubst Indica se tem texto de substituição
+iniTextoSubstCampo Observações sobre substituição do ficheiro
+iniTipo Indica o Tipo de Iniciativa
+iniTitulo Indica o Titulo da Iniciativa
+links Identifica os Links diversos associados à iniciativa
+peticoes Lista de petições relacionadas com esta iniciativa, representadas
+por Iniciativas_DadosGeraisOut
+propostasAlteracao Indica quais as propostas de alteração existentes para essa
+Iniciativa, representada pela estrutura
+Iniciativas_PropostasAlteracaoOut
+4
+Iniciativas_AnexosOut
+Nome Descrição
+anexoFich URL do ficheiro anexo
+anexonome Nome do Anexo
+Iniciativas_AutoresDeputadosOut
+Nome Descrição
+idCadastro Identificação do cadastro do deputado
+Nome Nome do deputado
+GP Grupo Parlamentar do deputado
+AutoresGruposParlamentaresOut
+Nome Descrição
+GP Grupo Parlamentar autora da Iniciativa
+AutoresOutrosOut
+Nome Descrição
+iniAutorComissao Código da Comissão autora da Iniciativa
+5
+Nome Nome da comissão
+Sigla Sigla da comissão
+Iniciativas_EventosOut
+Nome Descrição
+actId Id da Atividade associada
+actividadesConjuntas Lista de atividades conjuntas da fase, representadas por
+estrutura Iniciativas_DiscussaoConjuntaOut
+anexosFase Lista de ficheiros anexos associados, representados por
+estrutura Iniciativas_AnexosOut
+codigoFase Código da fase
+comissao Lista de iniciativas das comissões da fase, representadas por
+estrutura Iniciativas_ComissoesIniOut
+dataFase Data em que a iniciativa entra numa fase
+evtId Identificador da Fase
+fase Nome da fase
+iniciativasConjuntas Lista de iniciativas conjuntas da fase, representadas por
+estrutura Iniciativas_ComissoesIniOut
+intervencoesDebates Lista de intervenções realizadas no âmbito da discussão da
+iniciativa, representadas por estrutura IntervencoesOut
+6
+links Lista de links associados representados por estrutura DocsOut
+(Ex: vídeo da audição)
+obsFase Observações
+oevId Identificador da fase associada à iniciativa
+oevTexId Identificador do texto aprovado associado à fase
+pcpublicasConjuntas Lista de processos de Contas Públicas discutidos em conjunto
+com a iniciativa, representadas por estrutura
+Iniciativas_DiscussaoConjuntaOut
+peticoesConjuntas Lista de petições discutidas em conjunto com a iniciativa,
+representadas por estrutura
+Iniciativas_DiscussaoConjuntaOut
+publicacaoFase Lista de Publicações da fase, representadas por
+PublicacoesOut
+recursoDeputados Lista de recursos apresentados por Deputados
+recursoGP Lista de recursos apresentados por GPs
+textosAprovados Diplomas aprovados originados nesta fase
+votacao Lista de votações da fase, representadas por estrutura
+VotacaoOut
+DetalhePesquisaPeticoesOut
+Nome Descrição
+dadosComissao Comissão à qual baixou a petição
+7
+dataDebate Data em que a petição foi discutida em plenário
+documentos Documentos da petição
+iniciativasConjuntas Iniciativas discutidas em conjunto com a petição
+iniciativasoriginadas Iniciativas originadas pela petição
+intervencoes Intervenções realizadas no debate da petição
+links Links diversos associados à petição
+pedidosEsclarecimento Pedidos de esclarecimento efetuados no âmbito da petição
+petActividadeId Identificador da atividade associada
+petAssunto Assunto da petição
+petAutor Autor da Petição
+petDataEntrada Data de entrada da Petição
+peticoesAssociadas Lista de outras petições associadas, representadas por
+Iniciativas_DadosGeraisOut
+petId Identificador da petição
+petLeg Legislatura da petição
+petNr Número da petição
+petNrAssinaturas Número de assinaturas da petição
+8
+petNrAssinaturasInicial Número de assinaturas inicial
+petObs Observações
+petSel Sessão legislativa da petição
+petSituacao Situação em que a petição se encontra
+petUrlTexto Link para o texto da petição
+publicacaoDebate Publicação do DAR do debate da petição
+publicacaoPeticao Publicação do texto da petição
+Iniciativas_PropostasAlteracaoOut
+Nome Descrição
+autor Autor da proposta de alteração
+id Identificador da proposta de alteração
+publicacao Publicação da proposta de alteração
+tipo Tipo da proposta de alteração
+Publicacao
+Nome Descrição
+debateDtReu Data do debate na reunião plenária
+9
+idAct Identificador da Atividade associada à Publicação
+idDeb Identificador do Debate associado à Publicação
+idInt Identificador da Intervenção associada à Publicação
+idPag Identificador da Paginação
+obs Observações
+pag Páginas
+pagFinalDiarioSupl Página final do suplemento
+pubdt Data da Publicação
+pubLeg Legislatura em que ocorreu a Publicação
+pubNr Número da Publicação
+pubSL Sessão legislativa em que ocorreu a Publicação
+pubTipo Descrição do Tipo de Publicação
+pubTp Abreviatura do Tipo de Publicação
+Supl Suplemento da Publicação
+URLDiario Link para o DAR da Publicação
+10
+Iniciativas_DadosGeraisOut
+Nome Descrição
+id Identificador da Iniciativa
+numero Número da Iniciativa
+tipo Tipo de iniciativa
+assunto Assunto a que se refere essa iniciativa
+legislatura Número da legislatura
+sessao Número da sessão legislativa
+descTipo Descrição do tipo de iniciativa
+dcl Apreciação do Decreto de Lei
+PublicacoesOut
+Nome Descrição
+debateDtReu Data da reunião plenária onde ocorreu o Debate
+idAct Identificador da Atividade associada à Publicação
+idDeb Identificador do Debate associado à Publicação
+idInt Identificador da Intervenção associada à Publicação
+11
+idPag Identificador da Paginação
+Obs Observações
+pag Páginas
+pagFinalDiarioSupl Página final do suplemento
+pubdt Data da Publicação
+pubLeg Legislatura em que ocorreu a Publicação
+pubNr Número da Publicação
+pubSL Sessão legislativa em que ocorreu a Publicação
+pubTipo Descrição de tipo de publicação representada pela estrutura
+pubTp Tipo de publicação representada pela estrutura
+supl Suplemento da Publicação
+URLDiario Link para o DAR da Publicação
+Iniciativas_DiscussaoConjuntaOut
+Nome Descrição
+dataentrada Data de Entrada da Iniciativa
+descTipo Descrição do tipo de iniciativa
+12
+Id Identificador da iniciativa
+Leg Legislatura
+Nr Número da Iniciativa
+Sel Sessão Legislativa
+Tipo Abreviatura da iniciativa em estrutura
+Titulo Assunto da Iniciativa
+VotacaoOut
+Nome Descrição
+ausencias Indica membros ausentes na votação
+data Data da Votação
+descricao Descrição do tema da Votação
+detalhe Descrição do sentido de voto dos intervenientes
+id Identificador do registo da Votação
+publicacao Publicações associadas à Votação
+resultado Resultado da Votação
+reuniao Número da reunião em que ocorreu a Votação
+13
+tipoReuniao Codigo do tipo de reunião
+unanime Indica se o sentido de voto foi unanime
+IntervencoesOut
+Nome Descrição
+dataReuniaoPlenaria Data da reunião plenária
+oradores Lista de oradores com intervenções, representada por estrutura
+peticoes_OradoresOut
+Peticoes_OradoresOut
+Nome Descrição
+horaInicio Hora de início da intervenção do orador
+horaTermo Hora de fim da intervenção do orador
+teor Teor da intervenção do orador
+faseSessao Fase da sessão plenária em que se encontra a petição
+faseDebate Fase do debate em que se encontra a petição
+sumario Sumário do debate
+publicacao Lista de publicações, representadas pela estrutura PublicacoesOut
+14
+deputados Lista de deputados oradores, representados por estrutura
+Iniciativas_AutoresDeputadosOut
+convidados Lista de convidados, representados por estrutura ConvidadosOut
+membrosGoverno Lista de orados membros do governo, representados pela estrutura
+MembrosGovernoOut
+linkVideo Lista de links para vídeos, representados por estrutura
+peticoes_LinksVideos
+Iniciativas_AutoresDeputadosOut
+Nome Descrição
+idCadastro Identificação do cadastro do deputado
+nome Nome do deputado
+GP Grupo Parlamentar do deputado
+ConvidadosOut
+Nome Descrição
+cargo Cargo que exerce aquando da vinda à AR como convidado.
+honra Indica se é convidado de honra
+nome Nome do Convidado
+pais Nacionalidade
+15
+MembrosGovernoOut
+Nome Descrição
+nome Nome do membro do governo
+cargo Cargo que exerce o membro do governo
+governo Governo a que pertence
+Peticoes_LinksVideos
+Nome Descrição
+link Hiperligação para o vídeo
+Iniciativas_ComissoesIniOut
+Nome Descrição
+legislatura Legislatura.
+sessao Sessão Legislativa
+sigla Sigla da comissão
+numero Número da comissão
+idComissao Identificador da comissão
+nome Nome da comissão
+16
+Observação Campo de observações
+competente Indicação se a comissão é a competente na matéria
+dataEntrada Data de entrada
+dataDistribuicao Data da distribuição pelas comissões
+prorrogado Indica se o prazo foi prorrogado
+dataAgendamentoDiscussao Data de agendamento da Discussão
+dataRelatorio Data do relatório
+dataRemessa Data da remessa
+dataReqAgendamentoPlenario Data de requisição de agendamento de plenário
+gpAgendamentoPlenario Agendamento do Grupo Parlamentar no plenário
+aguardaAgendamentoPlenario Indica se aguarda agendamento plenário
+dataAgendamentoPlenario Data de agendamento de plenário
+audiencias Lista de audiências de comissões relacionadas com a iniciativa,
+representadas por estrutura iniciativas_ActividadesRelacionadasOut
+audicoes Lista de audições de comissões relacionadas com a iniciativa,
+representadas por estrutura iniciativas_ActividadesRelacionadasOut
+publicacao Lista de Publicações relacionadas com a iniciativa, representada por
+estrutura PublicacoesOut
+votacao Estrutura com o resultado da votação do tipo VotacaoOut
+17
+remessaRedaccaoFinal Indica a redação final
+relatores Lista de relatores relacionados com a iniciativa, representados pela
+estrutura RelatoresOut
+publicacaoRelatorio Lista de publicações de relatórios relacionados com a iniciativa,
+representados pela estrutura PublicacoesOut
+datainicioApreciacaoPublica Indica a data de início da apreciação publica
+datafimApreciacaoPublica Indica a data de fim da apreciação publica
+pedidosParecer Indica se há pedidos de parecer
+pareceresRecebidos Indica se há pareceres recebidos
+documentos Lista de documentos associados representados por estrutura DocsOut
+dataDistruibuicaoSubcomissao Indica a data de distribuição à subcomissão
+distribuicaoSubcomissao Lista de subcomissões relacionadas com a iniciativa, representadas pela
+estrutura ComissoesOut
+motivoNaoParecer Indica o motivo do parecer negativo
+dataMotivoNaoParecer Indica a data do motivo do parecer negativo
+ActividadesRelacionadasOut
+Nome Descrição
+tipo Tipo de relação
+18
+data Data da relação
+id Identificação da atividade relacionada
+RelatoresOut
+Nome Descrição
+nome Nome do relator
+gp Grupo parlamentar do relator
+dataNomeacao Data de nomeação do relator
+dataCessacao Data de cessação de relator
+id Identificador do registo
+motivoCessacao Motivo de cessação
+DocsOut
+Tipo Descrição
+tituloDocumento Título do documento
+dataDocumento Data de criação do documento
+tipoDocumento Tipo de documento
+URL Hiperligação para o documento
+19
+ComissoesOut
+Nome Descrição
+orgId Identificador do Órgão
+leg Número da legislatura
+num Número da comissão/subcomissão parlamentar
+sigla Sigla da comissão/subcomissão parlamentar
+nome Nome da comissão/subcomissão parlamentar
+publicacao Lista de publicações relacionada com a comissão, representadas por
+estrutura PublicacoesOut

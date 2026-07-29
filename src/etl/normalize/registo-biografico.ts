@@ -59,6 +59,32 @@ export interface BioObraPublicada {
   ordem: number | null;
 }
 
+export interface BioDeputadoLegislatura {
+  deputadoId: number;
+  legDes: string | null;
+  legislaturaId: string | null;
+  nomeParlamentar: string | null;
+  gpSigla: string | null;
+  gpDes: string | null;
+  partidoSigla: string | null;
+  partidoDes: string | null;
+  circuloDes: string | null;
+  indDes: string | null;
+  indData: string | null;
+}
+
+export interface BioOrgao {
+  deputadoId: number;
+  tipo: string;
+  orgId: string | null;
+  orgSigla: string | null;
+  orgDes: string | null;
+  legDes: string | null;
+  legislaturaId: string | null;
+  situacao: string | null;
+  cargo: string | null;
+}
+
 export interface NormalizedBio {
   deputados: BioRecord[];
   habilitacoes: BioHabilitacao[];
@@ -66,6 +92,31 @@ export interface NormalizedBio {
   cargosFuncoes: BioCargoFuncao[];
   condecoracoes: BioCondecoração[];
   obrasPublicadas: BioObraPublicada[];
+  deputadoLegislaturas: BioDeputadoLegislatura[];
+  orgaos: BioOrgao[];
+}
+
+// The registry abbreviates the Assembleia Constituinte; every other value already
+// matches our legislaturas PK. Unknown values are left null rather than guessed —
+// load.ts drops the FK when it cannot resolve them.
+function toLegislaturaId(legDes: string | null): string | null {
+  if (!legDes) return null;
+  return legDes === "Cons" ? "Constituinte" : legDes;
+}
+
+function toDate(v: Raw): string | null {
+  const s = toStr(v);
+  if (!s) return null;
+  return /^\d{4}-\d{2}-\d{2}/.test(s) ? s.slice(0, 10) : null;
+}
+
+// cargoDes is a list of { tiaDes } — a deputy holds at most one post per organ,
+// so join defensively rather than assuming a single entry.
+function cargoOf(raw: Raw): string | null {
+  const nomes = toArr(raw.cargoDes)
+    .map((c: Raw) => toStr(c?.tiaDes)?.trim())
+    .filter(Boolean);
+  return nomes.length ? nomes.join(", ") : null;
 }
 
 export function normalizeRegistoBiografico(rawList: Raw[]): NormalizedBio {
@@ -75,6 +126,8 @@ export function normalizeRegistoBiografico(rawList: Raw[]): NormalizedBio {
   const cargosFuncoes: BioCargoFuncao[] = [];
   const condecoracoes: BioCondecoração[] = [];
   const obrasPublicadas: BioObraPublicada[] = [];
+  const deputadoLegislaturas: BioDeputadoLegislatura[] = [];
+  const orgaos: BioOrgao[] = [];
 
   for (const raw of rawList) {
     const cadId = toInt(raw.CadId);
@@ -133,7 +186,52 @@ export function normalizeRegistoBiografico(rawList: Raw[]): NormalizedBio {
         ordem: toInt(pub.PubOrdem),
       });
     }
+
+    // Per-legislature history. ParSigla/ParDes is the *party* (or electoral
+    // coalition, e.g. "PPD/PSD.CDS-PP") and differs from the GP in mandatos.
+    for (const dl of toArr(raw.CadDeputadoLegis)) {
+      const legDes = toStr(dl.LegDes);
+      deputadoLegislaturas.push({
+        deputadoId: cadId,
+        legDes,
+        legislaturaId: toLegislaturaId(legDes),
+        nomeParlamentar: toStr(dl.DepNomeParlamentar),
+        gpSigla: toStr(dl.GpSigla),
+        gpDes: toStr(dl.GpDes),
+        partidoSigla: toStr(dl.ParSigla),
+        partidoDes: toStr(dl.ParDes),
+        circuloDes: toStr(dl.CeDes),
+        indDes: toStr(dl.IndDes),
+        indData: toDate(dl.IndData),
+      });
+    }
+
+    // Committees, working groups and subcommittees share one shape.
+    const orgTipos: [string, string][] = [
+      ["actividadeCom", "comissao"],
+      ["actividadeGT", "grupo_trabalho"],
+      ["actividadeSCom", "subcomissao"],
+    ];
+    for (const [key, tipo] of orgTipos) {
+      for (const o of toArr(raw.CadActividadeOrgaos?.[key])) {
+        const legDes = toStr(o.legDes);
+        orgaos.push({
+          deputadoId: cadId,
+          tipo,
+          orgId: toStr(o.orgId),
+          orgSigla: toStr(o.orgSigla)?.trim() ?? null,
+          orgDes: toStr(o.orgDes)?.trim() ?? null,
+          legDes,
+          legislaturaId: toLegislaturaId(legDes),
+          situacao: toStr(o.timDes),
+          cargo: cargoOf(o),
+        });
+      }
+    }
   }
 
-  return { deputados, habilitacoes, titulos, cargosFuncoes, condecoracoes, obrasPublicadas };
+  return {
+    deputados, habilitacoes, titulos, cargosFuncoes, condecoracoes, obrasPublicadas,
+    deputadoLegislaturas, orgaos,
+  };
 }
