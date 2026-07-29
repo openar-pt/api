@@ -8,6 +8,21 @@ x-infisical-env: &infisical-env
   INFISICAL_ENV: ${INFISICAL_ENV:-prod}
 
 services:
+  # Local development database. Profile-gated, so it never starts in production:
+  #   docker compose --profile local up db -d
+  db:
+    image: postgres:18-alpine
+    profiles: ["local"]
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: openar
+      POSTGRES_PASSWORD: openar
+      POSTGRES_DB: openar
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
   api:
     build: .
     restart: unless-stopped
@@ -53,3 +68,6 @@ services:
     environment: *infisical-env
     entrypoint: ["./scripts/with-secrets.sh", "node", "dist/etl/load.js"]
     command: ["--current"]
+
+volumes:
+  db-data:

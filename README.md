@@ -9,37 +9,47 @@ Os dados são obtidos através do programa [AR dados abertos](https://www.parlam
 ## Início rápido
 
 ```bash
-# 1. Configurar as credenciais do Infisical
-cp .env.infisical.example .env.infisical
-$EDITOR .env.infisical            # preencher CLIENT_ID e CLIENT_SECRET
+# 1. Instalar dependências
+pnpm install
 
-# 2. Aplicar migrações
+# 2. Iniciar a base de dados
+docker compose --profile local up db -d
+
+# 3. Configurar o ambiente
+cp .env.example .env              # DATABASE_URL para a base de dados local
+
+# 4. Aplicar migrações
 pnpm run db:migrate
 
-# 3. Carregar uma legislatura
-./scripts/with-secrets.sh tsx src/etl/load.ts --leg XVII
+# 5. Carregar uma legislatura (demora alguns minutos)
+pnpm run etl -- --leg XVII
 
-# 4. Iniciar a API
+# 6. Iniciar a API
 pnpm run dev
 # → http://localhost:3000
 ```
 
-A base de dados de desenvolvimento não é criada por este repositório — o
-`DATABASE_URL` do ambiente `dev` no Infisical aponta para uma instância
-existente. Os scripts carregam `.env.infisical` automaticamente, não é preciso
-exportar nada.
+Correr os testes:
+
+```bash
+pnpm test               # testes da API (usa o DATABASE_URL do .env)
+pnpm run test:scripts   # testes dos scripts (sem rede nem base de dados)
+```
 
 ## ETL
 
 ```bash
-# Carregar todas as legislaturas (carga inicial — demora algum tempo)
-pnpm run etl:all
-
-# Actualizar apenas a legislatura actual (para cron)
-pnpm run etl:current
-
 # Carregar uma legislatura específica
-./scripts/with-secrets.sh tsx src/etl/load.ts --leg XIII
+pnpm run etl -- --leg XIII
+
+# Carregar todas as legislaturas (carga inicial — demora algum tempo)
+pnpm run etl -- --all
+
+# Actualizar apenas a legislatura actual
+pnpm run etl -- --current
+
+# Limitar a um tipo de fonte
+pnpm run etl -- --leg XVII --source peticoes
 ```
 
 Legislaturas disponíveis: `Constituinte`, `I` a `XVII`.
@@ -227,9 +237,8 @@ em produção e ficam na mesma rede — é assim que o hostname interno da base 
 dados resolve.
 
 
-O host precisa de ter `INFISICAL_DOMAIN`, `INFISICAL_PROJECT_ID`,
-`INFISICAL_CLIENT_ID` e `INFISICAL_CLIENT_SECRET` no ambiente — o
-`docker compose` recusa arrancar sem eles.
+O host precisa de ter as variáveis descritas em [Segredos](#segredos) — o
+`docker compose` recusa arrancar sem elas.
 
 ```bash
 docker compose up -d
@@ -244,16 +253,16 @@ docker compose exec api ./scripts/with-secrets.sh node dist/etl/load.js --all
 ## Desenvolvimento
 
 ```bash
-pnpm install
-cp .env.infisical.example .env.infisical   # credenciais da machine identity
-set -a && . ./.env.infisical && set +a
-
 pnpm run db:generate    # gerar migrações após alterações ao schema
 pnpm run db:migrate     # aplicar migrações
 pnpm run dev            # modo watch com tsx
-pnpm test               # testes da API (precisa de base de dados)
-pnpm run test:scripts   # testes dos scripts (sem rede nem credenciais)
+pnpm test               # testes da API
+pnpm run test:scripts   # testes dos scripts (sem rede nem base de dados)
 ```
+
+Todos usam o `DATABASE_URL` do `.env`. Os comandos equivalentes com o sufixo
+`:remote` (`dev:remote`, `test:remote`, `db:migrate:remote`) obtêm as
+credenciais do gestor de segredos e são usados apenas pela manutenção.
 
 ## Schema
 
@@ -274,45 +283,25 @@ Ver [`src/db/schema.ts`](src/db/schema.ts) para o schema completo.
 
 ## Segredos
 
-Todos os segredos — `DATABASE_URL` e as credenciais `R2_*` — vivem numa
-instância self-hosted do [Infisical](https://infisical.com). Nenhum processo lê
-um ficheiro `.env`.
+Em desenvolvimento, o `DATABASE_URL` vem do `.env` e não é preciso mais nada.
 
-`scripts/with-secrets.sh` autentica-se com uma machine identity (Universal
-Auth), obtém um token e injecta os segredos como variáveis de ambiente antes de
-o Node arrancar. Todos os scripts que tocam na base de dados passam por ele:
+Em produção, os segredos (`DATABASE_URL` e as credenciais `R2_*` do CDN) são
+injectados no processo por um gestor de segredos externo, antes de o Node
+arrancar — nenhum segredo é lido de ficheiros no repositório nem passa pelo
+código da aplicação. `scripts/with-secrets.sh` trata dessa injecção e é usado
+pelos comandos com sufixo `:remote` e pelos contentores.
 
-```bash
-./scripts/with-secrets.sh <comando>
-```
-
-Quatro variáveis vivem fora do Infisical — em `.env.infisical` localmente
-(ignorado pelo git) e no ambiente do host em produção:
-
-| Variável | |
-|---|---|
-| `INFISICAL_DOMAIN` | URL da instância |
-| `INFISICAL_PROJECT_ID` | Projecto a ler |
-| `INFISICAL_CLIENT_ID` | Machine identity (Universal Auth) |
-| `INFISICAL_CLIENT_SECRET` | |
-
-Nenhuma delas está no repositório: nem sequer a URL da instância ou o id do
-projecto, para que este repositório público não revele infraestrutura.
-`INFISICAL_ENV` escolhe o ambiente (`dev` ou `prod`, por omissão `dev`).
-
-Requer a [CLI do Infisical](https://infisical.com/docs/cli/overview) instalada
-localmente e no runner self-hosted. A imagem Docker instala-a automaticamente.
-
-Para testar a configuração sem arrancar a aplicação:
-
-```bash
-./scripts/with-secrets.sh printenv DATABASE_URL
-```
+O gestor de segredos é configurado por quatro variáveis de ambiente
+(`INFISICAL_DOMAIN`, `INFISICAL_PROJECT_ID`, `INFISICAL_CLIENT_ID`,
+`INFISICAL_CLIENT_SECRET`), fornecidas pelo host em produção e por
+`.env.infisical` — ignorado pelo git — na manutenção. Nenhum endereço,
+identificador ou credencial está neste repositório. `INFISICAL_ENV` escolhe o
+ambiente (`dev` ou `prod`, por omissão `dev`).
 
 O wrapper tem testes que correm sem rede nem credenciais:
 
 ```bash
-pnpm run test:wrapper
+pnpm run test:scripts
 ```
 
 ## Licença
