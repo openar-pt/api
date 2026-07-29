@@ -14,7 +14,7 @@ fail() { printf '  FAIL %s\n' "$1"; FAILURES=$((FAILURES + 1)); }
 FAKEBIN="$(mktemp -d)"
 cat > "$FAKEBIN/infisical" <<'FAKE'
 #!/bin/sh
-echo "CALLED" >> "$FAKE_MARKER"
+echo "CALLED $*" >> "$FAKE_MARKER"
 # `login ... --plain` must emit a token on stdout
 if [ "$1" = "login" ]; then echo "fake-token-value"; exit 0; fi
 # `run --env=X -- cmd...` should exec the command after the `--`
@@ -29,10 +29,13 @@ exit 0
 FAKE
 chmod +x "$FAKEBIN/infisical"
 
+# Tests must never pick up the developer's real .env.infisical, so every case
+# points INFISICAL_ENV_FILE somewhere explicit. Default: a path that must not exist.
 run_wrapper() {
   FAKE_MARKER="$FAKEBIN/marker"
   export FAKE_MARKER
   rm -f "$FAKE_MARKER"
+  INFISICAL_ENV_FILE="${INFISICAL_ENV_FILE:-$FAKEBIN/no-such-env-file}" \
   PATH="$FAKEBIN:$PATH" sh "$WRAPPER" "$@" 2>"$FAKEBIN/stderr" >"$FAKEBIN/stdout"
 }
 
@@ -90,6 +93,52 @@ echo "with-secrets.sh"
   [ "$?" -eq 42 ] || { fail "expected exit 42, got $?"; exit 1; }
   exit 0
 ) && pass "propagates the child exit code" || fail "exit code propagation"
+
+# 6. Credentials supplied only by .env.infisical are picked up
+( cat > "$FAKEBIN/envfile" <<'ENVF'
+# a comment, and a blank line follow
+
+INFISICAL_CLIENT_ID=from-file-id
+INFISICAL_CLIENT_SECRET=from-file-secret
+INFISICAL_ENV=dev
+ENVF
+  unset INFISICAL_CLIENT_ID INFISICAL_CLIENT_SECRET INFISICAL_ENV || true
+  INFISICAL_ENV_FILE="$FAKEBIN/envfile" run_wrapper echo sourced-ok
+  grep -q "sourced-ok" "$FAKEBIN/stdout" \
+    || { fail "child should run using file credentials"; exit 1; }
+  grep -q "\-\-env=dev" "$FAKEBIN/marker" \
+    || { fail "should use INFISICAL_ENV=dev from the file"; exit 1; }
+  exit 0
+) && pass "sources credentials from .env.infisical when present" \
+  || fail "sourcing .env.infisical"
+
+# 7. A real environment variable beats the file's value
+( cat > "$FAKEBIN/envfile" <<'ENVF'
+INFISICAL_CLIENT_ID=from-file-id
+INFISICAL_CLIENT_SECRET=from-file-secret
+INFISICAL_ENV=dev
+ENVF
+  export INFISICAL_ENV=prod
+  INFISICAL_ENV_FILE="$FAKEBIN/envfile" run_wrapper echo precedence
+  grep -q "\-\-env=prod" "$FAKEBIN/marker" \
+    || { fail "real INFISICAL_ENV=prod should beat the file's dev"; exit 1; }
+  exit 0
+) && pass "real environment variables take precedence over the file" \
+  || fail "environment precedence"
+
+# 8. Quoted values in the file are unquoted
+( cat > "$FAKEBIN/envfile" <<'ENVF'
+INFISICAL_CLIENT_ID="quoted-id"
+INFISICAL_CLIENT_SECRET='single-quoted'
+INFISICAL_ENV="prod"
+ENVF
+  unset INFISICAL_CLIENT_ID INFISICAL_CLIENT_SECRET INFISICAL_ENV || true
+  INFISICAL_ENV_FILE="$FAKEBIN/envfile" run_wrapper echo quoted
+  grep -q '\-\-env=prod' "$FAKEBIN/marker" \
+    || { fail "quotes should be stripped from file values"; exit 1; }
+  grep -q '"' "$FAKEBIN/marker" && { fail "no raw quotes should survive"; exit 1; }
+  exit 0
+) && pass "strips surrounding quotes from file values" || fail "quoted values"
 
 rm -rf "$FAKEBIN"
 [ "$FAILURES" -eq 0 ] || { printf '\n%s test(s) failed\n' "$FAILURES"; exit 1; }
