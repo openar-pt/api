@@ -1,4 +1,5 @@
 .env
+.env.infisical
 node_modules/
 dist/
 brand/
