@@ -1,4 +1,7 @@
 allowBuilds:
-  esbuild: set this to true or false
-onlyBuiltDependencies:
-  - esbuild
+  esbuild: true
+overrides:
+  "@esbuild-kit/core-utils>esbuild": 0.25.12
+  esbuild: 0.28.1
+  postcss: 8.5.18
+  vite: 8.0.16
