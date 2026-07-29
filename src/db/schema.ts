@@ -136,6 +136,49 @@ export const bioObrasPublicadas = pgTable("bio_obras_publicadas", {
   ordem: integer("ordem"),
 }, (t) => [index("idx_bio_obras_dep").on(t.deputadoId)]);
 
+// CadDeputadoLegis[] — one row per deputy per legislature they served.
+// Carries the *party* (ParSigla/ParDes), which is distinct from the parliamentary
+// group in mandatos.grupoParlamentar and is available nowhere else in the feed.
+
+export const bioDeputadoLegislaturas = pgTable("bio_deputado_legislaturas", {
+  id: serial("id").primaryKey(),
+  deputadoId: integer("deputado_id").notNull().references(() => deputados.id),
+  legDes: text("leg_des"),                    // LegDes as published ("Cons", "I", … "XVII")
+  legislaturaId: text("legislatura_id").references(() => legislaturas.id), // resolved; null when unmapped
+  nomeParlamentar: text("nome_parlamentar"),  // DepNomeParlamentar
+  gpSigla: text("gp_sigla"),                  // GpSigla — grupo parlamentar
+  gpDes: text("gp_des"),                      // GpDes
+  partidoSigla: text("partido_sigla"),        // ParSigla — partido (≠ grupo parlamentar)
+  partidoDes: text("partido_des"),            // ParDes
+  circuloDes: text("circulo_des"),            // CeDes
+  indDes: text("ind_des"),                    // IndDes — "Independente" | "Não Inscrito"
+  indData: date("ind_data"),                  // IndData
+}, (t) => [
+  index("idx_bio_dep_legis_dep").on(t.deputadoId),
+  index("idx_bio_dep_legis_leg").on(t.legislaturaId),
+  index("idx_bio_dep_legis_partido").on(t.partidoSigla),
+]);
+
+// CadActividadeOrgaos.{actividadeCom,actividadeGT,actividadeSCom}[] — membership of
+// committees, working groups and subcommittees, with the AR's own orgId.
+
+export const bioOrgaos = pgTable("bio_orgaos", {
+  id: serial("id").primaryKey(),
+  deputadoId: integer("deputado_id").notNull().references(() => deputados.id),
+  tipo: text("tipo").notNull(),               // "comissao" | "grupo_trabalho" | "subcomissao"
+  orgId: text("org_id"),                      // orgId
+  orgSigla: text("org_sigla"),                // orgSigla
+  orgDes: text("org_des"),                    // orgDes
+  legDes: text("leg_des"),                    // legDes as published
+  legislaturaId: text("legislatura_id").references(() => legislaturas.id),
+  situacao: text("situacao"),                 // timDes — "Efetivo" | "Suplente"
+  cargo: text("cargo"),                       // cargoDes.tiaDes — "Presidente", "Coordenador", …
+}, (t) => [
+  index("idx_bio_orgaos_dep").on(t.deputadoId),
+  index("idx_bio_orgaos_tipo").on(t.tipo),
+  index("idx_bio_orgaos_org").on(t.orgId),
+]);
+
 // ── Mandatos ──────────────────────────────────────────────────────────────────
 
 export const mandatos = pgTable(
@@ -238,7 +281,7 @@ export const autoresIniciativas = pgTable(
     id: serial("id").primaryKey(),
     iniciativaId: integer("iniciativa_id").notNull().references(() => iniciativas.id),
     tipo: text("tipo").notNull(),           // "deputado" | "grupo" | "governo" | "outro" | "comissao"
-    deputadoId: integer("deputado_id"),
+    deputadoId: integer("deputado_id").references(() => deputados.id),
     grupoParlamentar: text("grupo_parlamentar"),
     nome: text("nome"),
   },
@@ -575,7 +618,7 @@ export const comissaoRelatores = pgTable(
     comissaoFaseId: integer("comissao_fase_id").notNull().references(() => comissoesFases.id, { onDelete: "cascade" }),
     eventoId: integer("evento_id").notNull().references(() => eventos.id),
     iniciativaId: integer("iniciativa_id").notNull().references(() => iniciativas.id),
-    deputadoId: integer("deputado_id"),
+    deputadoId: integer("deputado_id").references(() => deputados.id),
     nome: text("nome"),
     grupoParlamentar: text("grupo_parlamentar"),  // gp
     dataNomeacao: date("data_nomeacao"),
@@ -761,6 +804,27 @@ export const oradorPublicacoes = pgTable(
   ]
 );
 
+// ── Deputados Oradores ────────────────────────────────────────────────────────
+// oradores[].deputadosOradores[] — which deputies spoke in a given intervention.
+// `deputadoId` is resolved from cadastroId and left null when the deputy is not
+// in the DB (a partial --leg load may not have that legislature's deputies yet).
+
+export const oradorDeputados = pgTable(
+  "orador_deputados",
+  {
+    id: serial("id").primaryKey(),
+    oradorId: integer("orador_id").notNull().references(() => oradores.id, { onDelete: "cascade" }),
+    cadastroId: text("cadastro_id"),        // idCadastro as published
+    deputadoId: integer("deputado_id").references(() => deputados.id),
+    nome: text("nome"),
+    gp: text("gp"),                          // GP
+  },
+  (t) => [
+    index("idx_orador_deputados_orador").on(t.oradorId),
+    index("idx_orador_deputados_deputado").on(t.deputadoId),
+  ]
+);
+
 // ── Propostas de Alteração ────────────────────────────────────────────────────
 // PropostasAlteracao[] — amendments, present only in legs II–VII
 
@@ -824,6 +888,7 @@ export const peticoes = pgTable("peticoes", {
   obs: text("obs"),
   urlTexto: text("url_texto"),
   dataDebate: date("data_debate"),
+  actividadeId: text("actividade_id"),      // PetActividadeId
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 }, (t) => [
   index("idx_peticoes_legislatura").on(t.legislaturaId),
@@ -834,7 +899,8 @@ export const peticoes = pgTable("peticoes", {
 export const peticaoComissoes = pgTable("peticao_comissoes", {
   id: serial("id").primaryKey(),
   peticaoId: integer("peticao_id").notNull().references(() => peticoes.id),
-  comissaoId: text("comissao_id"),
+  comissaoId: integer("comissao_id").references(() => comissoes.id),  // FK to canonical comissoes table
+  comissaoCodigo: text("comissao_codigo"),  // IdComissao — the source's own code (was `comissao_id`)
   nome: text("nome"),
   numero: text("numero"),
   legislatura: text("legislatura"),
@@ -845,18 +911,25 @@ export const peticaoComissoes = pgTable("peticao_comissoes", {
   dataBaixaComissao: date("data_baixa_comissao"),
   dataEnvioPar: date("data_envio_par"),
   dataReaberta: date("data_reaberta"),
-}, (t) => [index("idx_peticao_cms_peticao").on(t.peticaoId)]);
+}, (t) => [
+  index("idx_peticao_cms_peticao").on(t.peticaoId),
+  index("idx_peticao_cms_comissao").on(t.comissaoId),
+]);
 
 export const peticaoRelatores = pgTable("peticao_relatores", {
   id: serial("id").primaryKey(),
   peticaoId: integer("peticao_id").notNull().references(() => peticoes.id),
   peticaoComissaoId: integer("peticao_comissao_id").notNull().references(() => peticaoComissoes.id, { onDelete: "cascade" }),
+  deputadoId: integer("deputado_id").references(() => deputados.id),  // Relatores.id (cadastro)
   nome: text("nome"),
   gp: text("gp"),
   dataNomeacao: date("data_nomeacao"),
   dataCessacao: date("data_cessacao"),
   motivoCessacao: text("motivo_cessacao"),
-}, (t) => [index("idx_peticao_rel_peticao").on(t.peticaoId)]);
+}, (t) => [
+  index("idx_peticao_rel_peticao").on(t.peticaoId),
+  index("idx_peticao_rel_deputado").on(t.deputadoId),
+]);
 
 export const peticaoDocumentos = pgTable("peticao_documentos", {
   id: serial("id").primaryKey(),
@@ -866,6 +939,121 @@ export const peticaoDocumentos = pgTable("peticao_documentos", {
   tituloDocumento: text("titulo_documento"),
   url: text("url"),
 }, (t) => [index("idx_peticao_doc_peticao").on(t.peticaoId)]);
+
+// DadosComissao[].DadosRelatorioFinal — the committee's final report on a petition,
+// with its vote inlined (the source nests `votacao` 1:1 under the report).
+
+export const peticaoRelatorioFinal = pgTable("peticao_relatorio_final", {
+  id: serial("id").primaryKey(),
+  peticaoId: integer("peticao_id").notNull().references(() => peticoes.id),
+  peticaoComissaoId: integer("peticao_comissao_id").notNull().references(() => peticaoComissoes.id, { onDelete: "cascade" }),
+  data: date("data"),
+  votacaoData: date("votacao_data"),
+  resultado: text("resultado"),
+  unanime: boolean("unanime"),
+  reuniao: text("reuniao"),
+  tipoReuniao: text("tipo_reuniao"),
+  descricao: text("descricao"),
+  detalhe: text("detalhe"),                 // raw HTML — source of aFavor/contra/abstencao
+  aFavor: text("a_favor").array(),
+  contra: text("contra").array(),
+  abstencao: text("abstencao").array(),
+  ausencias: text("ausencias").array(),
+}, (t) => [
+  index("idx_peticao_relfinal_peticao").on(t.peticaoId),
+  index("idx_peticao_relfinal_cms").on(t.peticaoComissaoId),
+]);
+
+// DadosComissao[].DocumentosPeticao.{DocsOutros,DocsRelatorioFinal,
+// DocsPedidoInformacoes,DocsRespostaPedidoInformacoes} — same shape, tipoRef distinguishes.
+
+export const peticaoComissaoDocumentos = pgTable("peticao_comissao_documentos", {
+  id: serial("id").primaryKey(),
+  peticaoId: integer("peticao_id").notNull().references(() => peticoes.id),
+  peticaoComissaoId: integer("peticao_comissao_id").notNull().references(() => peticaoComissoes.id, { onDelete: "cascade" }),
+  tipoRef: text("tipo_ref").notNull(),      // "outros" | "relatorio_final" | "pedido_informacoes" | "resposta_pedido_informacoes"
+  dataDocumento: date("data_documento"),
+  tipoDocumento: text("tipo_documento"),
+  tituloDocumento: text("titulo_documento"),
+  descricao: text("descricao"),
+  url: text("url"),
+}, (t) => [
+  index("idx_peticao_cms_doc_peticao").on(t.peticaoId),
+  index("idx_peticao_cms_doc_cms").on(t.peticaoComissaoId),
+]);
+
+// DadosComissao[].{Audicoes,Audiencias,AudienciasOutros}
+
+export const peticaoAudicoes = pgTable("peticao_audicoes", {
+  id: serial("id").primaryKey(),
+  peticaoId: integer("peticao_id").notNull().references(() => peticoes.id),
+  peticaoComissaoId: integer("peticao_comissao_id").notNull().references(() => peticaoComissoes.id, { onDelete: "cascade" }),
+  fonte: text("fonte").notNull(),           // "Audicoes" | "Audiencias" | "AudienciasOutros"
+  audicaoId: text("audicao_id"),            // id
+  data: date("data"),
+  tipo: text("tipo"),
+  titulo: text("titulo"),
+  entidades: text("entidades").array(),
+}, (t) => [
+  index("idx_peticao_audicoes_peticao").on(t.peticaoId),
+  index("idx_peticao_audicoes_cms").on(t.peticaoComissaoId),
+]);
+
+// DadosComissao[].DadosPedidosInformacao
+
+export const peticaoPedidosInformacao = pgTable("peticao_pedidos_informacao", {
+  id: serial("id").primaryKey(),
+  peticaoId: integer("peticao_id").notNull().references(() => peticoes.id),
+  peticaoComissaoId: integer("peticao_comissao_id").notNull().references(() => peticaoComissoes.id, { onDelete: "cascade" }),
+  entidades: text("entidades").array(),
+  nrOficio: text("nr_oficio"),
+  dataOficio: date("data_oficio"),
+  dataResposta: date("data_resposta"),
+}, (t) => [
+  index("idx_peticao_pedinfo_peticao").on(t.peticaoId),
+  index("idx_peticao_pedinfo_cms").on(t.peticaoComissaoId),
+]);
+
+// PublicacaoPeticao[] — DAR references, same column set as the other publicacoes tables
+
+export const peticaoPublicacoes = pgTable("peticao_publicacoes", {
+  id: serial("id").primaryKey(),
+  peticaoId: integer("peticao_id").notNull().references(() => peticoes.id),
+  data: date("data"),
+  legislatura: text("legislatura"),
+  numero: text("numero"),
+  sessaoLegislativa: text("sessao_legislativa"),
+  tipo: text("tipo"),
+  pubTp: text("pub_tp"),
+  paginas: text("paginas").array(),
+  supl: text("supl"),
+  pagFinalDiarioSupl: text("pag_final_diario_supl"),
+  urlDiario: text("url_diario"),
+  idPag: text("id_pag"),
+  idDeb: text("id_deb"),
+  idInt: text("id_int"),
+  idAct: text("id_act"),
+  debateDtReu: text("debate_dt_reu"),
+  obs: text("obs"),
+}, (t) => [index("idx_peticao_pub_peticao").on(t.peticaoId)]);
+
+// PeticoesAssociadas[] + IniciativasConjuntas[] + Iniciativasoriginadas[]
+
+export const peticaoRelacionadas = pgTable("peticao_relacionadas", {
+  id: serial("id").primaryKey(),
+  peticaoId: integer("peticao_id").notNull().references(() => peticoes.id),
+  tipo: text("tipo").notNull(),             // "peticao_associada" | "iniciativa_conjunta" | "iniciativa_originada"
+  relId: text("rel_id"),
+  relNumero: text("rel_numero"),
+  relLegislatura: text("rel_legislatura"),
+  relSessao: text("rel_sessao"),
+  relTipo: text("rel_tipo"),
+  relDescTipo: text("rel_desc_tipo"),
+  relAssunto: text("rel_assunto"),
+}, (t) => [
+  index("idx_peticao_relacionadas_peticao").on(t.peticaoId),
+  index("idx_peticao_relacionadas_tipo").on(t.tipo),
+]);
 
 // ── Atividade dos Deputados ───────────────────────────────────────────────────
 // 1:1 mirror of AtividadeDeputado JSON: all sub-arrays per deputy per legislature.
@@ -1217,6 +1405,10 @@ export const deputadosRelations = relations(deputados, ({ many }) => ({
   bioCargosFuncoes: many(bioCargosFuncoes),
   bioCondecoracoes: many(bioCondecoracoes),
   bioObrasPublicadas: many(bioObrasPublicadas),
+  bioDeputadoLegislaturas: many(bioDeputadoLegislaturas),
+  bioOrgaos: many(bioOrgaos),
+  intervencoesOradores: many(oradorDeputados),
+  relatoriasPeticoes: many(peticaoRelatores),
 }));
 
 export const sessoesLegislativasRelations = relations(sessoesLegislativas, ({ one }) => ({
@@ -1362,6 +1554,12 @@ export const intervencoesdebatesRelations = relations(intervencoesdebates, ({ on
 export const oradoresRelations = relations(oradores, ({ one, many }) => ({
   intervencao: one(intervencoesdebates, { fields: [oradores.intervencaoId], references: [intervencoesdebates.id] }),
   publicacoes: many(oradorPublicacoes),
+  deputados: many(oradorDeputados),
+}));
+
+export const oradorDeputadosRelations = relations(oradorDeputados, ({ one }) => ({
+  orador: one(oradores, { fields: [oradorDeputados.oradorId], references: [oradores.id] }),
+  deputado: one(deputados, { fields: [oradorDeputados.deputadoId], references: [deputados.id] }),
 }));
 
 export const oradorPublicacoesRelations = relations(oradorPublicacoes, ({ one }) => ({
@@ -1468,20 +1666,56 @@ export const peticoesRelations = relations(peticoes, ({ one, many }) => ({
   legislatura: one(legislaturas, { fields: [peticoes.legislaturaId], references: [legislaturas.id] }),
   comissoes: many(peticaoComissoes),
   documentos: many(peticaoDocumentos),
+  publicacoes: many(peticaoPublicacoes),
+  relacionadas: many(peticaoRelacionadas),
 }));
 
 export const peticaoComissoesRelations = relations(peticaoComissoes, ({ one, many }) => ({
   peticao: one(peticoes, { fields: [peticaoComissoes.peticaoId], references: [peticoes.id] }),
+  comissao: one(comissoes, { fields: [peticaoComissoes.comissaoId], references: [comissoes.id] }),
   relatores: many(peticaoRelatores),
+  relatorioFinal: many(peticaoRelatorioFinal),
+  documentos: many(peticaoComissaoDocumentos),
+  audicoes: many(peticaoAudicoes),
+  pedidosInformacao: many(peticaoPedidosInformacao),
 }));
 
 export const peticaoRelatorесRelations = relations(peticaoRelatores, ({ one }) => ({
   peticao: one(peticoes, { fields: [peticaoRelatores.peticaoId], references: [peticoes.id] }),
   comissao: one(peticaoComissoes, { fields: [peticaoRelatores.peticaoComissaoId], references: [peticaoComissoes.id] }),
+  deputado: one(deputados, { fields: [peticaoRelatores.deputadoId], references: [deputados.id] }),
 }));
 
 export const peticaoDocumentosRelations = relations(peticaoDocumentos, ({ one }) => ({
   peticao: one(peticoes, { fields: [peticaoDocumentos.peticaoId], references: [peticoes.id] }),
+}));
+
+export const peticaoRelatorioFinalRelations = relations(peticaoRelatorioFinal, ({ one }) => ({
+  peticao: one(peticoes, { fields: [peticaoRelatorioFinal.peticaoId], references: [peticoes.id] }),
+  comissao: one(peticaoComissoes, { fields: [peticaoRelatorioFinal.peticaoComissaoId], references: [peticaoComissoes.id] }),
+}));
+
+export const peticaoComissaoDocumentosRelations = relations(peticaoComissaoDocumentos, ({ one }) => ({
+  peticao: one(peticoes, { fields: [peticaoComissaoDocumentos.peticaoId], references: [peticoes.id] }),
+  comissao: one(peticaoComissoes, { fields: [peticaoComissaoDocumentos.peticaoComissaoId], references: [peticaoComissoes.id] }),
+}));
+
+export const peticaoAudicoesRelations = relations(peticaoAudicoes, ({ one }) => ({
+  peticao: one(peticoes, { fields: [peticaoAudicoes.peticaoId], references: [peticoes.id] }),
+  comissao: one(peticaoComissoes, { fields: [peticaoAudicoes.peticaoComissaoId], references: [peticaoComissoes.id] }),
+}));
+
+export const peticaoPedidosInformacaoRelations = relations(peticaoPedidosInformacao, ({ one }) => ({
+  peticao: one(peticoes, { fields: [peticaoPedidosInformacao.peticaoId], references: [peticoes.id] }),
+  comissao: one(peticaoComissoes, { fields: [peticaoPedidosInformacao.peticaoComissaoId], references: [peticaoComissoes.id] }),
+}));
+
+export const peticaoPublicacoesRelations = relations(peticaoPublicacoes, ({ one }) => ({
+  peticao: one(peticoes, { fields: [peticaoPublicacoes.peticaoId], references: [peticoes.id] }),
+}));
+
+export const peticaoRelacionadasRelations = relations(peticaoRelacionadas, ({ one }) => ({
+  peticao: one(peticoes, { fields: [peticaoRelacionadas.peticaoId], references: [peticoes.id] }),
 }));
 
 export const bioHabilitacoesRelations = relations(bioHabilitacoes, ({ one }) => ({
@@ -1502,4 +1736,14 @@ export const bioCondecorаcoesRelations = relations(bioCondecoracoes, ({ one }) 
 
 export const bioObrasPublicadasRelations = relations(bioObrasPublicadas, ({ one }) => ({
   deputado: one(deputados, { fields: [bioObrasPublicadas.deputadoId], references: [deputados.id] }),
+}));
+
+export const bioDeputadoLegislaturasRelations = relations(bioDeputadoLegislaturas, ({ one }) => ({
+  deputado: one(deputados, { fields: [bioDeputadoLegislaturas.deputadoId], references: [deputados.id] }),
+  legislatura: one(legislaturas, { fields: [bioDeputadoLegislaturas.legislaturaId], references: [legislaturas.id] }),
+}));
+
+export const bioOrgaosRelations = relations(bioOrgaos, ({ one }) => ({
+  deputado: one(deputados, { fields: [bioOrgaos.deputadoId], references: [deputados.id] }),
+  legislatura: one(legislaturas, { fields: [bioOrgaos.legislaturaId], references: [legislaturas.id] }),
 }));

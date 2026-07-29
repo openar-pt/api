@@ -176,7 +176,9 @@ app.get("/:id", async (c) => {
     };
   }
   if (hasEvento("intervencoesdebates")) {
-    eventoWith.intervencoesdebates = { with: { oradores: { with: { publicacoes: true } } } };
+    eventoWith.intervencoesdebates = {
+      with: { oradores: { with: { publicacoes: true, deputados: true } } },
+    };
   }
 
   const withClause: Record<string, unknown> = {};

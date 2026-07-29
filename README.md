@@ -116,6 +116,10 @@ lugares. Deputados `Impedido` estão em funções governativas e o lugar é ocup
 O detalhe (`/:id`) devolve mandatos, cargos, situações, o registo biográfico completo em `bio`,
 estatísticas de autoria em `stats` e as 20 iniciativas mais recentes.
 
+Dentro de `bio`, `legislaturas` traz o percurso por legislatura com o **partido**
+(`partidoSigla`, ex. `PPD/PSD.CDS-PP`) — que é distinto do grupo parlamentar em `mandatos` —
+e `orgaos` traz comissões, grupos de trabalho e subcomissões, com o cargo e a situação.
+
 `/atividade` devolve toda a actividade parlamentar registada — iniciativas, requerimentos,
 intervenções, comissões, relatorias, delegações e mais. Sem `legislatura` devolve o histórico completo.
 
@@ -191,7 +195,17 @@ GET /v1/peticoes/:id
 ```
 
 Parâmetros: `legislatura`, `situacao`, `q` (assunto), `data_inicio`, `data_fim`,
-`updated_since`, `sort`. O detalhe devolve as comissões (com relatores) e os documentos.
+`updated_since`, `sort`.
+
+O detalhe devolve tudo por omissão e aceita `?include=` como `/iniciativas/:id`.
+Relações de topo: `comissoes`, `documentos`, `publicacoes`, `relacionadas`.
+Sub-relações de comissões: `comissoes.relatores`, `comissoes.relatorioFinal`,
+`comissoes.documentos`, `comissoes.audicoes`, `comissoes.pedidosInformacao` — todas
+aceitam a forma curta excepto `comissoes.documentos`, porque `documentos` sozinho
+refere-se sempre à relação de topo.
+
+`relatorioFinal` inclui a votação em comissão (`resultado`, `unanime`, `aFavor`,
+`contra`, `abstencao`, `ausencias`).
 
 ### Comissões
 
@@ -266,20 +280,42 @@ credenciais do gestor de segredos e são usados apenas pela manutenção.
 
 ## Schema
 
-58 tabelas, agrupadas assim:
+67 tabelas, agrupadas assim:
 
 | Grupo | Tabelas |
 |---|---|
 | Núcleo | `legislaturas`, `sessoes_legislativas`, `grupos_parlamentares`, `circulos_eleitorais` |
 | Deputados | `deputados`, `mandatos`, `deputado_cargos`, `deputado_situacoes` |
-| Registo biográfico | `bio_habilitacoes`, `bio_titulos`, `bio_cargos_funcoes`, `bio_condecoracoes`, `bio_obras_publicadas` |
+| Registo biográfico | `bio_habilitacoes`, `bio_titulos`, `bio_cargos_funcoes`, `bio_condecoracoes`, `bio_obras_publicadas`, `bio_deputado_legislaturas`, `bio_orgaos` |
 | Iniciativas | `iniciativas`, `autores_iniciativas`, `eventos`, `votacoes`, `publicacoes`, `votacao_publicacoes`, `anexos`, `iniciativas_relacionadas`, `iniciativas_conjuntas`, `peticoes_conjuntas`, `propostas_alteracao`, `proposta_publicacoes` |
-| Debates | `intervencoesdebates`, `oradores`, `orador_publicacoes` |
+| Debates | `intervencoesdebates`, `oradores`, `orador_publicacoes`, `orador_deputados` |
 | Comissões | `comissoes`, `comissoes_fases`, `comissao_relatores`, `comissao_votacoes`, `comissao_votacao_publicacoes`, `comissao_documentos`, `comissao_audicoes`, `comissao_remessas`, `comissao_publicacoes` |
-| Petições | `peticoes`, `peticao_comissoes`, `peticao_relatores`, `peticao_documentos` |
+| Petições | `peticoes`, `peticao_comissoes`, `peticao_relatores`, `peticao_documentos`, `peticao_relatorio_final`, `peticao_comissao_documentos`, `peticao_audicoes`, `peticao_pedidos_informacao`, `peticao_publicacoes`, `peticao_relacionadas` |
 | Actividade dos deputados | `ativ_*` (17 tabelas — espelho 1:1 do JSON `AtividadeDeputado`) |
 
 Ver [`src/db/schema.ts`](src/db/schema.ts) para o schema completo.
+
+### Cobertura da fonte
+
+O que ingerimos é medido contra a estrutura real dos ficheiros da AR, não contra o XSD nem
+o PDF que a AR publica (ambos descrevem a exportação **XML**, que difere do JSON que
+consumimos — e o PDF é de 2017).
+
+- [`docs/ar-source-schema.json`](docs/ar-source-schema.json) — inventário de todos os campos
+  da fonte, com tipos, cardinalidade, taxas de preenchimento e enums.
+- [`docs/ar-schema-gaps.json`](docs/ar-schema-gaps.json) — o que a fonte tem e nós não lemos.
+
+Regenerar:
+
+```bash
+npx tsx scripts/download-latest-sources.ts --all-legs   # ficheiros de todas as legislaturas
+npx tsx scripts/inventory-source-schema.ts              # → docs/ar-source-schema.json
+npx tsx scripts/schema-gap-report.ts                    # → docs/ar-schema-gaps.json
+npx tsx scripts/schema-gap-report.ts --assert           # falha se aparecerem campos por ler
+```
+
+O modo `--assert` corre no CI: quando a AR acrescenta ou renomeia um campo, a build falha
+em vez de o ignorar em silêncio.
 
 ## Segredos
 

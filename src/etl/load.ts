@@ -255,7 +255,7 @@ async function loadIniciativas(legId: string) {
     await db.delete(t.comissoesFases).where(inArray(t.comissoesFases.iniciativaId, chunk));
     await db.delete(t.iniciativasConjuntas).where(inArray(t.iniciativasConjuntas.iniciativaId, chunk));
     await db.delete(t.peticoesConjuntas).where(inArray(t.peticoesConjuntas.iniciativaId, chunk));
-    // intervencoesdebates cascade-deletes: oradores (and orador_publicacoes)
+    // intervencoesdebates cascade-deletes: oradores (and orador_publicacoes, orador_deputados)
     await db.delete(t.intervencoesdebates).where(inArray(t.intervencoesdebates.iniciativaId, chunk));
     await db.delete(t.anexos).where(inArray(t.anexos.iniciativaId, chunk));
     await db.delete(t.publicacoes).where(inArray(t.publicacoes.iniciativaId, chunk));
@@ -268,8 +268,20 @@ async function loadIniciativas(legId: string) {
     await db.delete(t.propostasAlteracao).where(inArray(t.propostasAlteracao.iniciativaId, chunk));
   }
 
+  // autores_iniciativas.deputado_id, comissao_relatores.deputado_id and
+  // orador_deputados.deputado_id are real FKs — an id the DB has never seen (a
+  // partial --leg load, or a deputy absent from InformacaoBase) becomes null
+  // instead of aborting the run.
+  const knownDeputadoIds = new Set(
+    (await db.select({ id: t.deputados.id }).from(t.deputados)).map((r) => r.id)
+  );
+  const resolveDeputado = (id: number | null | undefined): number | null =>
+    id != null && knownDeputadoIds.has(id) ? id : null;
+
   // 3. Insert autores & relacionadas
-  const allAutores = normalized.flatMap((n) => n.autores);
+  const allAutores = normalized
+    .flatMap((n) => n.autores)
+    .map((a) => ({ ...a, deputadoId: resolveDeputado(a.deputadoId) }));
   for (const chunk of chunks(allAutores, 500)) {
     if (!chunk.length) continue;
     await db.insert(t.autoresIniciativas).values(chunk);
@@ -394,10 +406,28 @@ async function loadIniciativas(legId: string) {
   );
 
   const returnedOradorIds: number[] = [];
-  for (const chunk of chunks(allOradores.map(({ publicacoes: _, ...o }) => o), 200)) {
+  for (const chunk of chunks(allOradores.map(({ publicacoes: _, _deputadosOradores: __, ...o }) => o), 200)) {
     if (!chunk.length) continue;
     const returned = await db.insert(t.oradores).values(chunk).returning({ id: t.oradores.id });
     for (const r of returned) returnedOradorIds.push(r.id);
+  }
+
+  // Speakers → deputies, the link the ETL used to drop entirely.
+  const allOradorDeputados: typeof t.oradorDeputados.$inferInsert[] = allOradores.flatMap((o, i) =>
+    o._deputadosOradores.map((d) => {
+      const cad = d.cadastroId ? parseInt(d.cadastroId, 10) : NaN;
+      return {
+        oradorId: returnedOradorIds[i],
+        cadastroId: d.cadastroId,
+        deputadoId: resolveDeputado(isNaN(cad) ? null : cad),
+        nome: d.nome,
+        gp: d.gp,
+      };
+    })
+  );
+  for (const chunk of chunks(allOradorDeputados, 500)) {
+    if (!chunk.length) continue;
+    await db.insert(t.oradorDeputados).values(chunk);
   }
 
   const allOradorPubsFlat: typeof t.oradorPublicacoes.$inferInsert[] = [];
@@ -509,7 +539,11 @@ async function loadIniciativas(legId: string) {
       allComissaoVotacoesRaw.push({ comissaoFaseId, eventoId: cf.eventoId, iniciativaId: cf.iniciativaId, _votacao: v });
     }
     for (const r of cf._relatores) {
-      allComissaoRelatores.push({ comissaoFaseId, eventoId: cf.eventoId, iniciativaId: cf.iniciativaId, ...r });
+      allComissaoRelatores.push({
+        comissaoFaseId, eventoId: cf.eventoId, iniciativaId: cf.iniciativaId,
+        ...r,
+        deputadoId: resolveDeputado(r.deputadoId),
+      });
     }
     for (const d of cf._documentos) {
       allComissaoDocumentos.push({ comissaoFaseId, eventoId: cf.eventoId, iniciativaId: cf.iniciativaId, ...d });
@@ -585,6 +619,7 @@ async function loadIniciativas(legId: string) {
       `${allEvts.length} eventos · ${allVots.length} votações (${allVotPubs.length} pub.) · ` +
       `${allPubs.length} publicações · ${allRelacionadas.length} relacionadas · ` +
       `${allIntvs.length} debates · ${allOradorPubsFlat.length} orador.pub. · ` +
+      `${allOradorDeputados.length} orador.dep. · ` +
       `${allAnexosFase.length + allAnexosIni.length} anexos · ${allPropostas.length} propostas · ` +
       `${allICs.length} conj. · ${allPCs.length} peticoes · ` +
       `${allCFs.length} comissões (${allComissaoVotacoesRaw.length} vot. · ${allComissaoRelatores.length} rel. · ${allComissaoDocumentos.length} doc.)`
@@ -599,8 +634,10 @@ async function loadRegistoBiografico() {
   const rawList = await fetchJson<any[]>(REGISTO_BIOGRAFICO);
   log(`  ${rawList.length} registos`);
 
-  const { deputados: bioUpdates, habilitacoes, titulos, cargosFuncoes, condecoracoes, obrasPublicadas } =
-    normalizeRegistoBiografico(rawList);
+  const {
+    deputados: bioUpdates, habilitacoes, titulos, cargosFuncoes, condecoracoes, obrasPublicadas,
+    deputadoLegislaturas, orgaos,
+  } = normalizeRegistoBiografico(rawList);
 
   // Get all known deputado IDs from DB to avoid FK violations
   const knownIds = new Set(
@@ -640,6 +677,17 @@ async function loadRegistoBiografico() {
   const validCod = filter(condecoracoes);
   const validPub = filter(obrasPublicadas);
 
+  // legislatura_id is a real FK — the registry spans every legislature, but the DB
+  // may only hold some of them, so drop the link (not the row) when unknown.
+  const knownLegIds = new Set(
+    (await db.select({ id: t.legislaturas.id }).from(t.legislaturas)).map((r) => r.id)
+  );
+  const withLeg = <T extends { legislaturaId: string | null }>(rows: T[]) =>
+    rows.map((r) => ({ ...r, legislaturaId: r.legislaturaId && knownLegIds.has(r.legislaturaId) ? r.legislaturaId : null }));
+
+  const validDepLegis = withLeg(filter(deputadoLegislaturas));
+  const validOrgaos = withLeg(filter(orgaos));
+
   // Replace all bio sub-tables (global registry — full replace each run)
   await db.transaction(async (tx) => {
     await tx.delete(t.bioHabilitacoes);
@@ -647,17 +695,22 @@ async function loadRegistoBiografico() {
     await tx.delete(t.bioCargosFuncoes);
     await tx.delete(t.bioCondecoracoes);
     await tx.delete(t.bioObrasPublicadas);
+    await tx.delete(t.bioDeputadoLegislaturas);
+    await tx.delete(t.bioOrgaos);
 
     for (const chunk of chunks(validHab, 500)) { if (chunk.length) await tx.insert(t.bioHabilitacoes).values(chunk); }
     for (const chunk of chunks(validTit, 500)) { if (chunk.length) await tx.insert(t.bioTitulos).values(chunk); }
     for (const chunk of chunks(validCar, 500)) { if (chunk.length) await tx.insert(t.bioCargosFuncoes).values(chunk); }
     for (const chunk of chunks(validCod, 500)) { if (chunk.length) await tx.insert(t.bioCondecoracoes).values(chunk); }
     for (const chunk of chunks(validPub, 500)) { if (chunk.length) await tx.insert(t.bioObrasPublicadas).values(chunk); }
+    for (const chunk of chunks(validDepLegis, 500)) { if (chunk.length) await tx.insert(t.bioDeputadoLegislaturas).values(chunk); }
+    for (const chunk of chunks(validOrgaos, 500)) { if (chunk.length) await tx.insert(t.bioOrgaos).values(chunk); }
   });
 
   log(
     `  ✓ ${validUpdates.length} deputados (${rawList.length - validUpdates.length} skipped — not in DB) · ` +
-    `hab:${validHab.length} tit:${validTit.length} car:${validCar.length} cond:${validCod.length} obras:${validPub.length}`
+    `hab:${validHab.length} tit:${validTit.length} car:${validCar.length} cond:${validCod.length} obras:${validPub.length} · ` +
+    `legis:${validDepLegis.length} órgãos:${validOrgaos.length}`
   );
 }
 
@@ -675,9 +728,23 @@ async function loadPeticoes(legId: string) {
   const rawList = await fetchJson<any[]>(url);
   if (!rawList.length) { log(`  ! Peticoes ${legId}: empty — skipping`); return; }
 
-  const { peticoes, comissoes, documentos } = normalizePeticoes(rawList, legId);
+  const { peticoes, comissoes, documentos, publicacoes, relacionadas } = normalizePeticoes(rawList, legId);
+
+  // Link petition committees to the canonical comissoes table by normalized name,
+  // the same join used for comissoes_fases and ativ_cms.
+  const comissaoNomeToId = new Map(
+    (await db.select({ id: t.comissoes.id, nome: t.comissoes.nome }).from(t.comissoes))
+      .map((r) => [r.nome.trim().toLowerCase(), r.id] as const)
+  );
+  const knownDeputadoIds = new Set(
+    (await db.select({ id: t.deputados.id }).from(t.deputados)).map((r) => r.id)
+  );
 
   let relatorCount = 0;
+  let relFinalCount = 0;
+  let cmsDocCount = 0;
+  let audicaoCount = 0;
+  let pedidoCount = 0;
 
   await db.transaction(async (tx) => {
     const existingIds = (
@@ -687,6 +754,10 @@ async function loadPeticoes(legId: string) {
     if (existingIds.length) {
       for (const chunk of chunks(existingIds, 500)) {
         await tx.delete(t.peticaoDocumentos).where(inArray(t.peticaoDocumentos.peticaoId, chunk));
+        await tx.delete(t.peticaoPublicacoes).where(inArray(t.peticaoPublicacoes.peticaoId, chunk));
+        await tx.delete(t.peticaoRelacionadas).where(inArray(t.peticaoRelacionadas.peticaoId, chunk));
+        // peticao_comissoes cascade-deletes: peticao_relatores, peticao_relatorio_final,
+        //   peticao_comissao_documentos, peticao_audicoes, peticao_pedidos_informacao
         await tx.delete(t.peticaoComissoes).where(inArray(t.peticaoComissoes.peticaoId, chunk));
       }
     }
@@ -707,6 +778,7 @@ async function loadPeticoes(legId: string) {
           obs: sql`excluded.obs`,
           urlTexto: sql`excluded.url_texto`,
           dataDebate: sql`excluded.data_debate`,
+          actividadeId: sql`excluded.actividade_id`,
           updatedAt: sql`CASE
             WHEN peticoes.assinaturas IS DISTINCT FROM excluded.assinaturas
               OR peticoes.situacao IS DISTINCT FROM excluded.situacao
@@ -718,15 +790,35 @@ async function loadPeticoes(legId: string) {
     }
 
     const allRelatores: (typeof t.peticaoRelatores.$inferInsert)[] = [];
-    const cmsRows = comissoes.map(({ _relatores: _, ...c }) => c);
+    const allRelFinal: (typeof t.peticaoRelatorioFinal.$inferInsert)[] = [];
+    const allCmsDocs: (typeof t.peticaoComissaoDocumentos.$inferInsert)[] = [];
+    const allAudicoes: (typeof t.peticaoAudicoes.$inferInsert)[] = [];
+    const allPedidos: (typeof t.peticaoPedidosInformacao.$inferInsert)[] = [];
+
+    const cmsRows = comissoes.map(
+      ({ _relatores: _r, _relatorioFinal: _rf, _documentos: _d, _audicoes: _a, _pedidosInformacao: _p, ...c }) => ({
+        ...c,
+        comissaoId: c.nome ? (comissaoNomeToId.get(c.nome.trim().toLowerCase()) ?? null) : null,
+      })
+    );
     let cmsOffset = 0;
     for (const chunk of chunks(cmsRows, 200)) {
       if (!chunk.length) continue;
       const returned = await tx.insert(t.peticaoComissoes).values(chunk).returning({ id: t.peticaoComissoes.id });
       for (let i = 0; i < returned.length; i++) {
-        for (const rel of comissoes[cmsOffset + i]._relatores) {
-          allRelatores.push({ ...rel, peticaoComissaoId: returned[i].id });
+        const src = comissoes[cmsOffset + i];
+        const peticaoComissaoId = returned[i].id;
+        for (const rel of src._relatores) {
+          allRelatores.push({
+            ...rel,
+            peticaoComissaoId,
+            deputadoId: rel.deputadoId != null && knownDeputadoIds.has(rel.deputadoId) ? rel.deputadoId : null,
+          });
         }
+        for (const rf of src._relatorioFinal) allRelFinal.push({ ...rf, peticaoComissaoId });
+        for (const d of src._documentos) allCmsDocs.push({ ...d, peticaoComissaoId });
+        for (const a of src._audicoes) allAudicoes.push({ ...a, peticaoComissaoId });
+        for (const p of src._pedidosInformacao) allPedidos.push({ ...p, peticaoComissaoId });
       }
       cmsOffset += chunk.length;
     }
@@ -735,16 +827,48 @@ async function loadPeticoes(legId: string) {
       if (!chunk.length) continue;
       await tx.insert(t.peticaoRelatores).values(chunk);
     }
+    for (const chunk of chunks(allRelFinal, 200)) {
+      if (!chunk.length) continue;
+      await tx.insert(t.peticaoRelatorioFinal).values(chunk);
+    }
+    for (const chunk of chunks(allCmsDocs, 500)) {
+      if (!chunk.length) continue;
+      await tx.insert(t.peticaoComissaoDocumentos).values(chunk);
+    }
+    for (const chunk of chunks(allAudicoes, 500)) {
+      if (!chunk.length) continue;
+      await tx.insert(t.peticaoAudicoes).values(chunk);
+    }
+    for (const chunk of chunks(allPedidos, 500)) {
+      if (!chunk.length) continue;
+      await tx.insert(t.peticaoPedidosInformacao).values(chunk);
+    }
 
     for (const chunk of chunks(documentos, 500)) {
       if (!chunk.length) continue;
       await tx.insert(t.peticaoDocumentos).values(chunk);
     }
+    for (const chunk of chunks(publicacoes, 500)) {
+      if (!chunk.length) continue;
+      await tx.insert(t.peticaoPublicacoes).values(chunk);
+    }
+    for (const chunk of chunks(relacionadas, 500)) {
+      if (!chunk.length) continue;
+      await tx.insert(t.peticaoRelacionadas).values(chunk);
+    }
 
     relatorCount = allRelatores.length;
+    relFinalCount = allRelFinal.length;
+    cmsDocCount = allCmsDocs.length;
+    audicaoCount = allAudicoes.length;
+    pedidoCount = allPedidos.length;
   });
 
-  log(`  ✓ ${peticoes.length} petições · ${comissoes.length} comissões · ${relatorCount} relatores · ${documentos.length} docs`);
+  log(
+    `  ✓ ${peticoes.length} petições · ${comissoes.length} comissões · ${relatorCount} relatores · ` +
+    `${relFinalCount} rel.final · ${documentos.length}+${cmsDocCount} docs · ${audicaoCount} audições · ` +
+    `${pedidoCount} ped.info · ${publicacoes.length} pub. · ${relacionadas.length} relacionadas`
+  );
 }
 
 // ── Atividade dos Deputados ───────────────────────────────────────────────────

@@ -2,6 +2,14 @@
 .env.infisical
 node_modules/
 dist/
+
+# Raw AR Dados Abertos downloads (~700MB with --all-legs, re-fetch with
+# scripts/download-latest-sources.ts). The XSD and the extracted PDF text are kept:
+# they are small and the inventory reads the latter for field descriptions.
+data/raw/*.json
+data/raw/*.pdf
+data/raw/*.pretty.xsd
+docs/ar-source-schema.all-legs.json
 brand/
 banner-preview.html
 readme-preview.html

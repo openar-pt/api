@@ -1,0 +1,1350 @@
+{
+  "$meta": {
+    "description": "Gap analysis: AR source inventory (docs/ar-source-schema.json) vs our ETL normalizers and DB schema.",
+    "generatedAt": "2026-07-29T13:48:50.604Z",
+    "method": "A source path counts as mapped when its leaf name appears as a whole word in the endpoint's normalizer. Over-counts (comments match), never under-counts — so 'unmapped' entries are genuinely unread.",
+    "dbTables": 67,
+    "dbForeignKeys": 123
+  },
+  "summary": {
+    "AtividadeDeputadoXVII": {
+      "coveragePct": 98,
+      "unmappedWithData": 4,
+      "trueGapsWithData": 0,
+      "unmappedAlwaysNull": 0,
+      "mappedButSourceAlwaysNull": 27
+    },
+    "InformacaoBaseXVII": {
+      "coveragePct": 100,
+      "unmappedWithData": 0,
+      "trueGapsWithData": 0,
+      "unmappedAlwaysNull": 0,
+      "mappedButSourceAlwaysNull": 3
+    },
+    "IniciativasXVII": {
+      "coveragePct": 100,
+      "unmappedWithData": 0,
+      "trueGapsWithData": 0,
+      "unmappedAlwaysNull": 0,
+      "mappedButSourceAlwaysNull": 84
+    },
+    "PeticoesXVII": {
+      "coveragePct": 87.6,
+      "unmappedWithData": 2,
+      "trueGapsWithData": 1,
+      "unmappedAlwaysNull": 14,
+      "mappedButSourceAlwaysNull": 22
+    },
+    "RegistoBiografico": {
+      "coveragePct": 98.4,
+      "unmappedWithData": 1,
+      "trueGapsWithData": 1,
+      "unmappedAlwaysNull": 0,
+      "mappedButSourceAlwaysNull": 0
+    }
+  },
+  "softReferences": {
+    "note": "Identifier columns with no .references() constraint — the source's implicit links, stored but not enforced.",
+    "count": 41,
+    "columns": [
+      {
+        "table": "legislaturas",
+        "column": "ar_id",
+        "type": "text"
+      },
+      {
+        "table": "circulosEleitorais",
+        "column": "cp_id",
+        "type": "integer"
+      },
+      {
+        "table": "deputados",
+        "column": "dep_id",
+        "type": "integer"
+      },
+      {
+        "table": "bioHabilitacoes",
+        "column": "hab_id",
+        "type": "integer"
+      },
+      {
+        "table": "bioHabilitacoes",
+        "column": "tipo_id",
+        "type": "integer"
+      },
+      {
+        "table": "bioTitulos",
+        "column": "tit_id",
+        "type": "integer"
+      },
+      {
+        "table": "bioCargosFuncoes",
+        "column": "fun_id",
+        "type": "integer"
+      },
+      {
+        "table": "bioCondecoracoes",
+        "column": "cod_id",
+        "type": "integer"
+      },
+      {
+        "table": "bioObrasPublicadas",
+        "column": "pub_id",
+        "type": "integer"
+      },
+      {
+        "table": "bioOrgaos",
+        "column": "org_id",
+        "type": "text"
+      },
+      {
+        "table": "mandatos",
+        "column": "gp_id",
+        "type": "integer"
+      },
+      {
+        "table": "deputadoCargos",
+        "column": "car_id",
+        "type": "integer"
+      },
+      {
+        "table": "eventos",
+        "column": "oev_id",
+        "type": "text"
+      },
+      {
+        "table": "eventos",
+        "column": "evt_id",
+        "type": "text"
+      },
+      {
+        "table": "eventos",
+        "column": "act_id",
+        "type": "text"
+      },
+      {
+        "table": "eventos",
+        "column": "oev_text_id",
+        "type": "text"
+      },
+      {
+        "table": "votacaoPublicacoes",
+        "column": "votacao_id",
+        "type": "text"
+      },
+      {
+        "table": "iniciativasRelacionadas",
+        "column": "rel_id",
+        "type": "text"
+      },
+      {
+        "table": "iniciativasConjuntas",
+        "column": "conjunta_id",
+        "type": "text"
+      },
+      {
+        "table": "peticoesConjuntas",
+        "column": "peticao_id",
+        "type": "text"
+      },
+      {
+        "table": "comissoesFases",
+        "column": "acc_id",
+        "type": "text"
+      },
+      {
+        "table": "comissaoVotacoes",
+        "column": "votacao_id",
+        "type": "text"
+      },
+      {
+        "table": "comissaoAudicoes",
+        "column": "audicao_id",
+        "type": "text"
+      },
+      {
+        "table": "oradorDeputados",
+        "column": "cadastro_id",
+        "type": "text"
+      },
+      {
+        "table": "propostasAlteracao",
+        "column": "proposta_id",
+        "type": "text"
+      },
+      {
+        "table": "peticoes",
+        "column": "actividade_id",
+        "type": "text"
+      },
+      {
+        "table": "peticaoAudicoes",
+        "column": "audicao_id",
+        "type": "text"
+      },
+      {
+        "table": "peticaoRelacionadas",
+        "column": "rel_id",
+        "type": "text"
+      },
+      {
+        "table": "ativIni",
+        "column": "iniciativa_id",
+        "type": "text"
+      },
+      {
+        "table": "ativReq",
+        "column": "requerimento_id",
+        "type": "text"
+      },
+      {
+        "table": "ativIntev",
+        "column": "intervencao_id",
+        "type": "text"
+      },
+      {
+        "table": "ativActp",
+        "column": "atividade_id",
+        "type": "text"
+      },
+      {
+        "table": "ativGpa",
+        "column": "grupo_id",
+        "type": "text"
+      },
+      {
+        "table": "ativDlp",
+        "column": "delegacao_id",
+        "type": "text"
+      },
+      {
+        "table": "ativDle",
+        "column": "declaracao_id",
+        "type": "text"
+      },
+      {
+        "table": "ativRelIni",
+        "column": "iniciativa_id",
+        "type": "text"
+      },
+      {
+        "table": "ativRelPet",
+        "column": "peticao_id",
+        "type": "text"
+      },
+      {
+        "table": "ativRelContas",
+        "column": "atividade_id",
+        "type": "text"
+      },
+      {
+        "table": "ativRelIniEur",
+        "column": "iniciativa_id",
+        "type": "text"
+      },
+      {
+        "table": "ativRelPareceres",
+        "column": "atividade_id",
+        "type": "text"
+      },
+      {
+        "table": "ativAtividadesComissao",
+        "column": "atividade_id",
+        "type": "text"
+      }
+    ]
+  },
+  "relationCoverage": [
+    {
+      "a": "AtividadeDeputadoXVII:AtividadeDeputadoList.Ini.IniId",
+      "b": "IniciativasXVII:IniId",
+      "sharedValues": 1879,
+      "overlapOfSmallerSetPct": 100,
+      "aDistinct": 1879,
+      "bDistinct": 2076,
+      "confidence": "high",
+      "modelledInSchema": true
+    },
+    {
+      "a": "AtividadeDeputadoXVII:Deputado.DepCadId",
+      "b": "InformacaoBaseXVII:Deputados.DepCadId",
+      "sharedValues": 1446,
+      "overlapOfSmallerSetPct": 100,
+      "aDistinct": 1446,
+      "bDistinct": 1446,
+      "confidence": "medium",
+      "modelledInSchema": true
+    },
+    {
+      "a": "AtividadeDeputadoXVII:Deputado.DepId",
+      "b": "InformacaoBaseXVII:Deputados.DepId",
+      "sharedValues": 1446,
+      "overlapOfSmallerSetPct": 100,
+      "aDistinct": 1446,
+      "bDistinct": 1446,
+      "confidence": "high",
+      "modelledInSchema": true
+    },
+    {
+      "a": "AtividadeDeputadoXVII:AtividadeDeputadoList.Ini.IniNr",
+      "b": "IniciativasXVII:IniNr",
+      "sharedValues": 1163,
+      "overlapOfSmallerSetPct": 100,
+      "aDistinct": 1163,
+      "bDistinct": 1180,
+      "confidence": "medium",
+      "modelledInSchema": true
+    },
+    {
+      "a": "AtividadeDeputadoXVII:AtividadeDeputadoList.Ini.IniId",
+      "b": "IniciativasXVII:IniEventos.IniciativasConjuntas.id",
+      "sharedValues": 1041,
+      "overlapOfSmallerSetPct": 94.1,
+      "aDistinct": 1879,
+      "bDistinct": 1106,
+      "confidence": "medium",
+      "modelledInSchema": true
+    },
+    {
+      "a": "AtividadeDeputadoXVII:AtividadeDeputadoList.Rel.RelatoresIniciativas.IniId",
+      "b": "IniciativasXVII:IniId",
+      "sharedValues": 431,
+      "overlapOfSmallerSetPct": 100,
+      "aDistinct": 431,
+      "bDistinct": 2076,
+      "confidence": "high",
+      "modelledInSchema": true
+    },
+    {
+      "a": "AtividadeDeputadoXVII:AtividadeDeputadoList.Rel.RelatoresIniciativas.IniNr",
+      "b": "IniciativasXVII:IniNr",
+      "sharedValues": 386,
+      "overlapOfSmallerSetPct": 100,
+      "aDistinct": 386,
+      "bDistinct": 1180,
+      "confidence": "medium",
+      "modelledInSchema": true
+    },
+    {
+      "a": "AtividadeDeputadoXVII:AtividadeDeputadoList.Audicoes.ActId",
+      "b": "IniciativasXVII:IniEventos.Comissao.Audicoes.id",
+      "sharedValues": 130,
+      "overlapOfSmallerSetPct": 90.9,
+      "aDistinct": 876,
+      "bDistinct": 143,
+      "confidence": "medium",
+      "modelledInSchema": true
+    },
+    {
+      "a": "AtividadeDeputadoXVII:AtividadeDeputadoList.Rel.RelatoresPeticoes.PetNr",
+      "b": "PeticoesXVII:PetNr",
+      "sharedValues": 127,
+      "overlapOfSmallerSetPct": 98.4,
+      "aDistinct": 129,
+      "bDistinct": 200,
+      "confidence": "medium",
+      "modelledInSchema": false
+    },
+    {
+      "a": "AtividadeDeputadoXVII:AtividadeDeputadoList.Intev.PubNr",
+      "b": "IniciativasXVII:IniEventos.PublicacaoFase.pubNr",
+      "sharedValues": 85,
+      "overlapOfSmallerSetPct": 94.4,
+      "aDistinct": 90,
+      "bDistinct": 98,
+      "confidence": "medium",
+      "modelledInSchema": true
+    },
+    {
+      "a": "AtividadeDeputadoXVII:AtividadeDeputadoList.Intev.PubNr",
+      "b": "IniciativasXVII:IniEventos.Intervencoesdebates.oradores.publicacao.pubNr",
+      "sharedValues": 65,
+      "overlapOfSmallerSetPct": 98.5,
+      "aDistinct": 90,
+      "bDistinct": 66,
+      "confidence": "medium",
+      "modelledInSchema": true
+    },
+    {
+      "a": "AtividadeDeputadoXVII:AtividadeDeputadoList.Intev.PubNr",
+      "b": "IniciativasXVII:IniEventos.IniciativasConjuntas.publicacao.pubNr",
+      "sharedValues": 50,
+      "overlapOfSmallerSetPct": 98,
+      "aDistinct": 90,
+      "bDistinct": 51,
+      "confidence": "medium",
+      "modelledInSchema": true
+    },
+    {
+      "a": "AtividadeDeputadoXVII:Deputado.DepCPId",
+      "b": "InformacaoBaseXVII:Deputados.DepCPId",
+      "sharedValues": 22,
+      "overlapOfSmallerSetPct": 100,
+      "aDistinct": 22,
+      "bDistinct": 22,
+      "confidence": "medium",
+      "modelledInSchema": true
+    },
+    {
+      "a": "AtividadeDeputadoXVII:Deputado.DepGP.GpId",
+      "b": "InformacaoBaseXVII:Deputados.DepGP.gpId",
+      "sharedValues": 10,
+      "overlapOfSmallerSetPct": 100,
+      "aDistinct": 10,
+      "bDistinct": 10,
+      "confidence": "medium",
+      "modelledInSchema": true
+    },
+    {
+      "a": "AtividadeDeputadoXVII:AtividadeDeputadoList.Intev.PubNr",
+      "b": "IniciativasXVII:IniEventos.Votacao.publicacao.pubNr",
+      "sharedValues": 10,
+      "overlapOfSmallerSetPct": 90.9,
+      "aDistinct": 90,
+      "bDistinct": 11,
+      "confidence": "medium",
+      "modelledInSchema": true
+    }
+  ],
+  "endpoints": {
+    "AtividadeDeputadoXVII": {
+      "normalizer": "src/etl/normalize/atividade-deputado.ts",
+      "totalPaths": 205,
+      "referencedPaths": 201,
+      "coveragePct": 98,
+      "unmappedWithData": [
+        {
+          "path": "Deputado.DepCargo.carDes",
+          "populatedPct": 100,
+          "observations": 14,
+          "types": [
+            "string"
+          ],
+          "distinctValues": 4,
+          "samples": [
+            "Presidente",
+            "Secretário",
+            "Vice-Presidente",
+            "Vice-Secretário"
+          ],
+          "alsoReadBy": [
+            "src/etl/normalize/informacao-base.ts"
+          ],
+          "nameAppearsInDbSchema": true,
+          "trueGap": false
+        },
+        {
+          "path": "Deputado.DepCargo.carDtInicio",
+          "populatedPct": 100,
+          "observations": 14,
+          "types": [
+            "string"
+          ],
+          "distinctValues": 3,
+          "samples": [
+            "2025-06-03",
+            "2025-06-17",
+            "2026-03-06"
+          ],
+          "alsoReadBy": [
+            "src/etl/normalize/informacao-base.ts"
+          ],
+          "nameAppearsInDbSchema": true,
+          "trueGap": false
+        },
+        {
+          "path": "Deputado.DepCargo.carId",
+          "populatedPct": 100,
+          "observations": 14,
+          "types": [
+            "number"
+          ],
+          "distinctValues": 4,
+          "samples": [
+            "1",
+            "2",
+            "3",
+            "4"
+          ],
+          "alsoReadBy": [
+            "src/etl/normalize/informacao-base.ts"
+          ],
+          "nameAppearsInDbSchema": true,
+          "trueGap": false
+        },
+        {
+          "path": "Deputado.DepCargo.carDtFim",
+          "populatedPct": 7.14,
+          "observations": 14,
+          "types": [
+            "string"
+          ],
+          "distinctValues": 1,
+          "samples": [
+            "2025-09-21"
+          ],
+          "alsoReadBy": [
+            "src/etl/normalize/informacao-base.ts"
+          ],
+          "nameAppearsInDbSchema": true,
+          "trueGap": false
+        }
+      ],
+      "unmappedAlwaysNull": [],
+      "mappedButSourceAlwaysNull": [
+        {
+          "path": "AtividadeDeputadoList.Audicoes.ActDtdes1",
+          "observations": 4271
+        },
+        {
+          "path": "AtividadeDeputadoList.Audicoes.ActDtdes2",
+          "observations": 4271
+        },
+        {
+          "path": "AtividadeDeputadoList.Audicoes.ActDtent",
+          "observations": 4271
+        },
+        {
+          "path": "AtividadeDeputadoList.Audicoes.ActLoc",
+          "observations": 4271
+        },
+        {
+          "path": "AtividadeDeputadoList.Audicoes.ActSl",
+          "observations": 4271
+        },
+        {
+          "path": "AtividadeDeputadoList.Audicoes.TevTp",
+          "observations": 4271
+        },
+        {
+          "path": "AtividadeDeputadoList.Audiencias.ActDtdes1",
+          "observations": 1748
+        },
+        {
+          "path": "AtividadeDeputadoList.Audiencias.ActDtdes2",
+          "observations": 1748
+        },
+        {
+          "path": "AtividadeDeputadoList.Audiencias.ActDtent",
+          "observations": 1748
+        },
+        {
+          "path": "AtividadeDeputadoList.Audiencias.ActLoc",
+          "observations": 1748
+        },
+        {
+          "path": "AtividadeDeputadoList.Audiencias.ActSl",
+          "observations": 1748
+        },
+        {
+          "path": "AtividadeDeputadoList.Audiencias.TevTp",
+          "observations": 1748
+        },
+        {
+          "path": "AtividadeDeputadoList.Cms.CmsSubCargo",
+          "observations": 882
+        },
+        {
+          "path": "AtividadeDeputadoList.Deslocacoes.AccDtaud",
+          "observations": 501
+        },
+        {
+          "path": "AtividadeDeputadoList.Deslocacoes.ActDtent",
+          "observations": 501
+        },
+        {
+          "path": "AtividadeDeputadoList.Deslocacoes.ActNr",
+          "observations": 501
+        },
+        {
+          "path": "AtividadeDeputadoList.Deslocacoes.ActSl",
+          "observations": 501
+        },
+        {
+          "path": "AtividadeDeputadoList.Deslocacoes.NomeEntidadeExterna",
+          "observations": 501
+        },
+        {
+          "path": "AtividadeDeputadoList.Deslocacoes.TevTp",
+          "observations": 501
+        },
+        {
+          "path": "AtividadeDeputadoList.Eventos.AccDtaud",
+          "observations": 158
+        },
+        {
+          "path": "AtividadeDeputadoList.Eventos.ActDtdes1",
+          "observations": 158
+        },
+        {
+          "path": "AtividadeDeputadoList.Eventos.ActDtdes2",
+          "observations": 158
+        },
+        {
+          "path": "AtividadeDeputadoList.Eventos.ActNr",
+          "observations": 158
+        },
+        {
+          "path": "AtividadeDeputadoList.Eventos.NomeEntidadeExterna",
+          "observations": 158
+        },
+        {
+          "path": "AtividadeDeputadoList.Gpa.CgaDtfim",
+          "observations": 309
+        },
+        {
+          "path": "AtividadeDeputadoList.Rel.AutoresPareceresIncImu",
+          "observations": 1446
+        },
+        {
+          "path": "AtividadeDeputadoList.Rel.RelatoresContasPublicas",
+          "observations": 1446
+        }
+      ]
+    },
+    "InformacaoBaseXVII": {
+      "normalizer": "src/etl/normalize/informacao-base.ts",
+      "totalPaths": 40,
+      "referencedPaths": 40,
+      "coveragePct": 100,
+      "unmappedWithData": [],
+      "unmappedAlwaysNull": [],
+      "mappedButSourceAlwaysNull": [
+        {
+          "path": "Deputados.Videos",
+          "observations": 1446
+        },
+        {
+          "path": "DetalheLegislatura.dtfim",
+          "observations": 1
+        },
+        {
+          "path": "SessoesLegislativas.dataFim",
+          "observations": 1
+        }
+      ]
+    },
+    "IniciativasXVII": {
+      "normalizer": "src/etl/normalize/iniciativas.ts",
+      "totalPaths": 308,
+      "referencedPaths": 308,
+      "coveragePct": 100,
+      "unmappedWithData": [],
+      "unmappedAlwaysNull": [],
+      "mappedButSourceAlwaysNull": [
+        {
+          "path": "DataFimleg",
+          "observations": 2076,
+          "description": "Data de Fim da Legislatura"
+        },
+        {
+          "path": "IniciativasEuropeias",
+          "observations": 2076,
+          "description": "Iniciativas Europeias que deram origem à iniciativa"
+        },
+        {
+          "path": "IniciativasOrigem.dcl",
+          "observations": 13,
+          "description": "Apreciação do Decreto de Lei"
+        },
+        {
+          "path": "IniciativasOriginadas.dcl",
+          "observations": 13,
+          "description": "Apreciação do Decreto de Lei"
+        },
+        {
+          "path": "IniEpigrafe",
+          "observations": 2076,
+          "description": "Indica se tem texto em epígrafe"
+        },
+        {
+          "path": "IniEventos.ActividadesConjuntas",
+          "observations": 14480,
+          "description": "Lista de atividades conjuntas da fase, representadas por"
+        },
+        {
+          "path": "IniEventos.Comissao.AguardaAgendamentoPlenario",
+          "observations": 2429,
+          "description": "Indica se aguarda agendamento plenário"
+        },
+        {
+          "path": "IniEventos.Comissao.DataAgendamentoDiscussao",
+          "observations": 2429,
+          "description": "Data de agendamento da Discussão"
+        },
+        {
+          "path": "IniEventos.Comissao.DataDistruibuicaoSubcomissao",
+          "observations": 2429,
+          "description": "Indica a data de distribuição à subcomissão"
+        },
+        {
+          "path": "IniEventos.Comissao.DataEntrada",
+          "observations": 2429,
+          "description": "Data de entrada"
+        },
+        {
+          "path": "IniEventos.Comissao.DataRelatorio",
+          "observations": 2429,
+          "description": "Data do relatório"
+        },
+        {
+          "path": "IniEventos.Comissao.DataRemessa",
+          "observations": 2429,
+          "description": "Data da remessa"
+        },
+        {
+          "path": "IniEventos.Comissao.DataReqAgendamentoPlenario",
+          "observations": 2429,
+          "description": "Data de requisição de agendamento de plenário"
+        },
+        {
+          "path": "IniEventos.Comissao.DistribuicaoSubcomissao.publicacao",
+          "observations": 3,
+          "description": "Lista de publicações relacionada com a comissão, representadas por"
+        },
+        {
+          "path": "IniEventos.Comissao.GpAgendamentoPlenario",
+          "observations": 2429,
+          "description": "Agendamento do Grupo Parlamentar no plenário"
+        },
+        {
+          "path": "IniEventos.Comissao.Legislatura",
+          "observations": 2429,
+          "description": "Legislatura."
+        },
+        {
+          "path": "IniEventos.Comissao.Observacao",
+          "observations": 2429
+        },
+        {
+          "path": "IniEventos.Comissao.Prorrogado",
+          "observations": 2429,
+          "description": "Indica se o prazo foi prorrogado"
+        },
+        {
+          "path": "IniEventos.Comissao.Publicacao.debateDtReu",
+          "observations": 1,
+          "description": "Data da reunião plenária onde ocorreu o Debate"
+        },
+        {
+          "path": "IniEventos.Comissao.Publicacao.idAct",
+          "observations": 1,
+          "description": "Identificador da Atividade associada à Publicação"
+        },
+        {
+          "path": "IniEventos.Comissao.Publicacao.idDeb",
+          "observations": 1,
+          "description": "Identificador do Debate associado à Publicação"
+        },
+        {
+          "path": "IniEventos.Comissao.Publicacao.idInt",
+          "observations": 1,
+          "description": "Identificador da Intervenção associada à Publicação"
+        },
+        {
+          "path": "IniEventos.Comissao.Publicacao.obs",
+          "observations": 1,
+          "description": "Observações"
+        },
+        {
+          "path": "IniEventos.Comissao.Publicacao.pagFinalDiarioSupl",
+          "observations": 1,
+          "description": "Página final do suplemento"
+        },
+        {
+          "path": "IniEventos.Comissao.Publicacao.supl",
+          "observations": 1,
+          "description": "Suplemento da Publicação"
+        },
+        {
+          "path": "IniEventos.Comissao.PublicacaoRelatorio.debateDtReu",
+          "observations": 1,
+          "description": "Data da reunião plenária onde ocorreu o Debate"
+        },
+        {
+          "path": "IniEventos.Comissao.PublicacaoRelatorio.idAct",
+          "observations": 1,
+          "description": "Identificador da Atividade associada à Publicação"
+        },
+        {
+          "path": "IniEventos.Comissao.PublicacaoRelatorio.idDeb",
+          "observations": 1,
+          "description": "Identificador do Debate associado à Publicação"
+        },
+        {
+          "path": "IniEventos.Comissao.PublicacaoRelatorio.idInt",
+          "observations": 1,
+          "description": "Identificador da Intervenção associada à Publicação"
+        },
+        {
+          "path": "IniEventos.Comissao.PublicacaoRelatorio.obs",
+          "observations": 1,
+          "description": "Observações"
+        },
+        {
+          "path": "IniEventos.Comissao.PublicacaoRelatorio.pagFinalDiarioSupl",
+          "observations": 1,
+          "description": "Página final do suplemento"
+        },
+        {
+          "path": "IniEventos.Comissao.PublicacaoRelatorio.supl",
+          "observations": 1,
+          "description": "Suplemento da Publicação"
+        },
+        {
+          "path": "IniEventos.Comissao.Relatores.dataCessacao",
+          "observations": 482,
+          "description": "Data de cessação de relator"
+        },
+        {
+          "path": "IniEventos.Comissao.Relatores.dataNomeacao",
+          "observations": 482,
+          "description": "Data de nomeação do relator"
+        },
+        {
+          "path": "IniEventos.Comissao.Relatores.motivoCessacao",
+          "observations": 482,
+          "description": "Motivo de cessação DocsOut"
+        },
+        {
+          "path": "IniEventos.Comissao.RemessaRedaccaoFinal",
+          "observations": 2429,
+          "description": "Indica a redação final"
+        },
+        {
+          "path": "IniEventos.Comissao.Sessao",
+          "observations": 2429,
+          "description": "Sessão Legislativa"
+        },
+        {
+          "path": "IniEventos.Comissao.Sigla",
+          "observations": 2429,
+          "description": "Sigla da comissão/subcomissão parlamentar"
+        },
+        {
+          "path": "IniEventos.Comissao.Votacao.publicacao",
+          "observations": 455,
+          "description": "Lista de publicações relacionada com a comissão, representadas por"
+        },
+        {
+          "path": "IniEventos.Comissao.Votacao.tipoReuniao",
+          "observations": 455,
+          "description": "Codigo do tipo de reunião"
+        },
+        {
+          "path": "IniEventos.IniciativasConjuntas.dataEntrada",
+          "observations": 8078,
+          "description": "Data de entrada"
+        },
+        {
+          "path": "IniEventos.IniciativasConjuntas.publicacao.debateDtReu",
+          "observations": 63528,
+          "description": "Data da reunião plenária onde ocorreu o Debate"
+        },
+        {
+          "path": "IniEventos.IniciativasConjuntas.publicacao.idAct",
+          "observations": 63528,
+          "description": "Identificador da Atividade associada à Publicação"
+        },
+        {
+          "path": "IniEventos.IniciativasConjuntas.publicacao.idDeb",
+          "observations": 63528,
+          "description": "Identificador do Debate associado à Publicação"
+        },
+        {
+          "path": "IniEventos.IniciativasConjuntas.publicacao.idInt",
+          "observations": 63528,
+          "description": "Identificador da Intervenção associada à Publicação"
+        },
+        {
+          "path": "IniEventos.IniciativasConjuntas.publicacao.obs",
+          "observations": 63528,
+          "description": "Observações"
+        },
+        {
+          "path": "IniEventos.IniciativasConjuntas.publicacao.pagFinalDiarioSupl",
+          "observations": 63528,
+          "description": "Página final do suplemento"
+        },
+        {
+          "path": "IniEventos.IniciativasConjuntas.publicacao.supl",
+          "observations": 63528,
+          "description": "Suplemento da Publicação"
+        },
+        {
+          "path": "IniEventos.Intervencoesdebates.oradores.convidados.cargo",
+          "observations": 18597,
+          "description": "Cargo que exerce o membro do governo"
+        },
+        {
+          "path": "IniEventos.Intervencoesdebates.oradores.convidados.honra",
+          "observations": 18597,
+          "description": "Indica se é convidado de honra"
+        },
+        {
+          "path": "IniEventos.Intervencoesdebates.oradores.convidados.nome",
+          "observations": 18597,
+          "description": "Nome da comissão/subcomissão parlamentar"
+        },
+        {
+          "path": "IniEventos.Intervencoesdebates.oradores.convidados.pais",
+          "observations": 18597,
+          "description": "Nacionalidade"
+        },
+        {
+          "path": "IniEventos.Intervencoesdebates.oradores.faseDebate",
+          "observations": 18597,
+          "description": "Fase do debate em que se encontra a petição"
+        },
+        {
+          "path": "IniEventos.Intervencoesdebates.oradores.publicacao.debateDtReu",
+          "observations": 18597,
+          "description": "Data da reunião plenária onde ocorreu o Debate"
+        },
+        {
+          "path": "IniEventos.Intervencoesdebates.oradores.publicacao.idAct",
+          "observations": 18597,
+          "description": "Identificador da Atividade associada à Publicação"
+        },
+        {
+          "path": "IniEventos.Intervencoesdebates.oradores.publicacao.idDeb",
+          "observations": 18597,
+          "description": "Identificador do Debate associado à Publicação"
+        },
+        {
+          "path": "IniEventos.Intervencoesdebates.oradores.publicacao.idPag",
+          "observations": 18597,
+          "description": "Identificador da Paginação"
+        },
+        {
+          "path": "IniEventos.Intervencoesdebates.oradores.publicacao.obs",
+          "observations": 18597,
+          "description": "Observações"
+        },
+        {
+          "path": "IniEventos.Intervencoesdebates.oradores.publicacao.pagFinalDiarioSupl",
+          "observations": 18597,
+          "description": "Página final do suplemento"
+        },
+        {
+          "path": "IniEventos.Intervencoesdebates.oradores.publicacao.supl",
+          "observations": 18597,
+          "description": "Suplemento da Publicação"
+        },
+        {
+          "path": "IniEventos.Intervencoesdebates.oradores.teor",
+          "observations": 18597,
+          "description": "Teor da intervenção do orador"
+        },
+        {
+          "path": "IniEventos.Links",
+          "observations": 14480,
+          "description": "Links diversos associados à petição"
+        },
+        {
+          "path": "IniEventos.PcpublicasConjuntas",
+          "observations": 14480,
+          "description": "Lista de processos de Contas Públicas discutidos em conjunto com a iniciativa, representadas por estrutura Iniciativas_DiscussaoConjuntaOut"
+        },
+        {
+          "path": "IniEventos.PeticoesConjuntas.autor",
+          "observations": 190,
+          "description": "Autor da proposta de alteração"
+        },
+        {
+          "path": "IniEventos.PeticoesConjuntas.dataEntrada",
+          "observations": 190,
+          "description": "Data de entrada"
+        },
+        {
+          "path": "IniEventos.PeticoesConjuntas.descTipo",
+          "observations": 190,
+          "description": "Descrição do tipo de iniciativa"
+        },
+        {
+          "path": "IniEventos.PeticoesConjuntas.publicacao",
+          "observations": 190,
+          "description": "Lista de publicações relacionada com a comissão, representadas por"
+        },
+        {
+          "path": "IniEventos.PeticoesConjuntas.tipo",
+          "observations": 190,
+          "description": "Descrição"
+        },
+        {
+          "path": "IniEventos.PublicacaoFase.debateDtReu",
+          "observations": 2832,
+          "description": "Data da reunião plenária onde ocorreu o Debate"
+        },
+        {
+          "path": "IniEventos.PublicacaoFase.idAct",
+          "observations": 2832,
+          "description": "Identificador da Atividade associada à Publicação"
+        },
+        {
+          "path": "IniEventos.PublicacaoFase.idDeb",
+          "observations": 2832,
+          "description": "Identificador do Debate associado à Publicação"
+        },
+        {
+          "path": "IniEventos.RecursoDeputados",
+          "observations": 14480,
+          "description": "Lista de recursos apresentados por Deputados"
+        },
+        {
+          "path": "IniEventos.Votacao.publicacao.debateDtReu",
+          "observations": 60,
+          "description": "Data da reunião plenária onde ocorreu o Debate"
+        },
+        {
+          "path": "IniEventos.Votacao.publicacao.idAct",
+          "observations": 60,
+          "description": "Identificador da Atividade associada à Publicação"
+        },
+        {
+          "path": "IniEventos.Votacao.publicacao.idDeb",
+          "observations": 60,
+          "description": "Identificador do Debate associado à Publicação"
+        },
+        {
+          "path": "IniEventos.Votacao.publicacao.idInt",
+          "observations": 60,
+          "description": "Identificador da Intervenção associada à Publicação"
+        },
+        {
+          "path": "IniEventos.Votacao.publicacao.obs",
+          "observations": 60,
+          "description": "Observações"
+        },
+        {
+          "path": "IniEventos.Votacao.publicacao.pagFinalDiarioSupl",
+          "observations": 60,
+          "description": "Página final do suplemento"
+        },
+        {
+          "path": "IniEventos.Votacao.publicacao.supl",
+          "observations": 60,
+          "description": "Suplemento da Publicação"
+        },
+        {
+          "path": "Links",
+          "observations": 2076,
+          "description": "Links diversos associados à petição"
+        },
+        {
+          "path": "Peticoes.dcl",
+          "observations": 194,
+          "description": "Apreciação do Decreto de Lei"
+        },
+        {
+          "path": "Peticoes.descTipo",
+          "observations": 194,
+          "description": "Descrição do tipo de iniciativa"
+        },
+        {
+          "path": "Peticoes.tipo",
+          "observations": 194,
+          "description": "Descrição"
+        },
+        {
+          "path": "PropostasAlteracao",
+          "observations": 2076,
+          "description": "Indica quais as propostas de alteração existentes para essa Iniciativa, representada pela estrutura Iniciativas_PropostasAlteracaoOut"
+        }
+      ]
+    },
+    "PeticoesXVII": {
+      "normalizer": "src/etl/normalize/peticoes.ts",
+      "totalPaths": 129,
+      "referencedPaths": 113,
+      "coveragePct": 87.6,
+      "unmappedWithData": [
+        {
+          "path": "PetLeg",
+          "populatedPct": 100,
+          "observations": 200,
+          "types": [
+            "string"
+          ],
+          "distinctValues": 1,
+          "samples": [
+            "XVII"
+          ],
+          "nameAppearsInDbSchema": false,
+          "trueGap": true
+        },
+        {
+          "path": "Links",
+          "populatedPct": 7,
+          "observations": 200,
+          "types": [
+            "object"
+          ],
+          "alsoReadBy": [
+            "src/etl/normalize/iniciativas.ts"
+          ],
+          "nameAppearsInDbSchema": false,
+          "trueGap": false
+        }
+      ],
+      "unmappedAlwaysNull": [
+        {
+          "path": "DadosComissao.Admissibilidade",
+          "populatedPct": 0,
+          "observations": 201,
+          "types": [],
+          "distinctValues": 0,
+          "nameAppearsInDbSchema": false,
+          "trueGap": true
+        },
+        {
+          "path": "DadosComissao.Codigo",
+          "populatedPct": 0,
+          "observations": 201,
+          "types": [],
+          "distinctValues": 0,
+          "nameAppearsInDbSchema": false,
+          "trueGap": true
+        },
+        {
+          "path": "DadosComissao.DadosPedidosInformacao.pedidosReiteracao",
+          "populatedPct": 0,
+          "observations": 26,
+          "types": [],
+          "distinctValues": 0,
+          "nameAppearsInDbSchema": false,
+          "trueGap": true
+        },
+        {
+          "path": "DadosComissao.DadosPedidosInformacao.publicacao",
+          "populatedPct": 0,
+          "observations": 26,
+          "types": [],
+          "distinctValues": 0,
+          "alsoReadBy": [
+            "src/etl/normalize/iniciativas.ts"
+          ],
+          "nameAppearsInDbSchema": true,
+          "trueGap": false
+        },
+        {
+          "path": "DadosComissao.DadosPedidosInformacao.relatorioIntercalar",
+          "populatedPct": 0,
+          "observations": 26,
+          "types": [],
+          "distinctValues": 0,
+          "nameAppearsInDbSchema": false,
+          "trueGap": true
+        },
+        {
+          "path": "DadosComissao.DadosRelatorioFinal.publicacao",
+          "populatedPct": 0,
+          "observations": 109,
+          "types": [],
+          "distinctValues": 0,
+          "alsoReadBy": [
+            "src/etl/normalize/iniciativas.ts"
+          ],
+          "nameAppearsInDbSchema": true,
+          "trueGap": false
+        },
+        {
+          "path": "DadosComissao.DadosRelatorioFinal.votacao.publicacao",
+          "populatedPct": 0,
+          "observations": 109,
+          "types": [],
+          "distinctValues": 0,
+          "alsoReadBy": [
+            "src/etl/normalize/iniciativas.ts"
+          ],
+          "nameAppearsInDbSchema": true,
+          "trueGap": false
+        },
+        {
+          "path": "DadosComissao.NotasAdmissibilidade",
+          "populatedPct": 0,
+          "observations": 201,
+          "types": [],
+          "distinctValues": 0,
+          "nameAppearsInDbSchema": false,
+          "trueGap": true
+        },
+        {
+          "path": "DadosComissao.Publicacao",
+          "populatedPct": 0,
+          "observations": 201,
+          "types": [],
+          "distinctValues": 0,
+          "alsoReadBy": [
+            "src/etl/normalize/iniciativas.ts"
+          ],
+          "nameAppearsInDbSchema": true,
+          "trueGap": false
+        },
+        {
+          "path": "DadosComissao.RelatorioFinal",
+          "populatedPct": 0,
+          "observations": 201,
+          "types": [],
+          "distinctValues": 0,
+          "nameAppearsInDbSchema": false,
+          "trueGap": true
+        },
+        {
+          "path": "DadosComissao.Transitada",
+          "populatedPct": 0,
+          "observations": 201,
+          "types": [],
+          "distinctValues": 0,
+          "nameAppearsInDbSchema": false,
+          "trueGap": true
+        },
+        {
+          "path": "Intervencoes",
+          "populatedPct": 0,
+          "observations": 200,
+          "types": [],
+          "distinctValues": 0,
+          "nameAppearsInDbSchema": false,
+          "trueGap": true
+        },
+        {
+          "path": "PedidosEsclarecimento",
+          "populatedPct": 0,
+          "observations": 200,
+          "types": [],
+          "distinctValues": 0,
+          "nameAppearsInDbSchema": false,
+          "trueGap": true
+        },
+        {
+          "path": "PublicacaoDebate",
+          "populatedPct": 0,
+          "observations": 200,
+          "types": [],
+          "distinctValues": 0,
+          "nameAppearsInDbSchema": false,
+          "trueGap": true
+        }
+      ],
+      "mappedButSourceAlwaysNull": [
+        {
+          "path": "DadosComissao.Audicoes.entidades",
+          "observations": 54
+        },
+        {
+          "path": "DadosComissao.Audicoes.tipo",
+          "observations": 54
+        },
+        {
+          "path": "DadosComissao.Audiencias",
+          "observations": 201
+        },
+        {
+          "path": "DadosComissao.AudienciasOutros",
+          "observations": 201
+        },
+        {
+          "path": "DadosComissao.DadosPedidosInformacao.nrOficio",
+          "observations": 26
+        },
+        {
+          "path": "DadosComissao.DocumentosPeticao.DocsOutros.Descricao",
+          "observations": 227
+        },
+        {
+          "path": "DadosComissao.DocumentosPeticao.DocsPedidoInformacoes.Descricao",
+          "observations": 101
+        },
+        {
+          "path": "DadosComissao.DocumentosPeticao.DocsRelatorioFinal.Descricao",
+          "observations": 72
+        },
+        {
+          "path": "DadosComissao.DocumentosPeticao.DocsRespostaPedidoInformacoes.Descricao",
+          "observations": 77
+        },
+        {
+          "path": "DadosComissao.Sessao",
+          "observations": 201
+        },
+        {
+          "path": "DataDebate",
+          "observations": 200
+        },
+        {
+          "path": "Documentos.Descricao",
+          "observations": 218
+        },
+        {
+          "path": "Links.Descricao",
+          "observations": 14
+        },
+        {
+          "path": "PetNrAssinaturasInicial",
+          "observations": 200
+        },
+        {
+          "path": "PetUrlTexto",
+          "observations": 200
+        },
+        {
+          "path": "PublicacaoPeticao.debateDtReu",
+          "observations": 3
+        },
+        {
+          "path": "PublicacaoPeticao.idAct",
+          "observations": 3
+        },
+        {
+          "path": "PublicacaoPeticao.idDeb",
+          "observations": 3
+        },
+        {
+          "path": "PublicacaoPeticao.idInt",
+          "observations": 3
+        },
+        {
+          "path": "PublicacaoPeticao.obs",
+          "observations": 3
+        },
+        {
+          "path": "PublicacaoPeticao.pagFinalDiarioSupl",
+          "observations": 3
+        },
+        {
+          "path": "PublicacaoPeticao.supl",
+          "observations": 3
+        }
+      ]
+    },
+    "RegistoBiografico": {
+      "normalizer": "src/etl/normalize/registo-biografico.ts",
+      "totalPaths": 62,
+      "referencedPaths": 61,
+      "coveragePct": 98.4,
+      "unmappedWithData": [
+        {
+          "path": "CadNomeCompleto",
+          "populatedPct": 100,
+          "observations": 339,
+          "types": [
+            "string"
+          ],
+          "distinctValues": 339,
+          "samples": [
+            "Paulo Edson Carvalho Borges da Cunha",
+            "Isaura Maria Elias Crisóstomo Bernardino Morais",
+            "Patrícia Alexandra Martins de Carvalho",
+            "Daniel Madeira Caetano Batista Teixeira",
+            "Francisco Sérgio Covelinhas Lopes"
+          ],
+          "nameAppearsInDbSchema": false,
+          "trueGap": true
+        }
+      ],
+      "unmappedAlwaysNull": [],
+      "mappedButSourceAlwaysNull": []
+    }
+  }
+}

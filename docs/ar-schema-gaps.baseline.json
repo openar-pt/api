@@ -1,0 +1,14 @@
+{
+  "$meta": {
+    "description": "Source fields that carry data but which no normalizer reads, and that we accept. `npx tsx scripts/schema-gap-report.ts --assert` fails on anything NOT listed here, so a field the AR adds or renames breaks the build instead of being silently dropped.",
+    "howToUpdate": "Only add an entry with a reason in `reasons`. If a field starts being read, remove it — --assert reports stale entries."
+  },
+  "acceptedGaps": [
+    "PeticoesXVII:PetLeg",
+    "RegistoBiografico:CadNomeCompleto"
+  ],
+  "reasons": {
+    "PeticoesXVII:PetLeg": "Redundant: peticoes.legislatura_id is set from the legislature being loaded, which is the same value.",
+    "RegistoBiografico:CadNomeCompleto": "Redundant: deputados.nome_completo already carries this, sourced from InformacaoBase.DepNomeCompleto."
+  }
+}
