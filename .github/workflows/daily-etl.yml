@@ -48,6 +48,10 @@ on:
 jobs:
   etl:
     runs-on: self-hosted
+    env:
+      INFISICAL_CLIENT_ID: ${{ secrets.INFISICAL_CLIENT_ID }}
+      INFISICAL_CLIENT_SECRET: ${{ secrets.INFISICAL_CLIENT_SECRET }}
+      INFISICAL_ENV: prod
     steps:
       - uses: actions/checkout@v4
 
@@ -61,21 +65,17 @@ jobs:
 
       - run: pnpm run build
 
+      - name: Verify Infisical CLI is available
+        run: infisical --version
+
       - name: Run migrations
         run: pnpm run db:migrate:prod
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Run ETL
         run: |
           ARGS="$ETL_MODE"
           if [ -n "$ETL_SOURCE" ]; then ARGS="$ARGS --source $ETL_SOURCE"; fi
-          node dist/etl/load.js $ARGS
+          ./scripts/with-secrets.sh node dist/etl/load.js $ARGS
         env:
           ETL_MODE: ${{ github.event.inputs.mode || '--current' }}
           ETL_SOURCE: ${{ github.event.inputs.source || '' }}
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
-          R2_BUCKET: ${{ secrets.R2_BUCKET }}
-          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
-          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
