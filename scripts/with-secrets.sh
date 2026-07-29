@@ -3,8 +3,17 @@
 #
 #   ./scripts/with-secrets.sh node dist/index.js
 #
-# Requires INFISICAL_CLIENT_ID and INFISICAL_CLIENT_SECRET (Universal Auth
-# machine identity). INFISICAL_ENV selects the environment, default "dev".
+# Required, all four — nothing about the Infisical instance is hardcoded, so
+# this repository discloses no infrastructure:
+#
+#   INFISICAL_DOMAIN        instance URL
+#   INFISICAL_PROJECT_ID    project to read from
+#   INFISICAL_CLIENT_ID     Universal Auth machine identity
+#   INFISICAL_CLIENT_SECRET
+#
+# Locally these come from .env.infisical (gitignored, sourced below); in
+# production from the container environment. INFISICAL_ENV selects the
+# environment, default "dev".
 set -eu
 
 # Load local bootstrap credentials, if the file exists. Values already present
@@ -30,13 +39,11 @@ if [ -f "$ENV_FILE" ]; then
   done < "$ENV_FILE"
 fi
 
-# Not secret, committed on purpose; overridable for staging instances.
-PROJECT_ID="${INFISICAL_PROJECT_ID:-00000000-0000-0000-0000-000000000000}"
-INFISICAL_DOMAIN="${INFISICAL_DOMAIN:-https://infisical.example.com}"
-export INFISICAL_DOMAIN
-
+: "${INFISICAL_DOMAIN:?is not set — see README section 'Segredos'}"
+: "${INFISICAL_PROJECT_ID:?is not set — see README section 'Segredos'}"
 : "${INFISICAL_CLIENT_ID:?is not set — see README section 'Segredos'}"
 : "${INFISICAL_CLIENT_SECRET:?is not set — see README section 'Segredos'}"
+export INFISICAL_DOMAIN
 
 # Quieter and more deterministic in containers and CI.
 INFISICAL_DISABLE_UPDATE_CHECK=true
@@ -52,6 +59,6 @@ export INFISICAL_TOKEN
 # exec so signals and the exit code pass straight through to the child —
 # required for the container CMD and for `tsx watch`.
 exec infisical run \
-  --projectId="$PROJECT_ID" \
+  --projectId="$INFISICAL_PROJECT_ID" \
   --env="${INFISICAL_ENV:-dev}" \
   -- "$@"

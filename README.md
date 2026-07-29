@@ -227,8 +227,9 @@ em produção e ficam na mesma rede — é assim que o hostname interno da base 
 dados resolve.
 
 
-O host precisa de ter `INFISICAL_CLIENT_ID` e `INFISICAL_CLIENT_SECRET` no
-ambiente — o `docker compose` recusa arrancar sem eles.
+O host precisa de ter `INFISICAL_DOMAIN`, `INFISICAL_PROJECT_ID`,
+`INFISICAL_CLIENT_ID` e `INFISICAL_CLIENT_SECRET` no ambiente — o
+`docker compose` recusa arrancar sem eles.
 
 ```bash
 docker compose up -d
@@ -285,9 +286,18 @@ o Node arrancar. Todos os scripts que tocam na base de dados passam por ele:
 ./scripts/with-secrets.sh <comando>
 ```
 
-As duas únicas variáveis fora do Infisical são `INFISICAL_CLIENT_ID` e
-`INFISICAL_CLIENT_SECRET` — em `.env.infisical` localmente (ignorado pelo git),
-no ambiente do host em produção, e em GitHub Actions secrets no CI.
+Quatro variáveis vivem fora do Infisical — em `.env.infisical` localmente
+(ignorado pelo git) e no ambiente do host em produção:
+
+| Variável | |
+|---|---|
+| `INFISICAL_DOMAIN` | URL da instância |
+| `INFISICAL_PROJECT_ID` | Projecto a ler |
+| `INFISICAL_CLIENT_ID` | Machine identity (Universal Auth) |
+| `INFISICAL_CLIENT_SECRET` | |
+
+Nenhuma delas está no repositório: nem sequer a URL da instância ou o id do
+projecto, para que este repositório público não revele infraestrutura.
 `INFISICAL_ENV` escolhe o ambiente (`dev` ou `prod`, por omissão `dev`).
 
 Requer a [CLI do Infisical](https://infisical.com/docs/cli/overview) instalada

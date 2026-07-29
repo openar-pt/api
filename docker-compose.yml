@@ -1,6 +1,8 @@
 # Bootstrap credentials come from the host environment; every service resolves
 # its real secrets from Infisical at startup via scripts/with-secrets.sh.
 x-infisical-env: &infisical-env
+  INFISICAL_DOMAIN: ${INFISICAL_DOMAIN:?set INFISICAL_DOMAIN on the host}
+  INFISICAL_PROJECT_ID: ${INFISICAL_PROJECT_ID:?set INFISICAL_PROJECT_ID on the host}
   INFISICAL_CLIENT_ID: ${INFISICAL_CLIENT_ID:?set INFISICAL_CLIENT_ID on the host}
   INFISICAL_CLIENT_SECRET: ${INFISICAL_CLIENT_SECRET:?set INFISICAL_CLIENT_SECRET on the host}
   INFISICAL_ENV: ${INFISICAL_ENV:-prod}

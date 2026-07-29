@@ -36,6 +36,17 @@ run_wrapper() {
   export FAKE_MARKER
   rm -f "$FAKE_MARKER"
   INFISICAL_ENV_FILE="${INFISICAL_ENV_FILE:-$FAKEBIN/no-such-env-file}" \
+  INFISICAL_DOMAIN="${INFISICAL_DOMAIN:-https://example.test}" \
+  INFISICAL_PROJECT_ID="${INFISICAL_PROJECT_ID:-test-project}" \
+  PATH="$FAKEBIN:$PATH" sh "$WRAPPER" "$@" 2>"$FAKEBIN/stderr" >"$FAKEBIN/stdout"
+}
+
+# Same, but without the domain/project defaults, to test those guards.
+run_wrapper_bare() {
+  FAKE_MARKER="$FAKEBIN/marker"
+  export FAKE_MARKER
+  rm -f "$FAKE_MARKER"
+  INFISICAL_ENV_FILE="${INFISICAL_ENV_FILE:-$FAKEBIN/no-such-env-file}" \
   PATH="$FAKEBIN:$PATH" sh "$WRAPPER" "$@" 2>"$FAKEBIN/stderr" >"$FAKEBIN/stdout"
 }
 
@@ -139,6 +150,35 @@ ENVF
   grep -q '"' "$FAKEBIN/marker" && { fail "no raw quotes should survive"; exit 1; }
   exit 0
 ) && pass "strips surrounding quotes from file values" || fail "quoted values"
+
+# 9. The instance URL is required, not baked into the repo
+( export INFISICAL_CLIENT_ID=abc INFISICAL_CLIENT_SECRET=shh
+  unset INFISICAL_DOMAIN || true
+  export INFISICAL_PROJECT_ID=test-project
+  run_wrapper_bare echo should-not-run
+  [ "$?" -ne 0 ] || { fail "missing domain should exit non-zero"; exit 1; }
+  grep -q "INFISICAL_DOMAIN" "$FAKEBIN/stderr" \
+    || { fail "stderr should name INFISICAL_DOMAIN"; exit 1; }
+  exit 0
+) && pass "requires INFISICAL_DOMAIN (nothing hardcoded)" || fail "INFISICAL_DOMAIN guard"
+
+# 10. The project ID is required too
+( export INFISICAL_CLIENT_ID=abc INFISICAL_CLIENT_SECRET=shh
+  export INFISICAL_DOMAIN=https://example.test
+  unset INFISICAL_PROJECT_ID || true
+  run_wrapper_bare echo should-not-run
+  [ "$?" -ne 0 ] || { fail "missing project id should exit non-zero"; exit 1; }
+  grep -q "INFISICAL_PROJECT_ID" "$FAKEBIN/stderr" \
+    || { fail "stderr should name INFISICAL_PROJECT_ID"; exit 1; }
+  exit 0
+) && pass "requires INFISICAL_PROJECT_ID (nothing hardcoded)" || fail "INFISICAL_PROJECT_ID guard"
+
+# 11. No infrastructure identifiers are committed in the wrapper itself
+( if grep -qE "https?://[a-z0-9.-]+\.[a-z]{2,}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}" "$WRAPPER"; then
+    fail "wrapper must not hardcode a URL or project UUID"; exit 1
+  fi
+  exit 0
+) && pass "wrapper hardcodes no instance URL or project id" || fail "no hardcoded infra"
 
 rm -rf "$FAKEBIN"
 [ "$FAILURES" -eq 0 ] || { printf '\n%s test(s) failed\n' "$FAILURES"; exit 1; }

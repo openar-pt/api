@@ -6,3 +6,6 @@ brand/
 banner-preview.html
 readme-preview.html
 
+
+# Local Infisical CLI config (contains instance URL / project id)
+.infisical.json
