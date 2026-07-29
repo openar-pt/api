@@ -29,9 +29,10 @@ services:
     environment:
       <<: *infisical-env
       PORT: 3000
+    networks: [dokploy-network, default]
 
-  # Applies migrations and runs the ETL once a day, in-network so the internal
-  # database hostname resolves. Replaces the GitHub Actions schedule.
+  # Applies migrations and runs the ETL once a day. Replaces the GitHub Actions
+  # schedule.
   worker:
     build: .
     restart: unless-stopped
@@ -40,6 +41,7 @@ services:
       ETL_AT: ${ETL_AT:-00:00}          # HH:MM UTC
       ETL_MODE: ${ETL_MODE:---current}
     entrypoint: ["./scripts/etl-worker.sh"]
+    networks: [dokploy-network, default]
 
   # ── One-shot jobs ───────────────────────────────────────────────────────────
   # `profiles` keeps these out of `docker compose up`; run them explicitly:
@@ -50,9 +52,7 @@ services:
   #   docker compose run --rm etl --all --source peticoes
   #   docker compose run --rm etl --photos
   #
-  # They share the api image, so they run the exact build that is deployed and
-  # sit on the same network — which is how the internal database hostname
-  # resolves.
+  # They share the api image, so they run the exact build that is deployed.
 
   migrate:
     build: .
@@ -60,6 +60,7 @@ services:
     restart: "no"
     environment: *infisical-env
     entrypoint: ["./scripts/with-secrets.sh", "node", "dist/db/migrate.js"]
+    networks: [dokploy-network, default]
 
   etl:
     build: .
@@ -68,6 +69,20 @@ services:
     environment: *infisical-env
     entrypoint: ["./scripts/with-secrets.sh", "node", "dist/etl/load.js"]
     command: ["--current"]
+    networks: [dokploy-network, default]
+
+# The managed database runs as a separate Dokploy service on `dokploy-network`,
+# so every service that talks to it has to join that network explicitly — the
+# compose default network cannot resolve the database hostname. Dokploy attaches
+# `api` for us (it is the Traefik-routed service) but nothing else, which left
+# the worker, and both one-shot jobs, unable to reach the database at all.
+#
+# Locally the network does not exist; create it once before using these services:
+#   docker network create dokploy-network
+networks:
+  dokploy-network:
+    external: true
+  default:
 
 volumes:
   db-data:
