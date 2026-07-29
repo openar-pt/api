@@ -205,11 +205,44 @@
       margin-bottom: 20px;
     }
 
+    /* Rendered from CommonMark in the OpenAPI description fields. */
+    .intro-desc h4, .ep-desc h4 {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--atlantico);
+      margin: 20px 0 6px;
+    }
+    .intro-desc p, .ep-desc p { margin: 0 0 10px; }
+    .intro-desc p:last-child, .ep-desc p:last-child { margin-bottom: 0; }
+    .intro-desc ul, .ep-desc ul { margin: 0 0 10px; padding-left: 18px; }
+    .intro-desc li, .ep-desc li { margin: 2px 0; }
+    .intro-desc code, .ep-desc code, .p-desc code, .err-desc code {
+      font-family: var(--mono);
+      font-size: 0.9em;
+      background: var(--cal);
+      border: 1px solid var(--line);
+      border-radius: 3px;
+      padding: 0.5px 4px;
+      color: var(--atlantico);
+    }
+    .intro-desc a, .ep-desc a, .p-desc a { color: var(--atlantico); text-decoration: underline; }
+
+    .ep-desc {
+      font-size: 13.5px;
+      line-height: 1.65;
+      color: var(--muted);
+      margin-top: 10px;
+      max-width: 620px;
+    }
+
     .intro-desc {
       font-size: 15px;
       line-height: 1.7;
       color: var(--muted);
-      max-width: 480px;
+      max-width: 620px;
     }
 
     .chapter-header {
@@ -560,6 +593,34 @@ function esc(s) {
   return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
+// OpenAPI description fields are CommonMark. These render the small subset the
+// spec actually uses. Input is escaped first, so the only tags in the output are
+// the ones added here.
+function mdInline(s) {
+  return esc(s)
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+}
+
+function md(s) {
+  const text = String(s ?? '').trim();
+  if (!text) return '';
+  return text.split(/\n{2,}/).map(block => {
+    const lines = block.split('\n');
+    const heading = /^(#{1,6})\s+(.*)$/.exec(lines[0]);
+    if (heading && lines.length === 1) return '<h4>' + mdInline(heading[2]) + '</h4>';
+    if (lines.every(l => /^\s*[-*]\s+/.test(l))) {
+      return '<ul>' + lines.map(l => '<li>' + mdInline(l.replace(/^\s*[-*]\s+/, '')) + '</li>').join('') + '</ul>';
+    }
+    // A heading immediately followed by prose: split it out, then continue.
+    if (heading) {
+      return '<h4>' + mdInline(heading[2]) + '</h4>' + md(lines.slice(1).join('\n'));
+    }
+    return '<p>' + mdInline(lines.join(' ')) + '</p>';
+  }).join('');
+}
+
 function resolveRef(ref, spec) {
   if (!ref) return null;
   return ref.replace(/^#\//, '').split('/').reduce((o, k) => o?.[k], spec) ?? null;
@@ -623,7 +684,7 @@ function renderParamRows(fields) {
     <div class="param-row">
       <div><span class="p-name">${esc(f.name)}${f.required ? '<span class="p-req">*</span>' : ''}</span></div>
       <div>
-        <div class="p-desc">${esc(f.desc)}</div>
+        <div class="p-desc">${mdInline(f.desc)}</div>
         ${f.enum ? `<div class="p-enums">${f.enum.map(v=>`<span class="p-enum">${esc(v)}</span>`).join('')}</div>` : ''}
       </div>
       <div>
@@ -683,7 +744,8 @@ function renderEndpoint(path, method, op, spec, serverUrl) {
       <span class="ep-method">${method.toUpperCase()}</span>
       <span class="ep-path">${pathHtml}</span>
     </div>
-    <div class="ep-summary">${esc(op.summary||'')}${op.description ? ' — ' + esc(op.description) : ''}</div>
+    <div class="ep-summary">${esc(op.summary||'')}</div>
+    ${op.description ? `<div class="ep-desc">${md(op.description)}</div>` : ''}
 
     ${fields.length ? `<div class="section">
       <div class="section-label">Parâmetros</div>
@@ -700,7 +762,7 @@ function renderEndpoint(path, method, op, spec, serverUrl) {
       <div>${errs.map(([status,r]) => `
         <div class="error-row">
           <span class="err-status">${esc(status)}</span>
-          <span class="err-desc">${esc(r.description||'')}</span>
+          <span class="err-desc">${mdInline(r.description||'')}</span>
         </div>`).join('')}
       </div>
     </div>` : ''}
@@ -781,7 +843,7 @@ async function boot() {
     <div class="intro">
       <div class="intro-eyebrow">Referência da API · REST · OpenAPI 3.1</div>
       <div class="intro-title">${esc(spec.info.title)}</div>
-      <div class="intro-desc">${esc(spec.info.description||'')}</div>
+      <div class="intro-desc">${md(spec.info.description||'')}</div>
     </div>
     ${Object.entries(byTag).map(([tag, eps]) => {
       eps.forEach(({op}) => allIds.push(op.operationId));

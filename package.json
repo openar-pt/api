@@ -19,7 +19,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:remote": "./scripts/with-secrets.sh vitest run",
-    "test:scripts": "sh scripts/with-secrets.test.sh && sh scripts/next-run-delay.test.sh",
+    "test:scripts": "sh scripts/with-secrets.test.sh && sh scripts/next-run-delay.test.sh && node scripts/docs-md.test.mjs",
     "test:wrapper": "sh scripts/with-secrets.test.sh"
   },
   "dependencies": {
