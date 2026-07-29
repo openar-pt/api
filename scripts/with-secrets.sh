@@ -8,8 +8,8 @@
 set -eu
 
 # Not secret, committed on purpose; overridable for staging instances.
-PROJECT_ID="${INFISICAL_PROJECT_ID:-__INFISICAL_PROJECT_ID__}"
-INFISICAL_DOMAIN="${INFISICAL_DOMAIN:-__INFISICAL_DOMAIN__}"
+PROJECT_ID="${INFISICAL_PROJECT_ID:-00000000-0000-0000-0000-000000000000}"
+INFISICAL_DOMAIN="${INFISICAL_DOMAIN:-https://infisical.example.com}"
 export INFISICAL_DOMAIN
 
 : "${INFISICAL_CLIENT_ID:?is not set — see README section 'Segredos'}"

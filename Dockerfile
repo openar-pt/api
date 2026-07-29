@@ -19,7 +19,7 @@ RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 # Infisical CLI — pinned; see https://infisical.com/docs/cli/overview
 RUN apk add --no-cache bash wget \
  && wget -qO- https://artifacts-cli.infisical.com/setup.apk.sh | sh \
- && apk add --no-cache infisical=__INFISICAL_CLI_VERSION__
+ && apk add --no-cache infisical=0.41.90
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
