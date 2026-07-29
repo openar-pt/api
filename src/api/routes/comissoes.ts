@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { and, desc, eq, ilike, inArray, sql } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, inArray, sql } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import * as t from "../../db/schema.js";
 import { parsePage, setCache } from "./utils.js";
@@ -35,7 +35,7 @@ app.get("/", async (c) => {
       .select({ id: t.comissoes.id, nome: t.comissoes.nome, sigla: t.comissoes.sigla })
       .from(t.comissoes)
       .where(baseFilter)
-      .orderBy(t.comissoes.nome)
+      .orderBy(asc(t.comissoes.nome), asc(t.comissoes.id))
       .limit(limit)
       .offset(offset),
     db

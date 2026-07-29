@@ -47,7 +47,12 @@ app.get("/", async (c) => {
     .as("sub");
 
   const [rows, totalRows] = await Promise.all([
-    db.select().from(sub).orderBy(asc(sub.nomeParlamentar)).limit(limit).offset(offset),
+    db
+      .select()
+      .from(sub)
+      .orderBy(asc(sub.nomeParlamentar), asc(sub.id))
+      .limit(limit)
+      .offset(offset),
     db.select({ total: sql<number>`count(*)::int` }).from(sub),
   ]);
 

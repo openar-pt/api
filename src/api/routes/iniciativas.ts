@@ -125,9 +125,14 @@ app.get("/", async (c) => {
       })
       .from(t.iniciativas)
       .where(filters)
-      .orderBy(c.req.query("sort") === "asc"
-        ? sql`${t.iniciativas.dataEntrada} ASC NULLS LAST`
-        : sql`${t.iniciativas.dataEntrada} DESC NULLS LAST`)
+      .orderBy(
+        c.req.query("sort") === "asc"
+          ? sql`${t.iniciativas.dataEntrada} ASC NULLS LAST`
+          : sql`${t.iniciativas.dataEntrada} DESC NULLS LAST`,
+        c.req.query("sort") === "asc"
+          ? asc(t.iniciativas.id)
+          : desc(t.iniciativas.id),
+      )
       .limit(limit)
       .offset(offset),
     db.select({ total: count() }).from(t.iniciativas).where(filters),
