@@ -9,24 +9,25 @@ Os dados são obtidos através do programa [AR dados abertos](https://www.parlam
 ## Início rápido
 
 ```bash
-# 1. Iniciar a base de dados
-docker compose up db -d
-
-# 2. Configurar as credenciais do Infisical
+# 1. Configurar as credenciais do Infisical
 cp .env.infisical.example .env.infisical
 $EDITOR .env.infisical            # preencher CLIENT_ID e CLIENT_SECRET
-set -a && . ./.env.infisical && set +a
 
-# 3. Aplicar migrações
+# 2. Aplicar migrações
 pnpm run db:migrate
 
-# 4. Carregar uma legislatura
+# 3. Carregar uma legislatura
 ./scripts/with-secrets.sh tsx src/etl/load.ts --leg XVII
 
-# 5. Iniciar a API
+# 4. Iniciar a API
 pnpm run dev
 # → http://localhost:3000
 ```
+
+A base de dados de desenvolvimento não é criada por este repositório — o
+`DATABASE_URL` do ambiente `dev` no Infisical aponta para uma instância
+existente. Os scripts carregam `.env.infisical` automaticamente, não é preciso
+exportar nada.
 
 ## ETL
 
@@ -196,6 +197,36 @@ de iniciativas que por ela passaram, cada uma com as respectivas fases em comiss
 
 ## Produção (Docker)
 
+O stack tem três serviços permanentes e dois jobs pontuais:
+
+| Serviço | Papel |
+|---|---|
+| `api` | A API HTTP |
+| `worker` | Aplica migrações e corre o ETL uma vez por dia |
+| `migrate` | Job pontual — só migrações |
+| `etl` | Job pontual — ETL com argumentos à escolha |
+
+`migrate` e `etl` estão no profile `tools`, por isso não arrancam com
+`docker compose up`. Correm sob pedido:
+
+```bash
+docker compose run --rm migrate
+docker compose run --rm etl                     # --current (omissão)
+docker compose run --rm etl --leg XVII
+docker compose run --rm etl --all --source peticoes
+docker compose run --rm etl --photos
+```
+
+O `worker` corre à hora definida por `ETL_AT` (`HH:MM` UTC, omissão `00:00`)
+com o modo em `ETL_MODE` (omissão `--current`). Uma hora inválida faz o
+contentor falhar imediatamente, em vez de parecer saudável e nunca disparar.
+`ETL_RUN_ON_BOOT=true` força uma execução no arranque.
+
+Todos partilham a imagem da API, por isso correm exactamente o build que está
+em produção e ficam na mesma rede — é assim que o hostname interno da base de
+dados resolve.
+
+
 O host precisa de ter `INFISICAL_CLIENT_ID` e `INFISICAL_CLIENT_SECRET` no
 ambiente — o `docker compose` recusa arrancar sem eles.
 
@@ -219,8 +250,8 @@ set -a && . ./.env.infisical && set +a
 pnpm run db:generate    # gerar migrações após alterações ao schema
 pnpm run db:migrate     # aplicar migrações
 pnpm run dev            # modo watch com tsx
-pnpm test               # testes (precisa de base de dados)
-pnpm run test:wrapper   # testes do wrapper (sem rede nem credenciais)
+pnpm test               # testes da API (precisa de base de dados)
+pnpm run test:scripts   # testes dos scripts (sem rede nem credenciais)
 ```
 
 ## Schema

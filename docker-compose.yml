@@ -1,9 +1,53 @@
+# Bootstrap credentials come from the host environment; every service resolves
+# its real secrets from Infisical at startup via scripts/with-secrets.sh.
+x-infisical-env: &infisical-env
+  INFISICAL_CLIENT_ID: ${INFISICAL_CLIENT_ID:?set INFISICAL_CLIENT_ID on the host}
+  INFISICAL_CLIENT_SECRET: ${INFISICAL_CLIENT_SECRET:?set INFISICAL_CLIENT_SECRET on the host}
+  INFISICAL_ENV: ${INFISICAL_ENV:-prod}
+
 services:
   api:
     build: .
     restart: unless-stopped
     environment:
-      INFISICAL_CLIENT_ID: ${INFISICAL_CLIENT_ID:?set INFISICAL_CLIENT_ID on the host}
-      INFISICAL_CLIENT_SECRET: ${INFISICAL_CLIENT_SECRET:?set INFISICAL_CLIENT_SECRET on the host}
-      INFISICAL_ENV: prod
+      <<: *infisical-env
       PORT: 3000
+
+  # Applies migrations and runs the ETL once a day, in-network so the internal
+  # database hostname resolves. Replaces the GitHub Actions schedule.
+  worker:
+    build: .
+    restart: unless-stopped
+    environment:
+      <<: *infisical-env
+      ETL_AT: ${ETL_AT:-00:00}          # HH:MM UTC
+      ETL_MODE: ${ETL_MODE:---current}
+    entrypoint: ["./scripts/etl-worker.sh"]
+
+  # ── One-shot jobs ───────────────────────────────────────────────────────────
+  # `profiles` keeps these out of `docker compose up`; run them explicitly:
+  #
+  #   docker compose run --rm migrate
+  #   docker compose run --rm etl                    # defaults to --current
+  #   docker compose run --rm etl --leg XVII
+  #   docker compose run --rm etl --all --source peticoes
+  #   docker compose run --rm etl --photos
+  #
+  # They share the api image, so they run the exact build that is deployed and
+  # sit on the same network — which is how the internal database hostname
+  # resolves.
+
+  migrate:
+    build: .
+    profiles: ["tools"]
+    restart: "no"
+    environment: *infisical-env
+    entrypoint: ["./scripts/with-secrets.sh", "node", "dist/db/migrate.js"]
+
+  etl:
+    build: .
+    profiles: ["tools"]
+    restart: "no"
+    environment: *infisical-env
+    entrypoint: ["./scripts/with-secrets.sh", "node", "dist/etl/load.js"]
+    command: ["--current"]

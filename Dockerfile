@@ -25,8 +25,9 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY src/db/migrations ./src/db/migrations
 COPY src/api/docs.html ./dist/api/docs.html
-COPY scripts/with-secrets.sh ./scripts/
-RUN chmod +x ./scripts/with-secrets.sh && chown -R appuser:appgroup /app
+COPY scripts/with-secrets.sh scripts/etl-worker.sh scripts/next-run-delay.mjs ./scripts/
+RUN chmod +x ./scripts/with-secrets.sh ./scripts/etl-worker.sh \
+ && chown -R appuser:appgroup /app
 
 USER appuser
 ENV NODE_ENV=production

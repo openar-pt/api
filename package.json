@@ -14,6 +14,7 @@
     "db:migrate:prod": "./scripts/with-secrets.sh node dist/db/migrate.js",
     "test": "./scripts/with-secrets.sh vitest run",
     "test:watch": "./scripts/with-secrets.sh vitest",
+    "test:scripts": "sh scripts/with-secrets.test.sh && sh scripts/next-run-delay.test.sh",
     "test:wrapper": "sh scripts/with-secrets.test.sh"
   },
   "dependencies": {

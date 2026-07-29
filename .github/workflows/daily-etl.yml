@@ -1,8 +1,13 @@
-name: Daily ETL
+name: ETL (manual)
 
+# The daily run is owned by the `worker` service in docker-compose.yml, which
+# runs in-network alongside the database. The cron trigger was removed here to
+# avoid two ETL runs firing at 00:00.
+#
+# This workflow is kept for ad-hoc backfills from the GitHub UI. It only works
+# if the self-hosted runner can reach the database host; if it cannot, use
+# `docker compose run --rm etl --leg XVII` on the deployment host instead.
 on:
-  schedule:
-    - cron: "0 0 * * *"   # 00:00 UTC daily
   workflow_dispatch:
     inputs:
       mode:
