@@ -269,6 +269,96 @@ export const spec = {
         },
       },
     },
+    "/deputados/{id}/intervencoes": {
+      get: {
+        operationId: "listDeputadoIntervencoes",
+        tags: ["Deputados"],
+        summary: "Intervenções de um deputado em debates de iniciativas",
+        description:
+          "Uma linha por intervenção do deputado num debate em plenário sobre uma iniciativa, " +
+          "com a iniciativa debatida, horas de início/termo, sumário, links de vídeo (`linkVideos`) " +
+          "e as referências ao Diário da Assembleia da República (`publicacoes[].urlDiario`).\n\n" +
+          "**Fonte distinta de `/deputados/{id}/atividade` → `intervencoes`**: essa devolve as " +
+          "intervenções registadas no cadastro do próprio deputado (esparsas — a maioria dos deputados " +
+          "tem 0–1 por legislatura), enquanto estas vêm de `IniEventos[].Intervencoesdebates[].Oradores[]` " +
+          "no feed das Iniciativas. Nenhuma das duas é um superconjunto da outra; para cobertura total, junte ambas.\n\n" +
+          "A legislatura V não tem registos de oradores na fonte, pelo que devolve sempre vazio.",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "integer" }, description: "Identificador do deputado (DepCadId)" },
+          { name: "legislatura", in: "query", schema: { type: "string" }, description: "Legislatura da iniciativa debatida (ex: `XVII`). Sem este parâmetro devolve todas." },
+          { name: "sort", in: "query", schema: { type: "string", enum: ["asc", "desc"], default: "desc" }, description: "Ordenação por data da reunião. Predefinição `desc` (mais recentes primeiro)." },
+          { $ref: "#/components/parameters/page" },
+          { $ref: "#/components/parameters/limit" },
+        ],
+        responses: {
+          "200": {
+            description: "Página de intervenções em debates",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    data: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          oradorId: { type: "integer", description: "Identificador do registo de orador" },
+                          intervencaoId: { type: "integer", description: "Identificador da sessão de debate" },
+                          dataReuniao: { type: "string", format: "date", nullable: true, description: "Data da reunião plenária" },
+                          faseDebate: { type: "string", nullable: true, description: "Fase do debate (ex: `GENERALIDADE`)" },
+                          faseSessao: { type: "string", nullable: true, description: "Fase da sessão (`P` = Plenário)" },
+                          horaInicio: { type: "string", nullable: true, description: "Hora de início, `HH:MM`" },
+                          horaTermo: { type: "string", nullable: true, description: "Hora de termo, `HH:MM`" },
+                          sumario: { type: "string", nullable: true, description: "Sumário do debate, comum a todos os oradores da mesma sessão" },
+                          linkVideos: { type: "array", nullable: true, items: { type: "string", format: "uri" }, description: "URLs de vídeo em av.parlamento.pt" },
+                          gp: { type: "string", nullable: true, description: "Grupo parlamentar do deputado à data" },
+                          nome: { type: "string", nullable: true, description: "Nome do deputado como publicado no debate" },
+                          eventoId: { type: "integer", description: "Identificador do evento da iniciativa" },
+                          fase: { type: "string", description: "Fase do processo legislativo (ex: `Discussão generalidade`)" },
+                          legislaturaId: { type: "string", description: "Legislatura da iniciativa debatida" },
+                          iniciativa: {
+                            type: "object",
+                            description: "Iniciativa debatida",
+                            properties: {
+                              id: { type: "integer" },
+                              numero: { type: "string", nullable: true },
+                              tipo: { type: "string", nullable: true },
+                              titulo: { type: "string", nullable: true },
+                            },
+                          },
+                          publicacoes: {
+                            type: "array",
+                            description: "Referências ao DAR para esta intervenção",
+                            items: {
+                              type: "object",
+                              properties: {
+                                data: { type: "string", format: "date", nullable: true },
+                                legislatura: { type: "string", nullable: true },
+                                numero: { type: "string", nullable: true },
+                                sessaoLegislativa: { type: "string", nullable: true },
+                                tipo: { type: "string", nullable: true, description: "Ex: `DAR I série`" },
+                                paginas: { type: "array", nullable: true, items: { type: "string" } },
+                                urlDiario: { type: "string", format: "uri", nullable: true, description: "Link directo para a página do DAR" },
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                    total: { type: "integer" },
+                    page: { type: "integer" },
+                    limit: { type: "integer" },
+                  },
+                },
+              },
+            },
+          },
+          "400": { $ref: "#/components/responses/BadRequest" },
+          "429": { $ref: "#/components/responses/TooManyRequests" },
+        },
+      },
+    },
     "/iniciativas": {
       get: {
         operationId: "listIniciativas",
