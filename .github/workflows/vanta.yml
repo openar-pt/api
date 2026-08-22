@@ -1,0 +1,15 @@
+# Builds the openar API for vanta.
+name: vanta
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  build:
+    uses: saintxcloud/infra/.github/workflows/build.yml@main
+    with:
+      project: openar-api
+      image: vanta/openar-api
+      deploy: true
