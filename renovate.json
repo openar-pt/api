@@ -1,0 +1,68 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Shared Renovate policy for everything running on vanta. Nothing in this estate is ever retired, so the cost of keeping a dormant project has to stay near zero - which means its dependencies must be patched without anyone remembering to look.",
+  "extends": [
+    "config:recommended",
+    ":semanticCommitsDisabled",
+    "security:openssf-scorecard"
+  ],
+  "timezone": "Europe/Lisbon",
+  "schedule": ["before 6am on monday"],
+  "labels": ["dependencies"],
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 2,
+  "dependencyDashboard": true,
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 6am on the first day of the month"]
+  },
+  "vulnerabilityAlerts": {
+    "description": "Security fixes ignore the weekly window and the concurrency cap. outplay alone carried 24 high-severity advisories while dormant.",
+    "labels": ["security"],
+    "schedule": ["at any time"],
+    "prPriority": 10,
+    "automerge": true
+  },
+  "packageRules": [
+    {
+      "description": "Patch and minor bumps merge on their own. A dormant site cannot afford to need attention, and holding these open is how estates rot.",
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "automerge": true,
+      "automergeType": "branch"
+    },
+    {
+      "description": "Majors always need a human. They are where the breakage is.",
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "dependencyDashboardApproval": true
+    },
+    {
+      "description": "A major Postgres bump is a dump-and-restore, never an image swap. pg-a additionally carries pgBackRest and a WAL archive that must be re-stanza'd.",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["postgres", "vanta/postgres-backrest"],
+      "matchUpdateTypes": ["major"],
+      "dependencyDashboardApproval": true,
+      "labels": ["dependencies", "needs-migration-plan"]
+    },
+    {
+      "description": "Node majors change the runtime under every app here. Grouped so they are reviewed as one decision rather than fourteen.",
+      "matchDatasources": ["docker", "node-version"],
+      "matchPackageNames": ["node"],
+      "matchUpdateTypes": ["major"],
+      "groupName": "node major",
+      "dependencyDashboardApproval": true
+    },
+    {
+      "description": "Next.js moves fast and these are production sites. Minors get a PR but not an automerge.",
+      "matchPackageNames": ["next"],
+      "matchUpdateTypes": ["minor"],
+      "automerge": false
+    },
+    {
+      "description": "Traefik terminates TLS for the whole estate; a bad automerge takes every site down at once.",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["traefik"],
+      "automerge": false
+    }
+  ]
+}
