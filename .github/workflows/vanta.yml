@@ -1,4 +1,9 @@
-# Builds the openar API for vanta.
+# Builds openar-api for vanta.
+#
+# Inlined rather than calling saintxcloud/infra's reusable workflow: GitHub
+# refuses cross-organisation calls to a private reusable workflow, and these
+# repos stay in openar-pt. The duplication is thin on purpose - the real logic
+# lives in /opt/infra/scripts on the runner, shared with every other project.
 name: vanta
 
 on:
@@ -6,10 +11,30 @@ on:
     branches: [main, master]
   workflow_dispatch:
 
+concurrency:
+  group: deploy-openar-api
+  cancel-in-progress: false
+
 jobs:
   build:
-    uses: saintxcloud/infra/.github/workflows/build.yml@main
-    with:
-      project: openar-api
-      image: vanta/openar-api
-      deploy: true
+    runs-on: [self-hosted, vanta-arm64]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch build env
+        run: /opt/infra/scripts/render-env.sh openar-api
+
+      - name: Build
+        run: |
+          DOCKER_BUILDKIT=1 docker build \
+            --secret id=envfile,src=/opt/infra/apps/openar-api/.build.env \
+            -t vanta/openar-api:${{ github.sha }} \
+            -t vanta/openar-api:latest \
+            .
+
+      - name: Deploy
+        run: /opt/infra/scripts/deploy.sh openar-api ${{ github.sha }}
+
+      - name: Prune old images
+        if: always()
+        run: docker image prune -f --filter "until=168h" --filter "dangling=true" || true
