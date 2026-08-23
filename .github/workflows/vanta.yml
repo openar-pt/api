@@ -38,3 +38,5 @@ jobs:
       - name: Prune old images
         if: always()
         run: docker image prune -f --filter "until=168h" --filter "dangling=true" || true
+
+# Built on vanta by the self-hosted runner - see saintxcloud/infra.
